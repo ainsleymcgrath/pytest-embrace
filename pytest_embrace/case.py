@@ -21,12 +21,18 @@ class OneTimeOnlyMapping(MutableMapping):
         return self._mapping[key]
 
     def __setitem__(self, key: str, val: RegistryValue) -> None:
-        if key in self._mapping:
-            raise CaseConfigurationError(
-                f"Already registered a case fixture called '{key}'"
-            )
+        if key not in self._mapping:
+            self._mapping[key] = val
+            return
 
-        self._mapping[key] = val
+        existing = self._mapping[key]
+
+        if type(existing) == type(val):
+            return
+
+        raise CaseConfigurationError(
+            f"Already registered a case fixture called for {key} for {val}."
+        )
 
     def __iter__(self) -> Iterator[str]:
         return iter(self._mapping)

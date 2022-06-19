@@ -1,17 +1,13 @@
+import logging
 from functools import partial
 from inspect import signature
-import logging
 from typing import Callable, ClassVar, Generic, ParamSpec, Type
 
 import pytest
 from _pytest.fixtures import FixtureFunction
 
-from .case import OneTimeOnlyMapping, CaseRunner, from_module
+from .case import CaseRunner, CaseType, OneTimeOnlyMapping, from_module
 from .exc import EmbraceError
-
-
-from .case import CaseType
-
 
 logger = logging.getLogger()
 
@@ -51,9 +47,11 @@ class Embrace(Generic[CaseType]):
         @pytest.fixture
         def caller_fixture(request: pytest.FixtureRequest, case: CaseType) -> None:
             assert self.wrapped_func is not None
+            # calling `getfixturevalue` for the wrapped func gets `run_case_fixture`.
+            # doing *that* assigns self.runner at the last possible moment
             request.getfixturevalue(self.wrapped_func.__name__)
+            assert self.runner is not None
             self.runner(case)
-            pass
 
         return caller_fixture
 
@@ -67,13 +65,17 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     embracers = [name for name in metafunc.fixturenames if name in registry]
 
     if len(embracers) > 1:
-        raise EmbraceError(f"Can't request multiple Embrace tests. Got {embracers}")
+        raise EmbraceError(f"Can't request multiple Embrace fixtures. Got {embracers}")
 
     if len(embracers) == 0:
         return
 
     (sut,) = embracers
     cls = registry[sut]
-    case = from_module(cls, metafunc.module)
-    cases = table if (table := getattr(case, "table", [])) != [] else [case]
+    table = getattr(metafunc.module, "table", None)
+    if table is not None:
+        cases = table
+    else:
+        cases = [from_module(cls, metafunc.module)]
+
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])

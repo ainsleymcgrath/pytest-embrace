@@ -4,10 +4,7 @@ import pytest
 
 pytest_plugins = "pytester"
 
-
-def test_idk(pytester: pytest.Pytester) -> None:
-    pytester.makeconftest(
-        """
+CONFTEST = """
 from dataclasses import dataclass
 import pytest
 
@@ -38,18 +35,36 @@ def my_runner(case: MyCase, fix: str) -> None:
 
 simple_case = embrace.caller_fixture_factory("simple_case")
             """
-    )
 
-    pytester.makepyfile(
-        dedent(
-            """
-        name = 'hey'
+SINGLE_TEST_FILE = """
+name = 'hey'
 
-        def test(simple_case):
-            ...
-        """
-        )
-    )
+def test(simple_case):
+    ...
+"""
+
+MULTI_TEST_FILE = """
+from conftest import MyCase
+
+table = [MyCase(name='hey'), MyCase(name='yo')]
+
+def test(simple_case):
+    ...
+"""
+
+
+@pytest.fixture(autouse=True)
+def simple_case_conftest(pytester: pytest.Pytester):
+    pytester.makeconftest(CONFTEST)
+
+
+def test_single(pytester: pytest.Pytester) -> None:
+    pytester.makepyfile(SINGLE_TEST_FILE)
     outcome = pytester.runpytest()
-    print("\n".join(outcome.outlines))
     outcome.assert_outcomes(passed=1)
+
+
+def test_multi(pytester: pytest.Pytester) -> None:
+    pytester.makepyfile(MULTI_TEST_FILE)
+    outcome = pytester.runpytest()
+    outcome.assert_outcomes(passed=1, errors=1)
