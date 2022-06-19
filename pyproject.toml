@@ -1,15 +1,28 @@
 [tool.poetry]
 name = "pytest-embrace"
-version = "0.1.0"
-description = ""
-authors = ["Ains (Remote) <ainsley@amper.xyz>"]
+version = "0.0.1"
+description = "Design suites as modules or objects. Reject boilerplate. Embrace complexity."
+authors = ["Ainsley McGrath <mcgrath.ainsley@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.7"
+pytest = "^7.0"
+
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+mypy = "^0.961"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "pytest"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "_pytest.fixtures"
+ignore_missing_imports = true
