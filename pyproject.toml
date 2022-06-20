@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-embrace"
-version = "0.0.1"
+version = "0.0.2-beta.1"
 description = """
 Use modern Python type hints to design expressive tests.
 Write declarative test suites as modules or objects.
@@ -59,3 +59,6 @@ build_command = "python -m pip install poetry && poetry build"
 branch = "master"
 upload_to_repository = true
 upload_to_release = true
+
+[tool.commitizen]
+tag_format = "v$major.$minor.$patch$prerelease"
