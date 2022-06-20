@@ -1,18 +1,12 @@
 [tool.poetry]
 name = "pytest-embrace"
-version = "0.0.1"
-description = """
-Use modern Python type hints to design expressive tests.
-Write declarative test suites as modules or objects.
-
-Reject boilerplate. Embrace complexity.
-"""
+version = "0.0.2-beta.1"
+description = "Use modern Python type hints to design expressive tests. Reject boilerplate. Embrace complexity."
 authors = ["Ainsley McGrath <mcgrath.ainsley@gmail.com>"]
 classifiers = [
     "Framework :: Pytest",
     "Topic :: Software Development :: Testing",
-    "Topic :: Software Development :: Testing :: Unit",
-    "Development Status :: 3 - Beta"
+    "Topic :: Software Development :: Testing :: Unit"
 ]
 
 [tool.poetry.dependencies]
@@ -61,4 +55,4 @@ upload_to_repository = true
 upload_to_release = true
 
 [tool.commitizen]
-tag_format = "v$major.$minor.$patch$prerelease"
+tag_format = "$major.$minor.$patch-$prerelease"

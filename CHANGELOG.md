@@ -2,6 +2,76 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.2-beta.1 (2022-06-20)
+### Fix
+* Add poetry to deps in release ([`1149963`](https://github.com/ainsleymcgrath/pytest-embrace/commit/114996333439810d8c3837a8c3f987c61ae39b96))
+* **ci:** Set env properly ([`49f9498`](https://github.com/ainsleymcgrath/pytest-embrace/commit/49f9498bf13de4b59f9b419a15aa5e54dbb38511))
+* **release:** Use env properly in gh actions ([`e804b01`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e804b0174ad4d2be6bb5f458a9e01497207ca8d1))
+* Remove unused (big) dep ([`5773a2f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/5773a2ff650c585e4ab320f5e7b1386224bb4e0b))
+
+### Documentation
+* Write down more aspirations ([`023610e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/023610ea274f97f34730162df2b3f51bbc9d7798))
+* Write down more aspirations ([`65299f1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/65299f16c0cf098fb37d16129d28b2fe49fc7974))
+
+## v0.1.0-beta.1 (2022-06-20)
+### Feature
+* Semantic release? ([`f0ec712`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f0ec7129d89885df404eec8cb474ad4d7d2d7790))
+
+### Fix
+* Add poetry to deps in release ([`1149963`](https://github.com/ainsleymcgrath/pytest-embrace/commit/114996333439810d8c3837a8c3f987c61ae39b96))
+* **ci:** Set env properly ([`49f9498`](https://github.com/ainsleymcgrath/pytest-embrace/commit/49f9498bf13de4b59f9b419a15aa5e54dbb38511))
+* **release:** Use env properly in gh actions ([`e804b01`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e804b0174ad4d2be6bb5f458a9e01497207ca8d1))
+* Remove unused (big) dep ([`5773a2f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/5773a2ff650c585e4ab320f5e7b1386224bb4e0b))
+
+### Documentation
+* Write down more aspirations ([`023610e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/023610ea274f97f34730162df2b3f51bbc9d7798))
+* Write down more aspirations ([`65299f1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/65299f16c0cf098fb37d16129d28b2fe49fc7974))
+
+## v0.0.2-beta.1 (2022-06-20)
+### Fix
+* Add poetry to deps in release ([`1149963`](https://github.com/ainsleymcgrath/pytest-embrace/commit/114996333439810d8c3837a8c3f987c61ae39b96))
+* **ci:** Set env properly ([`49f9498`](https://github.com/ainsleymcgrath/pytest-embrace/commit/49f9498bf13de4b59f9b419a15aa5e54dbb38511))
+* **release:** Use env properly in gh actions ([`e804b01`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e804b0174ad4d2be6bb5f458a9e01497207ca8d1))
+* Remove unused (big) dep ([`5773a2f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/5773a2ff650c585e4ab320f5e7b1386224bb4e0b))
+
+### Documentation
+* Write down more aspirations ([`023610e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/023610ea274f97f34730162df2b3f51bbc9d7798))
+* Write down more aspirations ([`65299f1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/65299f16c0cf098fb37d16129d28b2fe49fc7974))
+
+## v0.1.0-beta.1 (2022-06-20)
+### Feature
+* Semantic release? ([`f0ec712`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f0ec7129d89885df404eec8cb474ad4d7d2d7790))
+
+### Fix
+* Add poetry to deps in release ([`1149963`](https://github.com/ainsleymcgrath/pytest-embrace/commit/114996333439810d8c3837a8c3f987c61ae39b96))
+* **ci:** Set env properly ([`49f9498`](https://github.com/ainsleymcgrath/pytest-embrace/commit/49f9498bf13de4b59f9b419a15aa5e54dbb38511))
+* **release:** Use env properly in gh actions ([`e804b01`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e804b0174ad4d2be6bb5f458a9e01497207ca8d1))
+* Remove unused (big) dep ([`5773a2f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/5773a2ff650c585e4ab320f5e7b1386224bb4e0b))
+
+### Documentation
+* Write down more aspirations ([`023610e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/023610ea274f97f34730162df2b3f51bbc9d7798))
+* Write down more aspirations ([`65299f1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/65299f16c0cf098fb37d16129d28b2fe49fc7974))
+
+## v0.0.2-beta.1 (2022-06-20)
+
+
+## v0.0.2 (2022-06-20)
+### Feature
+* Semantic release? ([`f0ec712`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f0ec7129d89885df404eec8cb474ad4d7d2d7790))
+
+### Fix
+* Add poetry to deps in release ([`1149963`](https://github.com/ainsleymcgrath/pytest-embrace/commit/114996333439810d8c3837a8c3f987c61ae39b96))
+* **ci:** Set env properly ([`49f9498`](https://github.com/ainsleymcgrath/pytest-embrace/commit/49f9498bf13de4b59f9b419a15aa5e54dbb38511))
+* **release:** Use env properly in gh actions ([`e804b01`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e804b0174ad4d2be6bb5f458a9e01497207ca8d1))
+* Remove unused (big) dep ([`5773a2f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/5773a2ff650c585e4ab320f5e7b1386224bb4e0b))
+
+### Documentation
+* Write down more aspirations ([`023610e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/023610ea274f97f34730162df2b3f51bbc9d7798))
+* Write down more aspirations ([`65299f1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/65299f16c0cf098fb37d16129d28b2fe49fc7974))
+
+## v0.0.2-beta.1 (2022-06-20)
+
+
 ## v0.0.1 (2022-06-20)
 ### Fix
 * Add poetry to deps in release ([`1149963`](https://github.com/ainsleymcgrath/pytest-embrace/commit/114996333439810d8c3837a8c3f987c61ae39b96))
