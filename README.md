@@ -16,8 +16,7 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 - [x] Table-oriented testing
 - [ ] Code generation
 - [ ] Reporting / discovery tools
-- [ ] Useful pre-designed case objects
-- [ ] Unique stateful test intro system
+- [ ] Pep 593 powered customization
 
 ## Basic Usage :wave:
 
@@ -115,4 +114,26 @@ expect: str
 
 def test(simple_case: CaseArtifact[Case]):
     ...
+```
+
+## Pep 593 :star2:
+
+In order to customize the behavior of your test cases, `pytest-embrace` ...embraces... the new `Annotated` type.
+
+> If you've never heard of Pep 593 or `Annotated`, the **tl;dr** is that `Annotated[<type>, ...]` takes any number of arguments that developers (me) can use at rumtime.
+
+The `pytest_embrace.anno` namespace provides a number of utilities for controlling test parsing and generation via `Annotated`.
+
+```python
+from dataclasses import dataclass
+from typing import Annotations
+
+from pytest_embrace import anno
+
+
+@dataclass
+class FancyCase:
+    prop_1: Annotated[str, anno.Trickle()]
+    prop_2: Annotated[list[int], anno.OnlyWith('prop_3')]
+    prop_3: dict[str, set]
 ```
