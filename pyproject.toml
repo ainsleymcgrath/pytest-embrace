@@ -19,6 +19,7 @@ mypy = "^0.961"
 flake8 = "^4.0.1"
 black = "^22.3.0"
 isort = "^5.10.1"
+tox = "^3.25.0"
 
 [tool.poetry.plugins.pytest11]
 pytest_embrace = "pytest_embrace.plugin"
