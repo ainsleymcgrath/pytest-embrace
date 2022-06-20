@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-embrace"
-version = "0.0.1"
+version = "0.1.0-beta.1"
 description = """
 Use modern Python type hints to design expressive tests.
 Write declarative test suites as modules or objects.
@@ -12,7 +12,7 @@ classifiers = [
     "Framework :: Pytest",
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Testing :: Unit",
-    "Development Status :: 3 - Alpha"
+    "Development Status :: 3 - Beta"
 ]
 
 [tool.poetry.dependencies]
