@@ -29,3 +29,8 @@ repos:
         language: python
         entry: mypy
         types: [python]
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: master
+    hooks:
+      - id: commitizen
