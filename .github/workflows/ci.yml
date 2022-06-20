@@ -25,6 +25,9 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment: PyPi Test
+    env:
+      REPOSITORY_USERNAME: __token__
+      REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python for release
