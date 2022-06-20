@@ -58,5 +58,5 @@ version_variable = [
 ]
 build_command = "python -m pip install poetry && poetry build"
 branch = "master"
-upload_to_pypi = false
+upload_to_repository = true
 upload_to_release = true
