@@ -31,6 +31,6 @@ repos:
         types: [python]
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: master
+    rev: v2.27.1
     hooks:
       - id: commitizen
