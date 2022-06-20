@@ -4,6 +4,10 @@
 
 ## v0.0.1 (2022-06-20)
 ### Fix
+* **ci:** Don't do GH releases ([`3f8bab5`](https://github.com/ainsleymcgrath/pytest-embrace/commit/3f8bab5aaf763e6ab9a0b6a6b7ac9be7470e37f6))
+
+## v0.0.1 (2022-06-20)
+### Fix
 * Add py.typed marker @beta ([`3e7ba7e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/3e7ba7e0b1183aa8c3ed903b8f534b38111226a6))
 
 ## v0.0.2-beta.1 (2022-06-20)
