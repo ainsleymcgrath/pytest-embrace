@@ -2,14 +2,14 @@
 
 The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
-## Philosophy :snake:
+## Philosophy :bulb:
 
-1. Table-oriented (parametrized) tests are indespensible for productive, exhaustive unit tests.
+1. Table-oriented (parametrized) tests are indespensible.
 2. Type hints and modern Python dataclasses are very good.
 3. Language-level APIs (like namespaces) are a honkin' great idea.
 4. Code generation is *really* underrated.
 
-## Features
+## Features :white_check_mark:
 
 - [x] Completely customizable test design
 - [x] Type hints everywhere
@@ -42,14 +42,14 @@ class Case:
     arg: str
     func: Callable
     expect: str
-    
+
 
 embrace = Embrace(Case)
 
 @embrace.register_runner
 def run_simple(case: Case):
     result = case.func(case.arg)
-    assert result == case.expect  
+    assert result == case.expect
     return result
 
 

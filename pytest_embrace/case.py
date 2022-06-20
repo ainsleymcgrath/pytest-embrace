@@ -41,7 +41,7 @@ class OneTimeOnlyMapping(MutableMapping):
         return len(self._mapping)
 
     def __delitem__(self, _: str) -> None:
-        raise NotImplemented
+        raise NotImplementedError
 
 
 CaseType = TypeVar("CaseType")

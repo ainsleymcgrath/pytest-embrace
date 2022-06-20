@@ -1,0 +1,9 @@
+[flake8]
+max-line-length = 88
+per-file-ignores=
+    __init__.py:F401
+ignore=
+    # line before binary operator
+    W503,
+    # black likes to put whitespace before colons sometimes
+    E203,

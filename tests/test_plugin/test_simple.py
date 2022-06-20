@@ -1,17 +1,11 @@
 import pytest
 
-
-pytest_plugins = "pytester"
-
 CONFTEST = """
 from dataclasses import dataclass
 import pytest
 
 from pytest_embrace import  CaseRunner, Embrace
 from pytest_embrace.case import CaseArtifact
-
-
-pytest_plugins = "pytest_embrace.plugin"
 
 
 @pytest.fixture
@@ -53,7 +47,7 @@ def test(simple_case):
 
 
 @pytest.fixture(autouse=True)
-def simple_case_conftest(pytester: pytest.Pytester):
+def simple_case_conftest(pytester: pytest.Pytester) -> None:
     pytester.makeconftest(CONFTEST)
 
 

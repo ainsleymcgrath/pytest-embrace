@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
 from functools import partial
 from inspect import signature
-from typing import Callable, ClassVar, Generic, ParamSpec, Type
+from typing import Callable, ClassVar, Generic, Type
 
 import pytest
 from _pytest.fixtures import FixtureFunction
@@ -10,9 +12,6 @@ from .case import CaseRunner, CaseType, OneTimeOnlyMapping, from_module
 from .exc import EmbraceError
 
 logger = logging.getLogger()
-
-
-P = ParamSpec("P")
 
 
 class Embrace(Generic[CaseType]):
