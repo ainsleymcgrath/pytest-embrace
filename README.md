@@ -2,15 +2,24 @@
 
 The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
-## Philosophy
+## Philosophy :snake:
 
 1. Table-oriented (parametrized) tests are indespensible for productive, exhaustive unit tests.
 2. Type hints and modern Python dataclasses are very good.
-3. Build-time feedback is underrated.
-4. Language-level APIs (like namespaces) are a honkin' great idea.
-5. Code generation is *really* underrated.
+3. Language-level APIs (like namespaces) are a honkin' great idea.
+4. Code generation is *really* underrated.
 
-## Basic Usage
+## Features
+
+- [x] Completely customizable test design
+- [x] Type hints everywhere
+- [x] Table-oriented testing
+- [ ] Code generation
+- [ ] Reporting / discovery tools
+- [ ] Useful pre-designed case objects
+- [ ] Unique stateful test intro system
+
+## Basic Usage :wave:
 
 Like any pytest plugin, `pytest-embrace` is configured in `conftest.py`.
 
@@ -63,7 +72,7 @@ def test(simple_case):
 	...
 ```
 
-OR you can go table-oriented and run many tests from one module––just like with `pytest.mark.parametrize`.
+Or you can go table-oriented and run many tests from one module––just like with `pytest.mark.parametrize`.
 
 ```python
 # test_many_func.py
@@ -72,7 +81,7 @@ from conftest import Case
 table = [
     Case(arg="haha", func=lambda x: x.upper(), expect="HAHA"),
     Case(arg="wow damn", func=lambda x: len(x), expect=8),
-    Case(arg=object(), func=lambda x: hasattr(x, "beep"), expect=False),
+    Case(arg="sure", func=lambda x: hasattr(x, "beep"), expect=False),
 ]
 
 
@@ -80,3 +89,30 @@ def test(simple_case):
     ...
 ```
 
+## Code Generation :robot:
+
+Installing `pytest-embrace` gives you access to a CLI called `embrace`.
+
+It can be used to scaffold tests based on any of your registered cases.
+
+With the example from above, you can do this out of the box:
+
+```shell
+embrace simple_case --path test_more.py
+```
+
+Resulting in:
+
+```python
+# test_more.py
+from pytest_embrace import CaseArtifact
+from conftest import Case
+
+arg: str
+func: "Callable"
+expect: str
+
+
+def test(simple_case: CaseArtifact[Case]):
+    ...
+```
