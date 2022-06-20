@@ -24,6 +24,7 @@ jobs:
   Release:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    environment: PyPi Test
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python for release
