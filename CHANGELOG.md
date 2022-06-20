@@ -2,6 +2,9 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.2-beta.4 (2022-06-20)
+
+
 ## v0.0.1 (2022-06-20)
 ### Fix
 * **ci:** Don't do GH releases ([`3f8bab5`](https://github.com/ainsleymcgrath/pytest-embrace/commit/3f8bab5aaf763e6ab9a0b6a6b7ac9be7470e37f6))
