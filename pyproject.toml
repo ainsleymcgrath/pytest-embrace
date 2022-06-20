@@ -8,6 +8,12 @@ Write declarative test suites as modules or objects.
 Reject boilerplate. Embrace complexity.
 """
 authors = ["Ainsley McGrath <mcgrath.ainsley@gmail.com>"]
+classifiers = [
+    "Framework :: Pytest",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Testing :: Unit",
+    "Development Status :: 3 - Alpha"
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -44,3 +50,13 @@ ignore_missing_imports = true
 
 [tool.isort]
 profile = "black"
+
+[tool.semantic_release]
+version_variable = [
+    "pytest_embrace/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+build_command = "python -m pip install poetry && poetry build"
+branch = "master"
+upload_to_pypi = false
+upload_to_release = true
