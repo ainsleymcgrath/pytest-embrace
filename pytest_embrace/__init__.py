@@ -1,4 +1,4 @@
-__version__ = "0.1.0-beta.3"
+__version__ = "0.0.1"
 
 
 from .case import CaseArtifact as CaseArtifact
