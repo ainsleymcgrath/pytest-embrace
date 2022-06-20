@@ -45,7 +45,7 @@ class Case:
 
 embrace = Embrace(Case)
 
-@embrace.register_runner
+@embrace.register_case_runner
 def run_simple(case: Case):
     result = case.func(case.arg)
     assert result == case.expect
