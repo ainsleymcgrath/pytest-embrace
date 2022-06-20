@@ -40,7 +40,6 @@ jobs:
         python3 -m pip install python-semantic-release poetry
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git pull
         semantic-release publish
 
   # Release:
