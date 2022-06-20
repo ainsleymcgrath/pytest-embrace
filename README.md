@@ -1,4 +1,4 @@
-# pytest-embrace
+# pytest-embrace :gift_heart:
 
 The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
