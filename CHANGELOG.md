@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.1 (2022-06-20)
+### Fix
+* Add py.typed marker @beta ([`3e7ba7e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/3e7ba7e0b1183aa8c3ed903b8f534b38111226a6))
+
 ## v0.0.2-beta.1 (2022-06-20)
 ### Fix
 * Add poetry to deps in release ([`1149963`](https://github.com/ainsleymcgrath/pytest-embrace/commit/114996333439810d8c3837a8c3f987c61ae39b96))
