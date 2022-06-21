@@ -1,12 +1,8 @@
-import logging
-
 import pytest
 
 from .embrace import Embrace
 from .exc import EmbraceError
-from .loader import from_module
-
-logger = logging.getLogger()
+from .loader import from_module, revalidate_dataclass
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
@@ -22,9 +18,13 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     (sut,) = embracers
     cls = registry[sut]
     table = getattr(metafunc.module, "table", None)
-    if table is not None:
-        cases = table
-    else:
-        cases = [from_module(cls, metafunc.module)]
+    cases = (
+        [
+            revalidate_dataclass(case, alias=f"{case.__class__.__name__} #{i + 1}")
+            for i, case in enumerate(table)
+        ]
+        if table is not None
+        else [from_module(cls, metafunc.module)]
+    )
 
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])
