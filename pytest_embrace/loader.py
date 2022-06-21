@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import Field, asdict, dataclass, field, fields, is_dataclass
 from types import ModuleType
-from typing import Any, Type
+from typing import Any, Type, Union
 
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
@@ -26,10 +26,8 @@ class AttrInfo:
         self.name = self.dc_field.name
 
 
-ShouldBecomeStrictBuiltinTypes = Type[str | bytes | int | float | bool]
-StrictPydanticTypes = Type[
-    StrictStr | StrictBytes | StrictInt | StrictFloat | StrictBool
-]
+ShouldBecomeStrictBuiltinTypes = Union[str, bytes, int, float, bool]
+StrictPydanticTypes = Union[StrictStr, StrictBytes, StrictInt, StrictFloat, StrictBool]
 
 PYDANTIC_STRICTIFICATION_MAP = {
     str: StrictStr,
@@ -42,7 +40,7 @@ PYDANTIC_STRICTIFICATION_MAP = {
 
 def _strictify(
     t: Any,
-) -> StrictPydanticTypes | ShouldBecomeStrictBuiltinTypes | Type[Any]:
+) -> Union[Type[StrictPydanticTypes], Type[ShouldBecomeStrictBuiltinTypes], Type[Any]]:
     return PYDANTIC_STRICTIFICATION_MAP.get(t, t)
 
 
