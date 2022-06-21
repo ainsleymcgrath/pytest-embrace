@@ -1,4 +1,4 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from dataclasses import Field, dataclass, field, fields, is_dataclass
 from inspect import isclass
@@ -7,6 +7,7 @@ from typing import Any, Type, get_origin
 
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
+from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
 from .case import CaseType
 from .exc import CaseConfigurationError
@@ -33,6 +34,26 @@ class AttrInfo:
         self.name = self.dc_field.name
 
 
+ShouldBecomeStrictBuiltinTypes = Type[str | bytes | int | float | bool]
+StrictPydanticTypes = Type[
+    StrictStr | StrictBytes | StrictInt | StrictFloat | StrictBool
+]
+
+PYDANTIC_STRICTIFICATION_MAP = {
+    str: StrictStr,
+    bytes: StrictBytes,
+    int: StrictInt,
+    float: StrictFloat,
+    bool: StrictBool,
+}
+
+
+def _strictify(
+    t: Any,
+) -> StrictPydanticTypes | ShouldBecomeStrictBuiltinTypes | Type[Any]:
+    return PYDANTIC_STRICTIFICATION_MAP.get(t, t)
+
+
 class ModuleInfo:
     def __init__(self, *, cls: Type[CaseType], mod: ModuleType):
         defined = dir(mod)
@@ -50,7 +71,10 @@ class ModuleInfo:
             if attr_info.mismatch:
                 self.mismatches[attr_info.name] = attr_info
 
-            validator_kwargs[field_.name] = (attr_info.dc_field.type, module_value)
+            validator_kwargs[field_.name] = (
+                _strictify(attr_info.dc_field.type),
+                module_value,
+            )
 
         Validator = create_model(f"{mod.__name__}__ModuleValidator", **validator_kwargs)
         Validator(**self.kwargs())
@@ -67,8 +91,14 @@ def from_module(cls: Type[CaseType], module: ModuleType) -> CaseType:
         info = ModuleInfo(mod=module, cls=cls)
     except ValidationError as e:
         errors = e.errors()
+        errors_disambiguation = "\n".join(
+            f"    Variable '{e['loc'][0]}'"
+            f" should be of type {e['type'].lstrip('type_error.')}"
+            for e in errors
+        )
         raise CaseConfigurationError(
-            f"{len(errors)} invalid attr values in module '{module.__name__}': {errors}"
+            f"{len(errors)} invalid attr values in module '{module.__name__}':\n"
+            f"{errors_disambiguation}"
         ) from e
     try:
         return cls(**info.kwargs())
