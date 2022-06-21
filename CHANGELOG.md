@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.0 (2022-06-21)
+### Feature
+* Type checking ([`230d3d4`](https://github.com/ainsleymcgrath/pytest-embrace/commit/230d3d4302189c50234bab92ce0bfc0904159ddb))
+
 ## v0.0.2-beta.6 (2022-06-20)
 
 

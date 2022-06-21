@@ -14,6 +14,7 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 - [x] Completely customizable test design
 - [x] Type hints everywhere
 - [x] Table-oriented testing
+- [x] Strongly-typed test namespaces
 - [ ] Code generation
 - [ ] Reporting / discovery tools
 - [ ] Pep 593 powered customization
