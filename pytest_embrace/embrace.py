@@ -76,13 +76,14 @@ class Embrace(Generic[CaseType]):
         self, name: str
     ) -> Callable[[pytest.FixtureRequest, CaseType], None]:
         self.__class__._runner_registry[name] = self.case_type
+        self.caller_fixture_name = name
 
         @pytest.fixture
         def caller_fixture(request: pytest.FixtureRequest, case: CaseType) -> None:
             assert self.wrapped_func is not None
             # calling `getfixturevalue` for the wrapped func gets `run_case_fixture`.
             # doing *that* assigns self.runner at the last possible moment
-            request.getfixturevalue(self.wrapped_func.__name__)
+            request.getfixturevalue(self.wrapped_func.__name__)  # type: ignore
             assert self.runner is not None
             self.runner(case)
 
