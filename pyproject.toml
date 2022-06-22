@@ -74,7 +74,6 @@ build_command = "python -m pip install poetry && poetry build"
 branch = "master"
 upload_to_repository = true
 upload_to_release = false
-version_source = "tag"
 
 [tool.commitizen]
-tag_format = "v$major.$minor.$patch$prerelease"
+tag_format = "v$version"
