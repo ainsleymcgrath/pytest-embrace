@@ -28,6 +28,7 @@ jobs:
     env:
       REPOSITORY_USERNAME: __token__
       REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
+      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python for release
