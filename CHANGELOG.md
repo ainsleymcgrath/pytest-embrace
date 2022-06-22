@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2022-06-22)
+### Feature
+* Pytest flag for code gen ([`07e0241`](https://github.com/ainsleymcgrath/pytest-embrace/commit/07e0241a184fd15eb1b73ab4fae1576493bd2a53))
+
+### Fix
+* **ci:** Missing option ([`2655b0f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/2655b0f314d92dc07af74be02181b6ffd91cb6ed))
+
 ## v0.1.0 (2022-06-21)
 ### Feature
 * Type checking ([`230d3d4`](https://github.com/ainsleymcgrath/pytest-embrace/commit/230d3d4302189c50234bab92ce0bfc0904159ddb))
