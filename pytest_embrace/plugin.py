@@ -1,15 +1,15 @@
 import pytest
 from pyperclip import copy
 
-from .embrace import Embrace
+from .embrace import registry
 from .exc import EmbraceError
 from .gen import gen_text
 from .loader import from_module, revalidate_dataclass
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    registry = Embrace._runner_registry
-    embracers = [name for name in metafunc.fixturenames if name in registry]
+    registry_ = registry()
+    embracers = [name for name in metafunc.fixturenames if name in registry_]
 
     if len(embracers) > 1:
         raise EmbraceError(f"Can't request multiple Embrace fixtures. Got {embracers}")
@@ -18,7 +18,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
         return
 
     (sut,) = embracers
-    cls = registry[sut]
+    cls = registry_[sut]
     table = getattr(metafunc.module, "table", None)
     cases = (
         [
@@ -33,7 +33,9 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption("--embrace")
+    parser.addoption("--embrace", help="")
+    parser.addoption("--embrace-table")
+    parser.addoption("--embrace-doc")
 
 
 def pytest_runtestloop(session: pytest.Session) -> object:
@@ -41,11 +43,11 @@ def pytest_runtestloop(session: pytest.Session) -> object:
     if generate_for is None:
         return None
 
-    registry = Embrace._runner_registry
-    if generate_for not in registry:
+    registry_ = registry()
+    if generate_for not in registry_:
         pytest.exit(
             f"No such fixture '{generate_for}'."
-            f" Your options are {sorted([*registry])}"
+            f" Your options are {sorted([*registry_])}"
         )
 
     copypasta = gen_text(generate_for)

@@ -2,7 +2,7 @@ from dataclasses import fields
 from inspect import getmodule
 from textwrap import dedent
 
-from .embrace import Embrace
+from .embrace import registry
 from .exc import EmbraceError
 
 
@@ -11,7 +11,7 @@ class EmbraceTestGenError(EmbraceError):
 
 
 def gen_text(name: str, table: bool = False) -> str:
-    case_type = Embrace._runner_registry.get(name)
+    case_type = registry().get(name)
     if case_type is None:
         raise EmbraceTestGenError(f"No such test type '{name}'.")
 

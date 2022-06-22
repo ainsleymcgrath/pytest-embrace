@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Iterator, MutableMapping
+from dataclasses import dataclass
 from functools import partial
 from inspect import signature
-from typing import Callable, ClassVar, Dict, Generic, Type
+from typing import Callable, Dict, Generic, Type, TypeVar
 
 import pytest
 
@@ -11,6 +12,13 @@ from .case import CaseRunner, CaseType
 from .exc import CaseConfigurationError
 
 RegistryValue = Type["CaseType"]
+
+T = TypeVar("T")
+
+
+@dataclass
+class CaseTypeInfo(Generic[T]):
+    cls: T
 
 
 class OneTimeOnlyMapping(MutableMapping):
@@ -44,13 +52,17 @@ class OneTimeOnlyMapping(MutableMapping):
         raise NotImplementedError
 
 
+_registry = OneTimeOnlyMapping()
+
+
 class Embrace(Generic[CaseType]):
-    _runner_registry: ClassVar[OneTimeOnlyMapping] = OneTimeOnlyMapping()
+    # _runner_registry: ClassVar[OneTimeOnlyMapping] = OneTimeOnlyMapping()
 
     def __init__(self, case_type: Type[CaseType]):
         self.case_type = case_type
         self.wrapped_func: CaseRunner | None = None
         self.runner: partial | None = None
+        # _registry[name] = self.case_type
 
     def register_case_runner(
         self, func: CaseRunner
@@ -75,7 +87,7 @@ class Embrace(Generic[CaseType]):
     def caller_fixture_factory(
         self, name: str
     ) -> Callable[[pytest.FixtureRequest, CaseType], None]:
-        self.__class__._runner_registry[name] = self.case_type
+        _registry[name] = self.case_type
         self.caller_fixture_name = name
 
         @pytest.fixture
@@ -88,3 +100,7 @@ class Embrace(Generic[CaseType]):
             self.runner(case)
 
         return caller_fixture
+
+
+def registry() -> OneTimeOnlyMapping:
+    return _registry
