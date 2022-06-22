@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator, MutableMapping
 from functools import partial
 from inspect import signature
-from typing import Callable, ClassVar, Generic, Type
+from typing import Callable, ClassVar, Dict, Generic, Type
 
 import pytest
 
@@ -15,7 +15,7 @@ RegistryValue = Type["CaseType"]
 
 class OneTimeOnlyMapping(MutableMapping):
     def __init__(self) -> None:
-        self._mapping: dict[str, RegistryValue] = {}
+        self._mapping: Dict[str, RegistryValue] = {}
 
     def __getitem__(self, key: str) -> RegistryValue:
         return self._mapping[key]

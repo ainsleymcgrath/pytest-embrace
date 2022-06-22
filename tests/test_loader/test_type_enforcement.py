@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Dict
 
 import pytest
 
@@ -14,7 +15,7 @@ from .utils import module_factory
 class BuiltinsAttrsCase:
     string: str
     integer: int
-    dictionary: dict[str, str]
+    dictionary: Dict[str, str]
 
 
 def test_happy() -> None:

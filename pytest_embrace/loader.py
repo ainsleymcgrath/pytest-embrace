@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import Field, asdict, dataclass, field, fields, is_dataclass
 from types import ModuleType
-from typing import Any, Type, Union
+from typing import Any, Dict, Type, Union
 
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
@@ -48,8 +48,8 @@ class ModuleInfo:
     def __init__(self, *, cls: Type[CaseType], mod: ModuleType):
         defined = dir(mod)
         spec = fields(cls)
-        validator_kwargs: dict[str, Any] = {}
-        self.attrs: dict[str, AttrInfo] = {}
+        validator_kwargs: Dict[str, Any] = {}
+        self.attrs: Dict[str, AttrInfo] = {}
 
         for field_ in spec:
             if field_.name not in defined:
@@ -66,7 +66,7 @@ class ModuleInfo:
         Validator = create_model(f"{mod.__name__}__ModuleValidator", **validator_kwargs)
         Validator(**self.kwargs())
 
-    def kwargs(self) -> dict[str, Any]:
+    def kwargs(self) -> Dict[str, Any]:
         return {a.name: a.module_value for a in self.attrs.values()}
 
 
@@ -108,7 +108,7 @@ def from_module(cls: Type[CaseType], module: ModuleType) -> CaseType:
 def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
     _raise_non_dataclass(case)
     kwargs = asdict(case)
-    validator_kwargs: dict[str, Any] = {
+    validator_kwargs: Dict[str, Any] = {
         k: (_strictify(type(v)), v) for k, v in kwargs.items()
     }
     Validator = create_model(

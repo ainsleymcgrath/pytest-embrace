@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 
 CONFTEST = """
@@ -58,7 +60,7 @@ def _module_content_expect(
     fixture: str,
     case_type: str,
     imports: str = "from pytest_embrace import CaseArtifact",
-) -> list[str]:
+) -> List[str]:
     return [
         "Copying the following output to your clipboard:",
         "",
