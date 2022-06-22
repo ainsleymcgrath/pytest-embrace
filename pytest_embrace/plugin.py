@@ -33,11 +33,11 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption("--gen")
+    parser.addoption("--embrace")
 
 
 def pytest_runtestloop(session: pytest.Session) -> object:
-    generate_for = session.config.getoption("--gen")
+    generate_for = session.config.getoption("--embrace")
     if generate_for is None:
         return None
 

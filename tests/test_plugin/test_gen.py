@@ -102,5 +102,5 @@ def test_gen_opt_can_find(
     caller_name: str, matchlines: str, pytester: pytest.Pytester
 ) -> None:
     """Looking for the type hints that show up in generated modules."""
-    outcome = pytester.runpytest(f"--gen={caller_name}")
+    outcome = pytester.runpytest(f"--embrace={caller_name}")
     outcome.stdout.fnmatch_lines(matchlines, consecutive=True)

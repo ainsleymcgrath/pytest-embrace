@@ -118,14 +118,14 @@ The auxilary benefit of this feature is hardening the design of your code's inte
 
 ## Code Generation :robot:
 
-Installing `pytest-embrace` gives you access to a CLI called `embrace`.
+Installing `pytest-embrace` adds a flag to `pytest` called `--embrace`.
 
 It can be used to scaffold tests based on any of your registered cases.
 
 With the example from above, you can do this out of the box:
 
 ```shell
-embrace simple_case
+pytest --embrace simple_case
 ```
 
 Which puts this in your clipboard:
@@ -144,10 +144,10 @@ def test(simple_case: CaseArtifact[Case]):
     ...
 ```
 
-Copypasta'd test cases like this can also be table-style:
+Copypasta'd test cases like this can also be table-style: [Soon.]
 
 ```shell
-embrace simple_case --table 3
+pytest --embrace-table 3
 ```
 
 The value passed to the `--table` flag will produce that many rows.
