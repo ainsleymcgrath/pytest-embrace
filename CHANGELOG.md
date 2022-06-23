@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2022-06-23)
+### Feature
+* Introducing: DeriveNameFromFile() ([`754b446`](https://github.com/ainsleymcgrath/pytest-embrace/commit/754b44607ac012fb66bffe19aa73951432656164))
+
+### Fix
+* Poorly formed tests + compatibility ([`ce98b88`](https://github.com/ainsleymcgrath/pytest-embrace/commit/ce98b88820f81d04d119080c055e1b28677bf3c8))
+* Handle nested name derive w plugin test ([`108b2d1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/108b2d1dd7e5ff903f2c4a580859c938e0e53b80))
+* Remove breakpoint ([`5169de5`](https://github.com/ainsleymcgrath/pytest-embrace/commit/5169de502da3af786ea037a754526000f1f9f68b))
+
 ## v0.3.0 (2022-06-23)
 ### Feature
 * First ever annotation -> Comment() ([`f53a202`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f53a202124e037761a027522f8acca07db2741c6))
