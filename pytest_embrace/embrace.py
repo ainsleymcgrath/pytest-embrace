@@ -8,7 +8,7 @@ from typing import Callable, Dict, Generic, Type, TypeVar
 
 import pytest
 
-from .case import CaseRunner, CaseType
+from .case import CaseArtifact, CaseRunner, CaseType
 from .exc import CaseConfigurationError
 
 RegistryValue = Type["CaseType"]
@@ -86,18 +86,25 @@ class Embrace(Generic[CaseType]):
 
     def caller_fixture_factory(
         self, name: str
-    ) -> Callable[[pytest.FixtureRequest, CaseType], None]:
+    ) -> Callable[[pytest.FixtureRequest, CaseType], CaseArtifact]:
         _registry[name] = self.case_type
         self.caller_fixture_name = name
 
         @pytest.fixture
-        def caller_fixture(request: pytest.FixtureRequest, case: CaseType) -> None:
+        def caller_fixture(
+            request: pytest.FixtureRequest, case: CaseType
+        ) -> CaseArtifact[CaseType]:
             assert self.wrapped_func is not None
             # calling `getfixturevalue` for the wrapped func gets `run_case_fixture`.
             # doing *that* assigns self.runner at the last possible moment
             request.getfixturevalue(self.wrapped_func.__name__)  # type: ignore
             assert self.runner is not None
-            self.runner(case)
+            # bring the artifact into scope with the case attached
+            # so debug/exception output can see it in locals()
+            artifact = CaseArtifact(case=case)
+            result = self.runner(case)
+            artifact.actual_result = result
+            return artifact
 
         return caller_fixture
 

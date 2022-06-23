@@ -8,7 +8,7 @@ CoCaseType = TypeVar("CoCaseType", contravariant=True)
 @dataclass
 class CaseArtifact(Generic[CoCaseType]):
     case: CoCaseType
-    actual_result: Any
+    actual_result: Any = None
 
 
 CaseArtifactType = TypeVar("CaseArtifactType", bound=CaseArtifact, covariant=True)
