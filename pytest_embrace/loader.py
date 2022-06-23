@@ -84,6 +84,9 @@ class ModuleInfo:
                 )
                 if derive_name is not None:
                     module_value = derive_name.get_attr_value(mod.__name__)
+                else:
+                    foo = f"{anno_info.annotations} {mod} {spec}"
+                    raise SyntaxError(foo)
 
             attr_info = AttrInfo(field_, module_value)
             self.attrs[attr_info.name] = attr_info

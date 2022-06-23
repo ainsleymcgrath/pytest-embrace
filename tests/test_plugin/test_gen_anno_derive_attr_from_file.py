@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 CONFTEST = """
@@ -26,7 +28,7 @@ def run(case: AnnotatedCase) -> None:
     assert case.horse_type == 'palomino'
 
 
-anno_case = embrace_1.caller_fixture_factory("anno_case")
+horse_case = embrace_1.caller_fixture_factory("horse_case")
 """
 
 
@@ -36,11 +38,16 @@ def annotated_case_conftest(pytester: pytest.Pytester) -> None:
 
 
 TEST_FILE = """
-def test(anno_case):
+def test(horse_case):
     ...
 """
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 9),
+    reason="get_type(Annotated[...]) returns nothing in 3.8"
+    " so this feature can't work at all",
+)
 def test_success(pytester: pytest.Pytester) -> None:
     dir = pytester.mkpydir("test_nested")
     file = dir / "test_palomino.py"
@@ -51,6 +58,11 @@ def test_success(pytester: pytest.Pytester) -> None:
     outcome.assert_outcomes(passed=1)
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 9),
+    reason="get_type(Annotated[...]) returns nothing in 3.8"
+    " so this feature can't work at all",
+)
 def test_failure(pytester: pytest.Pytester) -> None:
     dir = pytester.mkpydir("test_nested")
     file = dir / "test_some_other_horse.py"
