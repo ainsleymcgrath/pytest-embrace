@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2022-06-23)
+### Feature
+* First ever annotation -> Comment() ([`f53a202`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f53a202124e037761a027522f8acca07db2741c6))
+* 'trickle down' attrs ([`496cf4c`](https://github.com/ainsleymcgrath/pytest-embrace/commit/496cf4c8a8883252cc02fd0e5e41b73356579d28))
+
+### Fix
+* Support stuff properly ([`1a70f19`](https://github.com/ainsleymcgrath/pytest-embrace/commit/1a70f191c9f1e713f5bdea6e311e74d4998b0930))
+
 ## v0.2.0 (2022-06-22)
 ### Feature
 * Pytest flag for code gen ([`07e0241`](https://github.com/ainsleymcgrath/pytest-embrace/commit/07e0241a184fd15eb1b73ab4fae1576493bd2a53))
