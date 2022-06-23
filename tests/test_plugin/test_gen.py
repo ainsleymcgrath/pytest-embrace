@@ -1,6 +1,6 @@
-from typing import List
-
 import pytest
+
+from .utils import matchable_fnlines_gen_output
 
 CONFTEST = """
 from dataclasses import dataclass
@@ -55,28 +55,6 @@ def multiple_flavors_conftest(pytester: pytest.Pytester) -> None:
     pytester.makeconftest(CONFTEST)
 
 
-def _module_content_expect(
-    *type_hints: str,
-    fixture: str,
-    case_type: str,
-    imports: str = "from pytest_embrace import CaseArtifact",
-) -> List[str]:
-    return [
-        "Copying the following output to your clipboard:",
-        "",
-        *imports.split("\n"),
-        "",
-        f"import {case_type} from conftest" "",
-        "",
-        "",
-        *type_hints,
-        "",
-        "",
-        f"def test({fixture}: CaseArtifact[{case_type}]) -> None:",
-        "    ...",
-    ]
-
-
 @pytest.mark.parametrize(
     "caller_name, matchlines",
     [
@@ -86,13 +64,13 @@ def _module_content_expect(
         ),
         (
             "caller_1",
-            _module_content_expect(
+            matchable_fnlines_gen_output(
                 "name: str", fixture="caller_1", case_type="MyCase1"
             ),
         ),
         (
             "caller_2",
-            _module_content_expect(
+            matchable_fnlines_gen_output(
                 "num: int", "foo: str", fixture="caller_2", case_type="MyCase2"
             ),
         ),
