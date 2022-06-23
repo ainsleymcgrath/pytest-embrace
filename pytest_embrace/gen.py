@@ -25,7 +25,8 @@ AnnotationMap = Dict[str, AnnotationInfo]
 def _get_pep_593_values(cls: Type) -> AnnotationMap:
     out: AnnotationMap = {}
     for k, v in cls.__annotations__.items():
-        if v.__name__ != "Annotated":
+        attr_name = getattr(v, "__name__", getattr(v.__class__, "__name__", ""))
+        if attr_name not in {"Annotated", "_AnnotatedAlias"}:
             continue
         typ, *annotations = get_args(v)
         out[k] = AnnotationInfo(typ, annotations)

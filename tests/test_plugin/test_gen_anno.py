@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from .utils import matchable_fnlines_gen_output
@@ -32,12 +34,19 @@ anno_case = embrace_1.caller_fixture_factory("anno_case")
 """
 
 
-@pytest.fixture(autouse=True)
-def multiple_flavors_conftest(pytester: pytest.Pytester) -> None:
+@pytest.fixture
+def annotated_case_conftest(pytester: pytest.Pytester) -> None:
     pytester.makeconftest(CONFTEST)
 
 
-def test_gen_opt_can_find(pytester: pytest.Pytester) -> None:
+@pytest.mark.skipif(
+    sys.version_info < (3, 9),
+    reason="get_type(Annotated[...]) returns nothing in 3.8"
+    " so this feature can't work at all",
+)
+def test_comment_annotated_attr(
+    pytester: pytest.Pytester, annotated_case_conftest: None
+) -> None:
     outcome = pytester.runpytest("--embrace=anno_case")
     matchlines = matchable_fnlines_gen_output(
         "name: str  # This is ... the name.",
