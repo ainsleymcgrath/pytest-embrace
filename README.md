@@ -1,5 +1,7 @@
 # pytest-embrace :gift_heart:
 
+[![PyPI version](https://badge.fury.io/py/pytest-embrace.svg)](https://badge.fury.io/py/pytest-embrace) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pytest-embrace.svg)](https://pypi.python.org/pypi/pytest-embrace/) ![CI](https://github.com/ainsleymcgrath/pytest-embrace/actions/workflows/ci.yml/badge.svg)
+
 The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
 ## Philosophy :bulb:
@@ -149,7 +151,7 @@ Copypasta'd test cases like this can also be table-style: [Soon.]
 pytest --embrace-table 3
 ```
 
-The value passed to the `--table` flag will produce that many rows.
+The value passed to the `--embrace-table` flag will produce that many rows.
 
 ```python
 # test_table_style.py
@@ -176,6 +178,8 @@ In order to customize the behavior of your test cases, `pytest-embrace` :flushed
 
 > :information_source:
 > If you've never heard of Pep 593 or `Annotated`, the **tl;dr** is that `Annotated[<type>, ...]` takes any number of arguments after the first one (the actual hint) that developers (me) can use at rumtime.
+>
+> **Also this only works on Python >3.8.**
 
 The `pytest_embrace.anno` namespace provides a number of utilities for controlling test parsing and code generation via `Annotated`.
 
