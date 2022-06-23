@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.1 (2022-06-23)
+### Fix
+* **terrible oversight:** Actually _use_ the case artifact ([`fa8a0b5`](https://github.com/ainsleymcgrath/pytest-embrace/commit/fa8a0b5ece0a7232155ca3ee7958105c183f90fe))
+
 ## v0.4.0 (2022-06-23)
 ### Feature
 * Introducing: DeriveNameFromFile() ([`754b446`](https://github.com/ainsleymcgrath/pytest-embrace/commit/754b44607ac012fb66bffe19aa73951432656164))
