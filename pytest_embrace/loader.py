@@ -177,7 +177,6 @@ def handle_table_trickle_down(
         if not attr.startswith("__")
         and isinstance((trickle_instance := getattr(cls, attr)), Trickle)
     }
-    # annotated_module_attrs = {k: pep593[k] for k in dir(module) if k in pep593}
     # keep track of table members who did not set a value for the trickles() attr
     # when the attr was not set at the module elvel either. that's not ok!
     unset_table_attrs_by_index: Dict[int, str] = {}
