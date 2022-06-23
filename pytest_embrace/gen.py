@@ -1,9 +1,9 @@
-from dataclasses import Field, dataclass, fields
+from dataclasses import Field, fields
 from inspect import getmodule
 from textwrap import dedent
-from typing import Any, Dict, List, Type, get_args
+from typing import Type
 
-from pytest_embrace.anno import Comment
+from pytest_embrace.anno import AnnotationMap, Comment, get_pep_593_values
 
 from .embrace import registry
 from .exc import EmbraceError
@@ -11,26 +11,6 @@ from .exc import EmbraceError
 
 class EmbraceTestGenError(EmbraceError):
     ...
-
-
-@dataclass
-class AnnotationInfo:
-    type: Any
-    annotations: List[Any]
-
-
-AnnotationMap = Dict[str, AnnotationInfo]
-
-
-def _get_pep_593_values(cls: Type) -> AnnotationMap:
-    out: AnnotationMap = {}
-    for k, v in cls.__annotations__.items():
-        attr_name = getattr(v, "__name__", getattr(v.__class__, "__name__", ""))
-        if attr_name not in {"Annotated", "_AnnotatedAlias"}:
-            continue
-        typ, *annotations = get_args(v)
-        out[k] = AnnotationInfo(typ, annotations)
-    return out
 
 
 def _stringify_type(type: Type) -> str:
@@ -56,7 +36,7 @@ def gen_text(name: str, table: bool = False) -> str:
     if case_type is None:
         raise EmbraceTestGenError(f"No such test type '{name}'.")
 
-    anno_map = _get_pep_593_values(case_type)
+    anno_map = get_pep_593_values(case_type)
 
     type_hints = "\n".join(
         _field_to_cute_type_hint(f, anno_map) for f in fields(case_type)

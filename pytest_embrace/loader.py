@@ -8,6 +8,8 @@ from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
+from pytest_embrace.anno import AnnotationMap, DeriveNameFromFile, get_pep_593_values
+
 # from . import anno
 from .case import CaseType, Trickle
 from .exc import CaseConfigurationError
@@ -46,14 +48,16 @@ def _strictify(
 
 
 class ModuleInfo:
-    def __init__(self, *, cls: Type[CaseType], mod: ModuleType):
+    def __init__(
+        self, *, cls: Type[CaseType], mod: ModuleType, anno_map: AnnotationMap
+    ):
         defined = dir(mod)
         spec = fields(cls)
         validator_kwargs: Dict[str, Any] = {}
         self.attrs: Dict[str, AttrInfo] = {}
 
         for field_ in spec:
-            if field_.name not in defined:
+            if field_.name not in defined and len(anno_map) == 0:
                 continue
 
             if field_.name == "table":
@@ -66,7 +70,22 @@ class ModuleInfo:
                 # 'should' gets special treatment
                 pass
 
-            module_value = getattr(mod, field_.name)
+            anno_info = anno_map.get(field_.name)
+            breakpoint()
+            if anno_info is None:
+                module_value = getattr(mod, field_.name)
+            else:
+                derive_name = next(
+                    (
+                        v
+                        for v in anno_info.annotations
+                        if isinstance(v, DeriveNameFromFile)
+                    ),
+                    None,
+                )
+                if derive_name is not None:
+                    module_value = derive_name.get_attr_value(mod.__name__)
+
             attr_info = AttrInfo(field_, module_value)
             self.attrs[attr_info.name] = attr_info
 
@@ -102,9 +121,10 @@ def _report_validation_error(exc: ValidationError, *, target_name: str) -> None:
 
 def from_module(cls: Type[CaseType], module: ModuleType) -> CaseType:
     _raise_non_dataclass(cls)
+    anno_map = get_pep_593_values(cls)
 
     try:
-        info = ModuleInfo(mod=module, cls=cls)
+        info = ModuleInfo(mod=module, cls=cls, anno_map=anno_map)
     except ValidationError as e:
         _report_validation_error(e, target_name=module.__name__)
 
