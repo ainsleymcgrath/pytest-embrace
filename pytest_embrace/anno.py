@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from re import Pattern, compile
 from typing import Any, Callable, Dict, List, Type, get_args
 
+from .exc import CaseConfigurationError
+
 
 @dataclass
 class Comment:
@@ -22,10 +24,10 @@ class DeriveNameFromFile:
 
     def __init__(
         self,
-        file_pattern: str = r"test_(\w.*)",
+        file_pattern: str = r"[\w\.]*test_([\w].*)",
         *,
         parse: Callable[[str, Dict[Any, Any]], Any] = _pass_thru_parser,
-        context: Dict[Any, Any] = None
+        context: Dict[Any, Any] = None,
     ):
         self.file_pattern: Pattern = compile(file_pattern)
         self.parse = parse
@@ -34,7 +36,10 @@ class DeriveNameFromFile:
     def get_attr_value(self, filename: str) -> Any:
         match = self.file_pattern.search(filename)
         if match is None:
-            raise
+            raise CaseConfigurationError(
+                f"Could not derive a value from filename {filename}"
+                f" with regex {self.file_pattern}. :("
+            )
         extracted = match.group(1)
 
         return self.parse(extracted, self.context)
