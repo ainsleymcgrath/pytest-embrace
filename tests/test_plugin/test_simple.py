@@ -4,7 +4,7 @@ CONFTEST = """
 from dataclasses import dataclass
 import pytest
 
-from pytest_embrace import  CaseRunner, Embrace
+from pytest_embrace import Embrace
 from pytest_embrace.case import CaseArtifact
 
 

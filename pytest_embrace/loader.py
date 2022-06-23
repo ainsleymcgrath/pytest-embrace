@@ -170,20 +170,56 @@ def handle_table_trickle_down(
     table = getattr(module, "table", None)
     assert table is not None
 
+    UNSET = object()
     trickle_attr_defaults = {
-        attr: getattr(module, attr)
+        attr: (trickle_instance, getattr(module, attr, UNSET))
         for attr in dir(cls)
-        if not attr.startswith("__") and isinstance(getattr(cls, attr), Trickle)
+        if not attr.startswith("__")
+        and isinstance((trickle_instance := getattr(cls, attr)), Trickle)
     }
     # annotated_module_attrs = {k: pep593[k] for k in dir(module) if k in pep593}
+    # keep track of table members who did not set a value for the trickles() attr
+    # when the attr was not set at the module elvel either. that's not ok!
+    unset_table_attrs_by_index: Dict[int, str] = {}
+    illegal_overriders: Dict[int, str] = {}
 
     out: List[CaseType] = []
     for i, case_ in enumerate(table):
         case = revalidate_dataclass(case_, alias=f"{cls.__name__} #{i + 1}")
         for k, v in asdict(case).items():
-            if isinstance(v, Trickle):
-                setattr(case, k, trickle_attr_defaults[k])
+            trickle_config, trickled_down_val = trickle_attr_defaults.get(
+                k, (None, None)
+            )
+            if isinstance(v, Trickle):  # value is unset on the dataclass
+                if trickled_down_val is UNSET:
+                    unset_table_attrs_by_index[i] = k
+                    continue
+                setattr(case, k, trickled_down_val)
+            elif (
+                getattr(trickle_config, "no_override", False) is True
+                and trickled_down_val is not UNSET
+            ):
+                illegal_overriders[i] = k
 
         out.append(case)
+
+    if len(unset_table_attrs_by_index):
+        error = "\n".join(
+            f"In table[{i}]:{table[i]}, '{name}' is unset"
+            " at both the module and case level.."
+            f" Either specify a default at the module level, or pass the value."
+            for i, name in unset_table_attrs_by_index.items()
+        )
+        raise CaseConfigurationError(error)
+
+    if len(illegal_overriders):
+        error = "\n".join(
+            f"In table[{i}]:{table[i]}, '{name}' is set,"
+            f" but '{name}' is defined at the module level as well"
+            " and configured as as no_override."
+            " Accept the default or change the config."
+            for i, name in illegal_overriders.items()
+        )
+        raise CaseConfigurationError(error)
 
     return out
