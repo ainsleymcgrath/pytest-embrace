@@ -164,9 +164,7 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
     return case
 
 
-def handle_table_trickle_down(
-    cls: Type[CaseType], module: ModuleType
-) -> List[CaseType]:
+def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
     table = getattr(module, "table", None)
     assert table is not None
 

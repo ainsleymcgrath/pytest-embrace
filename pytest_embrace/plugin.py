@@ -4,7 +4,7 @@ from pyperclip import copy
 from .embrace import registry
 from .exc import EmbraceError
 from .gen import gen_text
-from .loader import from_module, handle_table_trickle_down
+from .loader import from_module, from_trickling_module
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
@@ -20,7 +20,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     (sut,) = embracers
     cls = registry_[sut]
     if hasattr(metafunc.module, "table"):
-        cases = handle_table_trickle_down(cls, metafunc.module)
+        cases = from_trickling_module(cls, metafunc.module)
     else:
         cases = [from_module(cls, metafunc.module)]
 
