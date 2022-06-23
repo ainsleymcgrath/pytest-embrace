@@ -4,7 +4,7 @@ from pyperclip import copy
 from .embrace import registry
 from .exc import EmbraceError
 from .gen import gen_text
-from .loader import from_module, revalidate_dataclass
+from .loader import from_module, handle_table_trickle_down
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
@@ -19,15 +19,10 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
     (sut,) = embracers
     cls = registry_[sut]
-    table = getattr(metafunc.module, "table", None)
-    cases = (
-        [
-            revalidate_dataclass(case, alias=f"{case.__class__.__name__} #{i + 1}")
-            for i, case in enumerate(table)
-        ]
-        if table is not None
-        else [from_module(cls, metafunc.module)]
-    )
+    if hasattr(metafunc.module, "table"):
+        cases = handle_table_trickle_down(cls, metafunc.module)
+    else:
+        cases = [from_module(cls, metafunc.module)]
 
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])
 

@@ -17,3 +17,13 @@ CaseArtifactType = TypeVar("CaseArtifactType", bound=CaseArtifact, covariant=Tru
 class CaseRunner(Protocol[CoCaseType, CaseArtifactType]):
     def __call__(self, case: CoCaseType) -> CaseArtifactType:
         ...
+
+
+class Trickle:
+    """This type is used to identify attributes marked with trickles()."""
+
+
+def trickles() -> Any:
+    """Marks an attribute as one that can 'trickle down' from module scope
+    into table cases as a default value."""
+    return Trickle()

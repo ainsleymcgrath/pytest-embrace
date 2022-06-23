@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from dataclasses import Field, asdict, dataclass, field, fields, is_dataclass
 from types import ModuleType
-from typing import Any, Dict, Type, Union
+from typing import Any, Dict, List, Type, Union
 
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
-from .case import CaseType
+# from . import anno
+from .case import CaseType, Trickle
 from .exc import CaseConfigurationError
 
 
@@ -54,6 +55,17 @@ class ModuleInfo:
         for field_ in spec:
             if field_.name not in defined:
                 continue
+
+            if field_.name == "table":
+                raise CaseConfigurationError(
+                    "You've chosen the only illegal property name!"
+                    " It's used by the framwork. Please say 'table_' instead."
+                )
+
+            if field_.name == "should":
+                # 'should' gets special treatment
+                pass
+
             module_value = getattr(mod, field_.name)
             attr_info = AttrInfo(field_, module_value)
             self.attrs[attr_info.name] = attr_info
@@ -101,8 +113,12 @@ def from_module(cls: Type[CaseType], module: ModuleType) -> CaseType:
     except TypeError:
         raise CaseConfigurationError(
             f"Incorrect or missing attributes in module {module.__name__}."
-            "\nGot attributes {{*kwargs}}"
+            f"\nGot attributes {set(info.kwargs())}"
         )
+
+
+class PydanticConfig:
+    arbitrary_types_allowed = True
 
 
 def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
@@ -111,8 +127,11 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
     validator_kwargs: Dict[str, Any] = {
         k: (_strictify(type(v)), v) for k, v in kwargs.items()
     }
+
     Validator = create_model(
-        f"{case.__class__.__name__}__CaseValidator", **validator_kwargs
+        f"{case.__class__.__name__}__CaseValidator",
+        **validator_kwargs,
+        __config__=PydanticConfig,  # type: ignore
     )
 
     try:
@@ -121,3 +140,39 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
         _report_validation_error(e, target_name=alias)
 
     return case
+
+
+# def _get_pep_593_values(cls: Type[CaseType]) -> Dict[str, List[Any]]:
+#     out: Dict[str, List[Any]] = {}
+# for k, v in cls.__annotations__.items():
+#     if v.__name__ != "Annotated":
+#         continue
+#     _, *annotations = get_args(v)
+#     out[k] = annotations
+# return out
+
+
+def handle_table_trickle_down(
+    cls: Type[CaseType], module: ModuleType
+) -> List[CaseType]:
+    table = getattr(module, "table", None)
+    assert table is not None
+
+    # pep593 = _get_pep_593_values(cls)
+    trickle_attr_defaults = {
+        attr: getattr(module, attr)
+        for attr in dir(cls)
+        if not attr.startswith("__") and isinstance(getattr(cls, attr), Trickle)
+    }
+    # annotated_module_attrs = {k: pep593[k] for k in dir(module) if k in pep593}
+
+    out: List[CaseType] = []
+    for i, case_ in enumerate(table):
+        case = revalidate_dataclass(case_, alias=f"{cls.__name__} #{i + 1}")
+        for k, v in asdict(case).items():
+            if isinstance(v, Trickle):
+                setattr(case, k, trickle_attr_defaults[k])
+
+        out.append(case)
+
+    return out
