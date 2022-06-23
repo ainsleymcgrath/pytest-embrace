@@ -142,23 +142,12 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
     return case
 
 
-# def _get_pep_593_values(cls: Type[CaseType]) -> Dict[str, List[Any]]:
-#     out: Dict[str, List[Any]] = {}
-# for k, v in cls.__annotations__.items():
-#     if v.__name__ != "Annotated":
-#         continue
-#     _, *annotations = get_args(v)
-#     out[k] = annotations
-# return out
-
-
 def handle_table_trickle_down(
     cls: Type[CaseType], module: ModuleType
 ) -> List[CaseType]:
     table = getattr(module, "table", None)
     assert table is not None
 
-    # pep593 = _get_pep_593_values(cls)
     trickle_attr_defaults = {
         attr: getattr(module, attr)
         for attr in dir(cls)
