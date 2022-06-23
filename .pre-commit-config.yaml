@@ -27,8 +27,8 @@ repos:
       - id: mypy
         name: Type Checks
         language: python
-        entry: tox
-        args: ["-e", "mypy"]
+        entry: poetry
+        args: ["run", "tox", "-e", "mypy"]
         types: [python]
 
   - repo: https://github.com/commitizen-tools/commitizen
