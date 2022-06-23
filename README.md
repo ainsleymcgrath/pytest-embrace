@@ -16,9 +16,8 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 - [x] Type hints everywhere
 - [x] Table-oriented testing
 - [x] Strongly-typed test namespaces
-- [ ] Highly cusomizable code generation––powered by Pep 593
+- [x] Highly cusomizable code generation––powered by Pep 593
 - [x] Readable errors, early and often
-- [ ] Reporting / discovery
 
 ## Basic Usage :wave:
 
@@ -180,19 +179,47 @@ In order to customize the behavior of your test cases, `pytest-embrace` :flushed
 
 The `pytest_embrace.anno` namespace provides a number of utilities for controlling test parsing and code generation via `Annotated`.
 
+Here's an example of using `anno.Comment` to put comments in generated test suites:
+
 ```python
 from dataclasses import dataclass
-from typing import Annotations
 
-from pytest_embrace import anno
+from pytest_embrace import Embrace, anno
 
 
 @dataclass
-class FancyCase:
-    prop_1: Annotated[str, anno.TopDown()]
-    prop_2: Annotated[list[int], anno.OnlyWith('prop_3')]
-    prop_3: Annotated[dict[str, set], anno.GenComment('Please enjoy prop_3!')]
+class AnnotatedCase:
+    name: Annotated[str, anno.Comment("This is ... pretty cool.")]
 
 
-e = Embrace(FancyCase, comment_out_table_values=False)
+embrace = Embrace(AnnotatedCase)
+
+
+@embrace.register_case_runner
+def run(case: AnnotatedCase, fix: str) -> None:
+    pass
+
+
+anno_case = embrace.caller_fixture_factory("anno_case")
+```
+
+Calling the generation utility...
+
+```shell
+pytest --embrace anno_case
+```
+
+Gets you this:
+
+```python
+from pytest_embrace import CaseArtifact
+
+import AnnotatedCase from conftest
+
+
+name: str  # This is ... pretty cool.
+
+
+def test(anno_case: CaseArtifact[AnnotatedCase]) -> None:
+    ...
 ```
