@@ -71,7 +71,6 @@ class ModuleInfo:
                 pass
 
             anno_info = anno_map.get(field_.name)
-            breakpoint()
             if anno_info is None:
                 module_value = getattr(mod, field_.name)
             else:
