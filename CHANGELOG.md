@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.2 (2022-06-23)
+### Fix
+* Add fine-grained trickles() control ([`f856e59`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f856e59d2724fbc9d5cdd5e4b7e5fbdcb5ff5447))
+
 ## v0.4.1 (2022-06-23)
 ### Fix
 * **terrible oversight:** Actually _use_ the case artifact ([`fa8a0b5`](https://github.com/ainsleymcgrath/pytest-embrace/commit/fa8a0b5ece0a7232155ca3ee7958105c183f90fe))
