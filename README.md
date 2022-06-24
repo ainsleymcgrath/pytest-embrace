@@ -52,6 +52,12 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
 # Basic Usage :wave:
 
+As is tradition:
+
+```shell
+pip install pytest-embrace  # use a virtualenv in your preferred fashion
+```
+
 Like any pytest plugin, `pytest-embrace` is configured in `conftest.py`.
 
 The main ingredients are:
@@ -359,6 +365,8 @@ table = [
 def test(trickle_case):
     ...
 ```
+
+**It's worth noting** that `trickle` is a superset of [`dataclasses.field`](https://docs.python.org/3/library/dataclasses.html?highlight=dataclasse#dataclasses.field). The only API difference is the inclusion of `no_override`.
 
 ## Config With Pep 593 :star2:
 
