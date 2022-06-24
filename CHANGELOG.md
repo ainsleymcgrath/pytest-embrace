@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (2022-06-24)
+### Breaking
+* the name change is in a user-facing namespace  ([`7d64d97`](https://github.com/ainsleymcgrath/pytest-embrace/commit/7d64d9727f0449e76607e758fca7d800fbe8119b))
+
 ## v0.4.2 (2022-06-23)
 ### Fix
 * Add fine-grained trickles() control ([`f856e59`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f856e59d2724fbc9d5cdd5e4b7e5fbdcb5ff5447))
