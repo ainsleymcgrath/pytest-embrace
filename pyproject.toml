@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-embrace"
-version = "0.4.1"
+version = "0.4.2"
 readme = "README.md"
 description = "Use modern Python type hints to design expressive tests. Reject boilerplate. Embrace complexity."
 authors = ["Ainsley McGrath <mcgrath.ainsley@gmail.com>"]
