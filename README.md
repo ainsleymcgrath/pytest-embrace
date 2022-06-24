@@ -6,7 +6,9 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
 > Reject boilerplate. Embrace complexity.
 
-## Philosophy :bulb:
+[TOC]
+
+# Philosophy :bulb:
 
 1. [Table-oriented](https://dave.cheney.net/2019/05/07/prefer-table-driven-tests) ([parametrized](https://docs.pytest.org/en/6.2.x/parametrize.html)) tests are indespensible.
 
@@ -26,7 +28,7 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
 5. The wave of [type-driven](https://pydantic-docs.helpmanual.io/) [Python](https://github.com/beartype/beartype) [tools](https://typer.tiangolo.com/) [is](https://peps.python.org/pep-0593/) [very](https://github.com/python/mypy) cowabunga––and only just beginning :ocean:
 
-## Features :white_check_mark:
+# Features :white_check_mark:
 
 - [x] Completely customizable test design
 - [x] Type hints everywhere
@@ -35,7 +37,7 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 - [x] Highly cusomizable code generation––powered by Pep 593
 - [x] Readable errors, early and often
 
-## Basic Usage :wave:
+# Basic Usage :wave:
 
 Like any pytest plugin, `pytest-embrace` is configured in `conftest.py`.
 
@@ -111,7 +113,7 @@ def test(simple_case):
 
 :point_up_2: This runs 3 independent tests.
 
-### Strongly Typed Namespaces :muscle:
+## Strongly Typed Namespaces :muscle:
 
 Before even completing the setup phase of your `Embrace()`'d tests, this plugin uses [Pydantic](https://pydantic-docs.helpmanual.io/) to validate the values set in your test modules. No type hints required.
 
@@ -137,7 +139,9 @@ E       Variable 'expect' should be of type str
 
 The auxilary benefit of this feature is hardening the design of your code's interfaces––even interfaces that exist beyond the "vanishing point" of incoming data that you can't be certain of: Command line inputs, incoming HTTP requests, structured file inputs, etc.
 
-## Code Generation :robot:
+Cases in `table` are checked as well.
+
+# Code Generation :robot:
 
 Installing `pytest-embrace` adds a flag to `pytest` called `--embrace`.
 
@@ -192,7 +196,7 @@ By default, each item is commented out so you don't end up with linter errors up
 
 If that's not cool, don't worry! It's configurable. :sunglasses:
 
-### Config With Pep 593 :star2:
+## Config With Pep 593 :star2:
 
 In order to customize the behavior of your test cases, `pytest-embrace` :flushed: embraces :flushed:  the new `Annotated` type.
 
@@ -203,7 +207,7 @@ In order to customize the behavior of your test cases, `pytest-embrace` :flushed
 
 The `pytest_embrace.anno` namespace provides a number of utilities for controlling test parsing and code generation via `Annotated`.
 
-#### Comments in Generated Tests :pencil:
+### Comments in Generated Tests :pencil:
 
 Here's an example of using `anno.Comment` to put comments in generated test suites:
 
@@ -252,9 +256,9 @@ def test(anno_case: CaseArtifact[AnnotatedCase]) -> None:
 
 
 
-## Complexity :lollipop:
+# Complexity :lollipop:
 
-### Table Cases vs Module Cases :balance_scale:
+## Table Cases vs Module Cases :balance_scale:
 
 As we've seen `pytest-embrace` can produce and execute 2 types of cases:
 
@@ -343,13 +347,13 @@ def test(trickle_case):
     ...
 ```
 
-### Config With Pep 593 :star2:
+## Config With Pep 593 :star2:
 
 We've already seen `anno.Comment()` for manipulating code generation.
 
 But annotations can also control the setup phase of `Embrace()`'d tests.
 
-#### Deriving Attributes from Filenames :crystal_ball:
+### Deriving Attributes from Filenames :crystal_ball:
 
 The `DeriveFromFileName` object in the `anno` namespace allows you to lift the determination of case attributes out of the case and *into the name of the test file.*
 
