@@ -4,20 +4,34 @@
 
 The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
+> Reject boilerplate. Embrace complexity.
+
 ## Philosophy :bulb:
 
-1. Table-oriented (parametrized) tests are indespensible.
-2. Type hints and modern Python dataclasses are very good.
-3. Language-level APIs (like namespaces) are a honkin' great idea.
-4. Code generation is *really* underrated.
-5. The wave of type-driven Python tools like Pydantic and Typer (both dependencies of this library) is very cowabunga––and only just beginning :ocean:
+1. [Table-oriented](https://dave.cheney.net/2019/05/07/prefer-table-driven-tests) ([parametrized](https://docs.pytest.org/en/6.2.x/parametrize.html)) tests are indespensible.
+
+2. Type hints and modern Python [dataclasses](https://docs.python.org/3/library/dataclasses.html) are very good.
+
+3. As sayeth the [Zen](https://peps.python.org/pep-0020/):
+   ```
+   Flat is better than nested.
+   Sparse is better than dense.
+   ...
+   There should be one-- and preferably only one --obvious way to do it.
+   ...
+   Namespaces are one honking great idea -- let's do more of those!
+   ```
+
+4. Code generation is *really* [underrated](https://github.com/copier-org/copier/).
+
+5. The wave of [type-driven](https://pydantic-docs.helpmanual.io/) [Python](https://github.com/beartype/beartype) [tools](https://typer.tiangolo.com/) [is](https://peps.python.org/pep-0593/) [very](https://github.com/python/mypy) cowabunga––and only just beginning :ocean:
 
 ## Features :white_check_mark:
 
 - [x] Completely customizable test design
 - [x] Type hints everywhere
 - [x] Table-oriented testing
-- [x] Strongly-typed test namespaces
+- [x] Strongly-typed test namespaces-as-modules.
 - [x] Highly cusomizable code generation––powered by Pep 593
 - [x] Readable errors, early and often
 
@@ -73,6 +87,8 @@ expect = 'AinsleyAinsley'
 def test(simple_case):
 	...
 ```
+
+If *"flat is better than nested,"* then it serves to reason that the flattest structure of all, the module, must be the best of all!
 
 Or you can go [table-oriented](https://dave.cheney.net/2019/05/07/prefer-table-driven-tests) and run many tests from one module––just like with `pytest.mark.parametrize`.
 
@@ -149,7 +165,7 @@ def test(simple_case: CaseArtifact[Case]):
     ...
 ```
 
-Copypasta'd test cases like this can also be table-style: [Soon.]
+Copypasta'd test cases like this can also be table-style: **[Coming soon!]**
 
 ```shell
 pytest --embrace-table 3
