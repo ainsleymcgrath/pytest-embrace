@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import Field, asdict, dataclass, field, fields, is_dataclass
+from dataclasses import MISSING, Field, asdict, dataclass, field, fields, is_dataclass
 from types import ModuleType
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Tuple, Type, Union
 
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
@@ -38,6 +38,12 @@ PYDANTIC_STRICTIFICATION_MAP = {
     int: StrictInt,
     float: StrictFloat,
     bool: StrictBool,
+    # in dataclasses, Field.type is a string at times
+    "str": StrictStr,
+    "bytes": StrictBytes,
+    "int": StrictInt,
+    "float": StrictFloat,
+    "bool": StrictBool,
 }
 
 
@@ -146,8 +152,16 @@ class PydanticConfig:
 def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
     _raise_non_dataclass(case)
     kwargs = asdict(case)
-    validator_kwargs: Dict[str, Any] = {
-        k: (_strictify(type(v)), v) for k, v in kwargs.items()
+    validator_kwargs: Dict[str, Tuple[Any, Any]] = {
+        field.name: (
+            _strictify(field.type),
+            field.default
+            if field.default is not MISSING
+            else (
+                field.default_factory() if field.default_factory is not MISSING else ...
+            ),
+        )
+        for field in fields(case)
     }
 
     Validator = create_model(
@@ -169,23 +183,36 @@ def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseT
     assert table is not None
 
     UNSET = object()
-    trickle_attr_defaults = {
-        attr: (trickle_instance, getattr(module, attr, UNSET))
-        for attr in dir(cls)
-        if not attr.startswith("__")
-        and isinstance((trickle_instance := getattr(cls, attr)), Trickle)
-    }
-    # keep track of table members who did not set a value for the trickles() attr
-    # when the attr was not set at the module elvel either. that's not ok!
+    # build up the default values set in the _module_
+    # for the attributes on _cls_ that were marked with trickles()
+    cls_fields = {field.name: field for field in fields(cls)}
+    trickle_attr_defaults: Dict[str, Tuple[Trickle, Any]] = {}
+    for attr in dir(module):
+        if attr.startswith("__"):
+            continue
+
+        config_from_cls = cls_fields.get(attr, UNSET)
+        value_from_module = getattr(module, attr, UNSET)
+        trickle_marker: Union[None, Trickle] = getattr(
+            config_from_cls, "metadata", {}
+        ).get("trickle")
+
+        if trickle_marker is None:
+            continue
+
+        if value_from_module is UNSET:
+            continue
+
+        trickle_attr_defaults[attr] = trickle_marker, value_from_module
+
     unset_table_attrs_by_index: Dict[int, str] = {}
     illegal_overriders: Dict[int, str] = {}
 
     out: List[CaseType] = []
-    for i, case_ in enumerate(table):
-        case = revalidate_dataclass(case_, alias=f"{cls.__name__} #{i + 1}")
+    for i, case in enumerate(table):
         for k, v in asdict(case).items():
             trickle_config, trickled_down_val = trickle_attr_defaults.get(
-                k, (None, None)
+                k, (None, UNSET)
             )
             if isinstance(v, Trickle):  # value is unset on the dataclass
                 if trickled_down_val is UNSET:
@@ -219,4 +246,9 @@ def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseT
         )
         raise CaseConfigurationError(error)
 
+    # do this at the _very_ end so the errors above have a chance to raise
+    # since validation errors don't capture the nuance of other table-related
+    # stuff that could have gone wrong already
+    for i, case in enumerate(out):
+        revalidate_dataclass(case, alias=f"table[{i}]:{case}")
     return out

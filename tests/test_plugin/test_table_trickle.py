@@ -150,6 +150,7 @@ def test_cant_trickle_no_override(pytester: pytest.Pytester) -> None:
     )
 
 
+# beverage is not set anywhere
 TEST_MODULE_UNSET_BOTH_PLACES = """
 from conftest import TrickleCase
 
@@ -157,7 +158,7 @@ from conftest import TrickleCase
 table = [
     TrickleCase(
         snack="do you have any dates?",
-        ounces_of_beverage = 1
+        ounces_of_beverage=1
     ),
 ]
 
