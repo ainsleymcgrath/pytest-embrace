@@ -2,7 +2,7 @@
 name = "pytest-embrace"
 version = "0.4.2"
 readme = "README.md"
-description = "Use modern Python type hints to design expressive tests. Reject boilerplate. Embrace complexity."
+description = "💝  Dataclasses-as-tests. Describe the runtime once and multiply coverage with no boilerplate."
 authors = ["Ainsley McGrath <mcgrath.ainsley@gmail.com>"]
 classifiers = [
     "Environment :: Console",
