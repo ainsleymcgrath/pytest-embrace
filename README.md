@@ -6,7 +6,20 @@ The `pytest-embrace` plugin enables judicious, repeatable, lucid unit testing.
 
 > Reject boilerplate. Embrace complexity.
 
-[TOC]
+# Table of Contents :books:
+
+- [Philosophy :bulb:](#philosophy--bulb-)
+- [Features :white_check_mark:](#features--white-check-mark-)
+- [Basic Usage :wave:](#basic-usage--wave-)
+  * [Strongly Typed Namespaces :muscle:](#strongly-typed-namespaces--muscle-)
+- [Code Generation :robot:](#code-generation--robot-)
+  * [Config With Pep 593 :star2:](#config-with-pep-593--star2-)
+    + [Comments in Generated Tests :pencil:](#comments-in-generated-tests--pencil-)
+- [Complexity :lollipop:](#complexity--lollipop-)
+  * [Table Cases vs Module Cases :balance_scale:](#table-cases-vs-module-cases--balance-scale-)
+  * [Config With Pep 593 :star2:](#config-with-pep-593--star2--1)
+    + [Deriving Attributes from Filenames :crystal_ball:](#deriving-attributes-from-filenames--crystal-ball-)
+
 
 # Philosophy :bulb:
 
