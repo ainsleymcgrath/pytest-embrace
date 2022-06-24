@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.1 (2022-06-24)
+### Fix
+* Correct validation of table cases; expand trickles() ([`0ba1141`](https://github.com/ainsleymcgrath/pytest-embrace/commit/0ba1141bbf96818b74ddc0dcb98f929c0cbf9b12))
+
+### Documentation
+* Flatten headings, add TOC ([`0914d5a`](https://github.com/ainsleymcgrath/pytest-embrace/commit/0914d5a7573c3702ce3cd9ae9b1361400a9b5217))
+* Add links, reword a bit ([`17066c7`](https://github.com/ainsleymcgrath/pytest-embrace/commit/17066c7bc37c203e025216dbbad0fab08c9068a3))
+* Better description ([`206a58d`](https://github.com/ainsleymcgrath/pytest-embrace/commit/206a58d1edc74b0997ab065a23e2606ddd2e8bc3))
+
 ## v1.0.0 (2022-06-24)
 ### Breaking
 * the name change is in a user-facing namespace  ([`7d64d97`](https://github.com/ainsleymcgrath/pytest-embrace/commit/7d64d9727f0449e76607e758fca7d800fbe8119b))
