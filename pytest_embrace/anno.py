@@ -18,7 +18,7 @@ def _pass_thru_parser(extracted: str, context: Dict[Any, Any]) -> Any:
     return extracted
 
 
-class DeriveNameFromFile:
+class DeriveFromFileName:
     """Extract the value of the annotated attribute from the test's filename
     based on the given regex."""
 

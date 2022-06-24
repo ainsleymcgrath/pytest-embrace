@@ -8,7 +8,7 @@ from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
-from pytest_embrace.anno import AnnotationMap, DeriveNameFromFile, get_pep_593_values
+from pytest_embrace.anno import AnnotationMap, DeriveFromFileName, get_pep_593_values
 
 # from . import anno
 from .case import CaseType, Trickle
@@ -78,7 +78,7 @@ class ModuleInfo:
                     (
                         v
                         for v in anno_info.annotations
-                        if isinstance(v, DeriveNameFromFile)
+                        if isinstance(v, DeriveFromFileName)
                     ),
                     None,
                 )

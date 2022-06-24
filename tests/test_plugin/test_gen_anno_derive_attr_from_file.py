@@ -17,7 +17,7 @@ from pytest_embrace import CaseRunner, Embrace, anno
 
 @dataclass
 class AnnotatedCase:
-    horse_type: Annotated[str, anno.DeriveNameFromFile()]
+    horse_type: Annotated[str, anno.DeriveFromFileName()]
 
 
 embrace_1 = Embrace(AnnotatedCase)

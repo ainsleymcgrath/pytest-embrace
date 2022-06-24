@@ -16,7 +16,7 @@ from .utils import module_factory
 
 @dataclass
 class AnnotatedWithDeriveNameCase:
-    magic_spell: Annotated[str, anno.DeriveNameFromFile()]
+    magic_spell: Annotated[str, anno.DeriveFromFileName()]
 
 
 pytestmark = pytest.mark.skipif(
