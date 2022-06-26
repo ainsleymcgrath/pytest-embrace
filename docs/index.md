@@ -131,8 +131,7 @@ expect = "ACCIDENTAL BYTES!!"
 You get reprimanded right away.
 
 ```shell
-E   pytest_embrace.exc.CaseConfigurationError: 1 invalid attr values in 'test_wo
-w':
+E   pytest_embrace.exc.CaseConfigurationError: 1 invalid attr values in 'test_wow':
 E       Variable/Arg 'arg' should be of type str
 ```
 
