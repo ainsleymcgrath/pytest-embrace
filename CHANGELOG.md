@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.2 (2022-06-26)
+### Fix
+* **bug:** Stop generating invalid code ([`fdbe903`](https://github.com/ainsleymcgrath/pytest-embrace/commit/fdbe9038bac8c4fa9eeefc0888cebb71e53b13d2))
+
+### Documentation
+* Favicon, fix smushed logo ([`1cde606`](https://github.com/ainsleymcgrath/pytest-embrace/commit/1cde60619c0283d96deda1a1a982a30c8f33de98))
+* Migrate some old content to mkdocs ([`897ef85`](https://github.com/ainsleymcgrath/pytest-embrace/commit/897ef85a0a97efd23395c928192a72e800596c31))
+* Readme sends you to docs site ([`b01489c`](https://github.com/ainsleymcgrath/pytest-embrace/commit/b01489c521c564ca385accd7a990ab0ceddee735))
+* Add logos (messy) ([`c4bf852`](https://github.com/ainsleymcgrath/pytest-embrace/commit/c4bf8523fad5d35225ffbb2fcc691d2ee6a9713c))
+* Break ground ([`c5ff887`](https://github.com/ainsleymcgrath/pytest-embrace/commit/c5ff887702208b73199d55f55a2c0814c05140fb))
+* More missing details ([`fd83a4c`](https://github.com/ainsleymcgrath/pytest-embrace/commit/fd83a4c8ecc101b9194eb6da45b6028391511043))
+* Add proper TOC ([`bac5d52`](https://github.com/ainsleymcgrath/pytest-embrace/commit/bac5d526d29cc584a5b22d09738bc12c57408c1e))
+
 ## v1.0.1 (2022-06-24)
 ### Fix
 * Correct validation of table cases; expand trickles() ([`0ba1141`](https://github.com/ainsleymcgrath/pytest-embrace/commit/0ba1141bbf96818b74ddc0dcb98f929c0cbf9b12))
