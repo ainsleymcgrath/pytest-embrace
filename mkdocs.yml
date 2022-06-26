@@ -1,4 +1,5 @@
 site_name: Pytest Embrace
+repo_url: https://github.com/ainsleymcgrath/pytest-embrace
 theme:
   name: material
   palette:
