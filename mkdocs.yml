@@ -6,6 +6,7 @@ theme:
     primary: white
     accent: green
   logo: logo-alt.svg
+  favicon: logo-alt-alt.svg
   markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
