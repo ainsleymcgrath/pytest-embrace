@@ -1,2 +1,15 @@
-site_name: 💝 Pytest Embrace
-theme: readthedocs
+site_name: Pytest Embrace
+theme:
+  name: material
+  palette:
+    primary: white
+    accent: green
+  logo: logo-alt.svg
+  markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - attr_list
+  - md_in_html
