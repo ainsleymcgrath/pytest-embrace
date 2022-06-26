@@ -7,11 +7,11 @@ theme:
     accent: green
   logo: logo-alt.svg
   favicon: logo-alt-alt.svg
-  markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
-  - attr_list
-  - md_in_html
+markdown_extensions:
+- pymdownx.highlight:
+    anchor_linenums: true
+- pymdownx.inlinehilite
+- pymdownx.snippets
+- pymdownx.superfences
+- attr_list
+- md_in_html
