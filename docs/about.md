@@ -22,3 +22,15 @@ Pytest Embrace is a formalism born from patterns used at [Amper](https://www.amp
 4. Code generation is *really* [underrated](https://github.com/copier-org/copier/).
 
 5. The wave of [type-driven](https://pydantic-docs.helpmanual.io/) [Python](https://github.com/beartype/beartype) [tools](https://typer.tiangolo.com/) [is](https://peps.python.org/pep-0593/) [very](https://github.com/python/mypy) cowabunga––and only just beginning 💡
+
+## Background
+
+Underneath it all, this plugin/framework is a love letter to Pytest's [parametrization](https://docs.pytest.org/en/6.2.x/parametrize.html) feature.
+
+Parametrization is what makes Pytest really great. It works fantastically well for testing interfaces that can be expressed as *`Given <some_input> expect <some_output> because <some_reason>`.* [Given, expected, should](https://ainsleymcgrath.com/pythonic-pytest-part-2-the-parametrization-mantra/).
+
+But eventually, when you're testing at a higher level than simply calling code you've written, that pattern craps out. Tests that rely on live databases are a great example of this. Pytest handles this gracefully, as it's just Python code and you can write whatever you want.
+
+But that, too, becomes a problem: You can write whatever you want. The snare of arbitrariness leaves you with a mess of redundant, inconsistent fixtures floating around. With vanilla pytest fixtures, you're hung out to dry. If you want to get the structure and consistency of parametrized tests back, you're forced to either write a big ball of mud or learning the [hooks](https://docs.pytest.org/en/6.2.x/reference.html?highlight=assertrepr#hooks) API. Which you should at some point! But it's always felt like overkill for one-offs
+
+**The idea with `pytest-embrace` is to create a looser and more nuance-friendly approach to fixtures and tests. while lowering the bar for leveraging more advanced Pytest test-generation features.**
