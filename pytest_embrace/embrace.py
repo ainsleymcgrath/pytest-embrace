@@ -97,7 +97,7 @@ class Embrace(Generic[CaseType]):
             assert self.wrapped_func is not None
             # calling `getfixturevalue` for the wrapped func gets `run_case_fixture`.
             # doing *that* assigns self.runner at the last possible moment
-            request.getfixturevalue(self.wrapped_func.__name__)  # type: ignore
+            request.getfixturevalue(self.wrapped_func.__name__)
             assert self.runner is not None
             # bring the artifact into scope with the case attached
             # so debug/exception output can see it in locals()

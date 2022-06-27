@@ -1,7 +1,7 @@
 import sys
 from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field
 from types import MappingProxyType
-from typing import Any, Callable, Generic, Mapping, Optional, Protocol, TypeVar, Union
+from typing import Any, Callable, Generic, Mapping, Optional, TypeVar, Union
 
 CaseType = TypeVar("CaseType")
 CoCaseType = TypeVar("CoCaseType", contravariant=True)
@@ -16,9 +16,7 @@ class CaseArtifact(Generic[CoCaseType]):
 CaseArtifactType = TypeVar("CaseArtifactType", bound=CaseArtifact, covariant=True)
 
 
-class CaseRunner(Protocol[CoCaseType, CaseArtifactType]):
-    def __call__(self, case: CoCaseType) -> CaseArtifactType:
-        ...
+CaseRunner = Callable[..., Any]
 
 
 # for some reason, using a dataclass here was problematic.
