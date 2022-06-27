@@ -12,7 +12,7 @@ def matchable_fnlines_gen_output(
         "",
         *imports.split("\n"),
         "",
-        f"from {case_type} import conftest" "",
+        f"from conftest import {case_type}",
         "",
         "",
         *type_hints,

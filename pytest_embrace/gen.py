@@ -46,7 +46,7 @@ def gen_text(name: str, table: bool = False) -> str:
     case_import = (
         dedent(
             f"""
-            from {case_type.__name__} import {mod_name}
+            from {mod_name} import {case_type.__name__}
             """
         )
         if (mod_name := getattr(source, "__name__", None)) is not None
