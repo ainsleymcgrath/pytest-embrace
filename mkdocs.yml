@@ -7,6 +7,16 @@ theme:
     accent: green
   logo: logo-alt.svg
   favicon: logo-alt-alt.svg
+  features:
+    - content.code.annotate
+nav:
+  - index.md
+  - Usage:
+    - usage/index.md
+    - Designing Tests:
+      - usage/designing-tests/index.md
+      - usage/designing-tests/making-cases.md
+  - about.md
 markdown_extensions:
 - pymdownx.highlight:
     anchor_linenums: true
@@ -15,3 +25,4 @@ markdown_extensions:
 - pymdownx.superfences
 - attr_list
 - md_in_html
+- admonition
