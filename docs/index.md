@@ -1,4 +1,4 @@
-# Pytest Embrace
+# Introduction
 
 ![Image title](logotype.svg)
 
