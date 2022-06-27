@@ -56,6 +56,15 @@ def test(simple_case):
     assert simple_case.actual_result['backwards'] == ['y', 'e', 'h']
 """
 
+USE_ARTIFACT_AFTER_FILE_PLUS_OTHER_FIXTURE = """
+from conftest import MyCase
+
+name = 'hey'
+
+def test(simple_case, fix):
+    assert simple_case.actual_result['backwards'] == list(reversed(fix))
+"""
+
 
 @pytest.fixture(autouse=True)
 def simple_case_conftest(pytester: pytest.Pytester) -> None:
@@ -76,5 +85,11 @@ def test_multi(pytester: pytest.Pytester) -> None:
 
 def test_use_artifact(pytester: pytest.Pytester) -> None:
     pytester.makepyfile(USE_ARTIFACT_AFTER_FILE)
+    outcome = pytester.runpytest()
+    outcome.assert_outcomes(passed=1, errors=0)
+
+
+def test_use_artifact_plus_other(pytester: pytest.Pytester) -> None:
+    pytester.makepyfile(USE_ARTIFACT_AFTER_FILE_PLUS_OTHER_FIXTURE)
     outcome = pytester.runpytest()
     outcome.assert_outcomes(passed=1, errors=0)
