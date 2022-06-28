@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v2.1.1 (2022-06-28)
+### Fix
+* Don't refer to old version of the class ([`64b539a`](https://github.com/ainsleymcgrath/pytest-embrace/commit/64b539a32e679029ef0ad9839215d294a9ea803e))
+
+### Documentation
+* Add 'Enhancing' to nav ([`e844231`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e844231b34e80907a0f9c16d96c08764afa7debe))
+* First cut of the 'Enhancing Usage' section ([`4d586e8`](https://github.com/ainsleymcgrath/pytest-embrace/commit/4d586e86ab1cbb705473998474e7e662fa7ba4e3))
+
 ## v2.1.0 (2022-06-28)
 ### Feature
 * Parser actually works now ([`3b76689`](https://github.com/ainsleymcgrath/pytest-embrace/commit/3b7668999bc052fc7613db41b23d869fa8f8a3ab))
