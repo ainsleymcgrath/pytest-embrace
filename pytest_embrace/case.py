@@ -80,14 +80,14 @@ def trickles(
     return field_
 
 
-def _pass_thru_parser(extracted: str, context: Dict[Any, Any]) -> Any:
+def _pass_thru_parser(extracted: str) -> Any:
     return extracted
 
 
 def derive_from_filename(
     *,
     pattern: str = r"[\w\.]*test_([\w].*)",
-    parse: Callable[[str, Dict[Any, Any]], Any] = _pass_thru_parser,
+    parse: Callable[[str], Any] = _pass_thru_parser,
     # context: Dict[Any, Any] = None,
     default: Any = MISSING,
     default_factory: Union[Callable[[], Any], OptionalMissing] = MISSING,
@@ -131,12 +131,10 @@ class DeriveFromFileName:
         self,
         file_pattern: str = r"[\w\.]*test_([\w].*)",
         *,
-        parse: Callable[[str, Dict[Any, Any]], Any] = _pass_thru_parser,
-        context: Dict[Any, Any] = None,
+        parse: Callable[[str], Any] = _pass_thru_parser,
     ):
         self.file_pattern: re.Pattern = re.compile(file_pattern)
         self.parse = parse
-        self.context = context or {}
 
     def get_attr_value(self, filename: str) -> Any:
         match = self.file_pattern.search(filename)
@@ -147,4 +145,4 @@ class DeriveFromFileName:
             )
         extracted = match.group(1)
 
-        return self.parse(extracted, self.context)
+        return self.parse(extracted)
