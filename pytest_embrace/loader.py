@@ -8,15 +8,9 @@ from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
-from pytest_embrace.anno import AnnotationMap, DeriveFromFileName, get_pep_593_values
-
-# from . import anno
-from .case import CaseType, Trickle
+from .anno import AnnotationMap, get_pep_593_values
+from .case import CaseType, DeriveFromFileName, Trickle
 from .exc import CaseConfigurationError
-
-
-class Sentinel:
-    ...
 
 
 @dataclass
