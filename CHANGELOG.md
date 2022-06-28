@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.1.0 (2022-06-28)
+### Feature
+* Parser actually works now ([`3b76689`](https://github.com/ainsleymcgrath/pytest-embrace/commit/3b7668999bc052fc7613db41b23d869fa8f8a3ab))
+
 ## v2.0.0 (2022-06-28)
 ### Feature
 * Actually marry filename derivation and table ([`da823d1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/da823d1b287d930e8bbdf3540bf94eb4400ac5cf))
