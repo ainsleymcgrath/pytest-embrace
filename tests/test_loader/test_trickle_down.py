@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from pytest_embrace import trickles
-from pytest_embrace.loader import from_trickling_module
+from pytest_embrace.loader import load
 
 from .utils import module_factory
 
@@ -22,7 +22,7 @@ def test_value_trickles_down() -> None:
             AnnotatedWithTrickleCase(bar=66, foo=[]),
         ],
     )
-    loaded = from_trickling_module(AnnotatedWithTrickleCase, mod)
+    loaded = load(AnnotatedWithTrickleCase, mod)
     assert loaded[0].foo == ["hey", "sup"], (
         "When a table member isn't given an arg,"
         " it inherits it from the parent case."

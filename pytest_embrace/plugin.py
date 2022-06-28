@@ -4,7 +4,7 @@ from pyperclip import copy
 from .embrace import registry
 from .exc import EmbraceError
 from .gen import gen_text
-from .loader import from_module, from_trickling_module
+from .loader import load
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
@@ -19,10 +19,11 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
     (sut,) = embracers
     cls = registry_[sut]
-    if hasattr(metafunc.module, "table"):
-        cases = from_trickling_module(cls, metafunc.module)
-    else:
-        cases = [from_module(cls, metafunc.module)]
+    cases = load(cls, metafunc.module)
+    # if hasattr(metafunc.module, "table"):
+    #     cases = from_trickling_module(cls, metafunc.module)
+    # else:
+    #     cases = [from_module(cls, metafunc.module)]
 
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])
 

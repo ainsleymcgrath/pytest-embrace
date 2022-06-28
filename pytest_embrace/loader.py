@@ -63,7 +63,8 @@ class ModuleInfo:
         self.attrs: Dict[str, AttrInfo] = {}
 
         for field_ in spec:
-            if field_.name not in defined and len(anno_map) == 0:
+            field_meta = field_.metadata
+            if field_.name not in defined and len(anno_map) == 0 == len(field_meta):
                 continue
 
             if field_.name == "table":
@@ -77,22 +78,12 @@ class ModuleInfo:
                 pass
 
             anno_info = anno_map.get(field_.name)
-            if anno_info is None:
-                module_value = getattr(mod, field_.name)
-            else:
-                derive_name = next(
-                    (
-                        v
-                        for v in anno_info.annotations
-                        if isinstance(v, DeriveFromFileName)
-                    ),
-                    None,
-                )
+            if "derive_from_filename" in field_meta:
+                derive_name = field_meta["derive_from_filename"]
                 if derive_name is not None:
                     module_value = derive_name.get_attr_value(mod.__name__)
-                else:
-                    foo = f"{anno_info.annotations} {mod} {spec}"
-                    raise SyntaxError(foo)
+            elif anno_info is None:
+                module_value = getattr(mod, field_.name)
 
             attr_info = AttrInfo(field_, module_value)
             self.attrs[attr_info.name] = attr_info
@@ -192,10 +183,9 @@ def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseT
             continue
 
         config_from_cls = cls_fields.get(attr, UNSET)
+        field_meta = getattr(config_from_cls, "metadata", {})
         value_from_module = getattr(module, attr, UNSET)
-        trickle_marker: Union[None, Trickle] = getattr(
-            config_from_cls, "metadata", {}
-        ).get("trickle")
+        trickle_marker: Union[None, Trickle] = field_meta.get("trickle")
 
         if trickle_marker is None:
             continue
@@ -203,7 +193,16 @@ def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseT
         if value_from_module is UNSET:
             continue
 
-        trickle_attr_defaults[attr] = trickle_marker, value_from_module
+        derive_from_filename: Union[DeriveFromFileName, None] = field_meta.get(
+            "derive_from_filename"
+        )
+        if derive_from_filename is None:
+
+            trickle_attr_defaults[attr] = trickle_marker, value_from_module
+        else:
+            trickle_attr_defaults[
+                attr
+            ] = trickle_marker, derive_from_filename.get_attr_value(module.__name__)
 
     unset_table_attrs_by_index: Dict[int, str] = {}
     illegal_overriders: Dict[int, str] = {}
@@ -252,3 +251,10 @@ def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseT
     for i, case in enumerate(out):
         revalidate_dataclass(case, alias=f"table[{i}]:{case}")
     return out
+
+
+def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
+    if hasattr(module, "table"):
+        return from_trickling_module(cls, module)
+    else:
+        return [from_module(cls, module)]

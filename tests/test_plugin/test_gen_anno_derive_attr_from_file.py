@@ -12,12 +12,12 @@ else:
 
 from dataclasses import dataclass
 
-from pytest_embrace import CaseRunner, Embrace, anno
+from pytest_embrace import CaseRunner, Embrace, derive_from_filename
 
 
 @dataclass
 class AnnotatedCase:
-    horse_type: Annotated[str, anno.DeriveFromFileName()]
+    horse_type: str = derive_from_filename()
 
 
 embrace_1 = Embrace(AnnotatedCase)

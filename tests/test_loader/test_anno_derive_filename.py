@@ -1,22 +1,17 @@
 import sys
 from dataclasses import dataclass
 
-if sys.version_info >= (3, 9):
-    from typing import Annotated
-else:
-    from typing_extensions import Annotated
-
 import pytest
 
-from pytest_embrace import anno
-from pytest_embrace.loader import from_module
+from pytest_embrace import derive_from_filename
+from pytest_embrace.loader import load
 
 from .utils import module_factory
 
 
 @dataclass
 class AnnotatedWithDeriveNameCase:
-    magic_spell: Annotated[str, anno.DeriveFromFileName()]
+    magic_spell: str = derive_from_filename()
 
 
 pytestmark = pytest.mark.skipif(
@@ -28,5 +23,5 @@ pytestmark = pytest.mark.skipif(
 
 def test_get_name_from_file_default() -> None:
     mod = module_factory(name="my.tests.test_mage_hand")
-    loaded = from_module(AnnotatedWithDeriveNameCase, mod)
+    (loaded,) = load(AnnotatedWithDeriveNameCase, mod)
     assert loaded.magic_spell == "mage_hand"

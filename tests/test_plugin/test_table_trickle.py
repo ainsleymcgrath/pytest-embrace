@@ -67,6 +67,7 @@ from conftest import TrickleCase
 
 beverage = 'seriously just water, please.'
 snack = '100,000 pistachios'
+ounces_of_beverage = 1
 
 
 def test(trickle_case):

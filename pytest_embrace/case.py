@@ -1,7 +1,10 @@
+import re
 import sys
 from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field
 from types import MappingProxyType
-from typing import Any, Callable, Generic, Mapping, Optional, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Mapping, Optional, TypeVar, Union
+
+from pytest_embrace.exc import CaseConfigurationError
 
 CaseType = TypeVar("CaseType")
 CoCaseType = TypeVar("CoCaseType", contravariant=True)
@@ -36,6 +39,10 @@ def __field(**kwargs: Any) -> Field:
     return field(**kwargs)
 
 
+def _kw_only_maybe(kw_only: bool) -> dict[str, bool]:
+    return {} if sys.version_info < (3, 10) else {"kw_only": kw_only}
+
+
 def trickles(
     *,
     no_override: bool = False,
@@ -60,8 +67,6 @@ def trickles(
     else:
         default_ = default
 
-    kw_only_maybe = {} if sys.version_info < (3, 10) else {"kw_only": kw_only}
-
     field_ = __field(
         default=default_,
         init=init,
@@ -70,6 +75,76 @@ def trickles(
         hash=hash,
         compare=compare,
         metadata={**metadata, "trickle": Trickle(no_override)},
-        **kw_only_maybe,
+        **_kw_only_maybe(kw_only),
     )
     return field_
+
+
+def _pass_thru_parser(extracted: str, context: Dict[Any, Any]) -> Any:
+    return extracted
+
+
+def derive_from_filename(
+    *,
+    pattern: str = r"[\w\.]*test_([\w].*)",
+    parse: Callable[[str, Dict[Any, Any]], Any] = _pass_thru_parser,
+    # context: Dict[Any, Any] = None,
+    default: Any = MISSING,
+    default_factory: Union[Callable[[], Any], OptionalMissing] = MISSING,
+    init: bool = True,
+    repr: bool = True,
+    hash: Optional[bool] = None,
+    compare: bool = True,
+    metadata: Optional[Mapping[Any, Any]] = None,
+    kw_only: bool = False,
+) -> Any:
+    if metadata is None:
+        metadata = MappingProxyType({})
+
+    if default is MISSING and default_factory is MISSING:
+        default_ = DeriveFromFileName(pattern, parse=parse)
+    else:
+        default_ = default
+
+    field_: Field = trickles(
+        default=default_,
+        init=init,
+        default_factory=default_factory,
+        repr=repr,
+        hash=hash,
+        compare=compare,
+        metadata={
+            **metadata,
+            "trickle": Trickle(no_override=True),
+            "derive_from_filename": default_,
+        },
+        **_kw_only_maybe(kw_only),
+    )
+    return field_
+
+
+class DeriveFromFileName:
+    """Extract the value of the annotated attribute from the test's filename
+    based on the given regex."""
+
+    def __init__(
+        self,
+        file_pattern: str = r"[\w\.]*test_([\w].*)",
+        *,
+        parse: Callable[[str, Dict[Any, Any]], Any] = _pass_thru_parser,
+        context: Dict[Any, Any] = None,
+    ):
+        self.file_pattern: re.Pattern = re.compile(file_pattern)
+        self.parse = parse
+        self.context = context or {}
+
+    def get_attr_value(self, filename: str) -> Any:
+        match = self.file_pattern.search(filename)
+        if match is None:
+            raise CaseConfigurationError(
+                f"Could not derive a value from filename {filename}"
+                f" with regex {self.file_pattern}. :("
+            )
+        extracted = match.group(1)
+
+        return self.parse(extracted, self.context)
