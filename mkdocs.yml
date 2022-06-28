@@ -16,6 +16,9 @@ nav:
     - Designing Tests:
       - usage/designing-tests/index.md
       - usage/designing-tests/making-cases.md
+    - Enhancing Tests:
+      - usage/tables-and-modules/index.md
+      - usage/leveraging-filenames/index.md
   - about.md
 markdown_extensions:
 - pymdownx.highlight:
