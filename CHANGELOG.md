@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v2.0.0 (2022-06-28)
+### Feature
+* Actually marry filename derivation and table ([`da823d1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/da823d1b287d930e8bbdf3540bf94eb4400ac5cf))
+
+### Fix
+* **bug:** Once again, fix incorrect import gen ([`2b63b06`](https://github.com/ainsleymcgrath/pytest-embrace/commit/2b63b06c28ae4f25ba4a75adde76fd91049cdfed))
+* Simplify type ([`b888196`](https://github.com/ainsleymcgrath/pytest-embrace/commit/b888196d2408ec8d571f6b445726a43e1f95aee9))
+
+### Breaking
+* DeriveFromFileName() is effectively deprecated in favor of derive_from_filename()  ([`7621aee`](https://github.com/ainsleymcgrath/pytest-embrace/commit/7621aee7a49079c9d8e3f8a6c6409a2a68f2645b))
+
+### Documentation
+* First portion of how-to + nav ([`a62721d`](https://github.com/ainsleymcgrath/pytest-embrace/commit/a62721da1cb5af7cbca07ac8f2011293aad92b3d))
+* Fix title to be not redundant ([`abf8416`](https://github.com/ainsleymcgrath/pytest-embrace/commit/abf8416d2c82229261d5d59e97c3b3dc4ce5eef0))
+* A little more color in About ([`593b36e`](https://github.com/ainsleymcgrath/pytest-embrace/commit/593b36ebb4a75a6390c01d00faaf7dcf85a8f4b4))
+* Fix typo ([`513f60f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/513f60fda51c89b15bc15ef5fe11f7f597dfe20d))
+* Fix invalid config ([`432ab79`](https://github.com/ainsleymcgrath/pytest-embrace/commit/432ab79662c34aa8f9a968b95336665081ecf166))
+
 ## v1.0.2 (2022-06-26)
 ### Fix
 * **bug:** Stop generating invalid code ([`fdbe903`](https://github.com/ainsleymcgrath/pytest-embrace/commit/fdbe9038bac8c4fa9eeefc0888cebb71e53b13d2))
