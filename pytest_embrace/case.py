@@ -39,7 +39,7 @@ def __field(**kwargs: Any) -> Field:
     return field(**kwargs)
 
 
-def _kw_only_maybe(kw_only: bool) -> dict[str, bool]:
+def _kw_only_maybe(kw_only: bool) -> Dict[str, bool]:
     return {} if sys.version_info < (3, 10) else {"kw_only": kw_only}
 
 

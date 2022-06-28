@@ -177,6 +177,11 @@ def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseT
     # build up the default values set in the _module_
     # for the attributes on _cls_ that were marked with trickles()
     cls_fields = {field.name: field for field in fields(cls)}
+    values_from_filename = {
+        k: derive.get_attr_value(module.__name__)
+        for k, v in cls_fields.items()
+        if (derive := v.metadata.get("derive_from_filename")) is not None
+    }
     trickle_attr_defaults: Dict[str, Tuple[Trickle, Any]] = {}
     for attr in dir(module):
         if attr.startswith("__"):
@@ -213,6 +218,8 @@ def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseT
             trickle_config, trickled_down_val = trickle_attr_defaults.get(
                 k, (None, UNSET)
             )
+            if k in values_from_filename:
+                setattr(case, k, values_from_filename[k])
             if isinstance(v, Trickle):  # value is unset on the dataclass
                 if trickled_down_val is UNSET:
                     unset_table_attrs_by_index[i] = k
