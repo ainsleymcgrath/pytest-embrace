@@ -1,3 +1,4 @@
+name: CI
 on: push
 
 jobs:
@@ -39,3 +40,16 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         repository_username: __token__
         repository_password: ${{ secrets.REPOSITORY_PASSWORD }}
+
+  Docs:
+    needs: Release
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version-file: .python-version
+    - run: pip install mkdocs-material
+    - run: mkdocs gh-deploy --force
