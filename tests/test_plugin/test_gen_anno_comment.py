@@ -14,7 +14,7 @@ else:
 
 from dataclasses import dataclass
 
-from pytest_embrace import CaseRunner, Embrace, anno
+from pytest_embrace import Embrace, anno
 
 
 @dataclass

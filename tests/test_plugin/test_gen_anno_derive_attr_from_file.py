@@ -12,7 +12,7 @@ else:
 
 from dataclasses import dataclass
 
-from pytest_embrace import CaseRunner, Embrace, derive_from_filename
+from pytest_embrace import Embrace, derive_from_filename
 
 
 @dataclass
