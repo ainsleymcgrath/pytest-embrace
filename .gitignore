@@ -45,3 +45,5 @@ MANIFEST
 .dmypy.json
 dmypy.json
 .coverage
+site/
+.DS_Store
