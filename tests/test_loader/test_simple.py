@@ -23,5 +23,7 @@ def test_load_attributes() -> None:
 
 def test_load_fail_on_missing() -> None:
     mod = module_factory(attr1="yo")
-    with pytest.raises(CaseConfigurationError):
+    with pytest.raises(
+        CaseConfigurationError, match="Only got attributes {'attr1': 'yo'}"
+    ):
         load(ValidCase, mod)

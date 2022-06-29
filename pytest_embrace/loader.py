@@ -8,8 +8,8 @@ from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
-from .anno import AnnotationMap, get_pep_593_values
-from .case import CaseType, DeriveFromFileName, Trickle
+from .anno import get_pep_593_values
+from .case import CaseType, Trickle
 from .exc import CaseConfigurationError
 
 
@@ -41,57 +41,98 @@ PYDANTIC_STRICTIFICATION_MAP = {
 }
 
 
-def _strictify(
-    t: Any,
-) -> Union[Type[StrictPydanticTypes], Type[ShouldBecomeStrictBuiltinTypes], Type[Any]]:
-    return PYDANTIC_STRICTIFICATION_MAP.get(t, t)
+def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
+    module_info = ModuleInfo(cls=cls, module=module)
+    if module_info.table is not None:
+        module_info.trickle_down_table()
+        return [
+            revalidate_dataclass(case, alias=f"{module_info}.table[{i}]{case}")
+            for i, case in enumerate(module_info.table)
+        ]
+
+    return [revalidate_dataclass(module_info.to_case(), alias=str(module_info))]
 
 
 class ModuleInfo:
-    def __init__(
-        self, *, cls: Type[CaseType], mod: ModuleType, anno_map: AnnotationMap
-    ):
-        defined = dir(mod)
-        spec = fields(cls)
-        validator_kwargs: Dict[str, Any] = {}
-        self.attrs: Dict[str, AttrInfo] = {}
+    def __init__(self, *, cls: Type[CaseType], module: ModuleType):
+        self.case_type = cls
+        self.module = module
+        self.name = module.__name__
+        self.cls_fields = {field.name: field for field in fields(self.case_type)}
+        self.filename_values = {
+            k: derive.get_attr_value(module.__name__)
+            for k, v in self.cls_fields.items()
+            if (derive := v.metadata.get("derive_from_filename")) is not None
+        }
+        self.module_attrs = {
+            attr: getattr(module, attr)
+            for attr in dir(module)
+            if not attr.startswith("__") and attr in self.cls_fields
+        }
+        self.module_attrs.update(self.filename_values)
 
-        for field_ in spec:
-            field_meta = field_.metadata
-            if field_.name not in defined and len(anno_map) == 0 == len(field_meta):
-                continue
+        if "table" in dir(module):
+            self.table = getattr(module, "table")
+            is_valid_table = (
+                isinstance(self.table, list)
+                and len(self.table) > 0
+                # would love to use an isinstance() here, but somehow
+                # (in Pytester tests specifically)
+                # it managed to not work? despite extensive time in PDB?
+                and all(str(type(x)) == str(self.case_type) for x in self.table)
+            )
+            if not is_valid_table:
+                raise
+        else:
+            self.table = None
 
-            if field_.name == "table":
-                raise CaseConfigurationError(
-                    "You've chosen the only illegal property name!"
-                    " It's used by the framwork. Please say 'table_' instead."
-                )
+        self.pep_539 = get_pep_593_values(self.case_type)
+        UNSET = object()
+        self.trickle_defaults: Dict[str, Tuple[Any, Trickle]] = {
+            k: (self.module_attrs.get(k, UNSET), trickle)
+            for k, v in self.cls_fields.items()
+            if (trickle := v.metadata.get("trickle")) is not None
+        }
+        self.all_trickles_unset = len(self.trickle_defaults) and all(
+            v is UNSET for v, _ in self.trickle_defaults.values()
+        )
 
-            if field_.name == "should":
-                # 'should' gets special treatment
-                pass
+    def __str__(self) -> str:
+        return f"Module[{self.name}]"
 
-            anno_info = anno_map.get(field_.name)
-            if "derive_from_filename" in field_meta:
-                derive_name = field_meta["derive_from_filename"]
-                if derive_name is not None:
-                    module_value = derive_name.get_attr_value(mod.__name__)
-            elif anno_info is None:
-                module_value = getattr(mod, field_.name)
-
-            attr_info = AttrInfo(field_, module_value)
-            self.attrs[attr_info.name] = attr_info
-
-            validator_kwargs[field_.name] = (
-                _strictify(attr_info.dc_field.type),
-                module_value,
+    def to_case(self) -> CaseType:
+        kwargs = {k: v for k, v in self.module_attrs.items() if k != "table"}
+        try:
+            return self.case_type(**kwargs)
+        except TypeError:
+            raise CaseConfigurationError(
+                f"Incorrect or missing attributes in {self.name}."
+                f"\nOnly got attributes {kwargs}"
             )
 
-        Validator = create_model(f"{mod.__name__}__ModuleValidator", **validator_kwargs)
-        Validator(**self.kwargs())
-
-    def kwargs(self) -> Dict[str, Any]:
-        return {a.name: a.module_value for a in self.attrs.values()}
+    def trickle_down_table(self) -> None:
+        assert self.table is not None
+        for i, case in enumerate(self.table):
+            for k, v in asdict(case).items():
+                if k in self.filename_values:
+                    setattr(case, k, self.filename_values[k])
+                elif self.all_trickles_unset and isinstance(v, Trickle):
+                    raise CaseConfigurationError(
+                        f"'{k}' is unset at the module level and in table[{i}]:{case}."
+                        " '{k}' is marked as 'trickles()' so it must be set somewhere."
+                    )
+                elif k in self.trickle_defaults and isinstance(v, Trickle):
+                    # absorb the default trickle value
+                    (trickle_value, _) = self.trickle_defaults[k]
+                    setattr(case, k, trickle_value)
+                elif k in self.trickle_defaults:
+                    # there was a trickle, but it was overridden
+                    (_, trickle_config) = self.trickle_defaults[k]
+                    if trickle_config.no_override and k in self.module_attrs:
+                        raise CaseConfigurationError(
+                            f"Trickle-down attribute '{k}"
+                            f" cannot be overridden in table[{i}]:{case}'"
+                        )
 
 
 def _raise_non_dataclass(o: object) -> None:
@@ -112,24 +153,6 @@ def _report_validation_error(exc: ValidationError, *, target_name: str) -> None:
     ) from exc
 
 
-def from_module(cls: Type[CaseType], module: ModuleType) -> CaseType:
-    _raise_non_dataclass(cls)
-    anno_map = get_pep_593_values(cls)
-
-    try:
-        info = ModuleInfo(mod=module, cls=cls, anno_map=anno_map)
-    except ValidationError as e:
-        _report_validation_error(e, target_name=module.__name__)
-
-    try:
-        return cls(**info.kwargs())
-    except TypeError:
-        raise CaseConfigurationError(
-            f"Incorrect or missing attributes in module {module.__name__}."
-            f"\nGot attributes {set(info.kwargs())}"
-        )
-
-
 class PydanticConfig:
     arbitrary_types_allowed = True
 
@@ -139,7 +162,7 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
     kwargs = asdict(case)
     validator_kwargs: Dict[str, Tuple[Any, Any]] = {
         field.name: (
-            _strictify(field.type),
+            PYDANTIC_STRICTIFICATION_MAP.get(field.type, field.type),
             field.default
             if field.default is not MISSING
             else (
@@ -161,101 +184,3 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
         _report_validation_error(e, target_name=alias)
 
     return case
-
-
-def from_trickling_module(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
-    table = getattr(module, "table", None)
-    assert table is not None
-
-    UNSET = object()
-    # build up the default values set in the _module_
-    # for the attributes on _cls_ that were marked with trickles()
-    cls_fields = {field.name: field for field in fields(cls)}
-    values_from_filename = {
-        k: derive.get_attr_value(module.__name__)
-        for k, v in cls_fields.items()
-        if (derive := v.metadata.get("derive_from_filename")) is not None
-    }
-    trickle_attr_defaults: Dict[str, Tuple[Trickle, Any]] = {}
-    for attr in dir(module):
-        if attr.startswith("__"):
-            continue
-
-        config_from_cls = cls_fields.get(attr, UNSET)
-        field_meta = getattr(config_from_cls, "metadata", {})
-        value_from_module = getattr(module, attr, UNSET)
-        trickle_marker: Union[None, Trickle] = field_meta.get("trickle")
-
-        if trickle_marker is None:
-            continue
-
-        if value_from_module is UNSET:
-            continue
-
-        derive_from_filename: Union[DeriveFromFileName, None] = field_meta.get(
-            "derive_from_filename"
-        )
-        if derive_from_filename is None:
-
-            trickle_attr_defaults[attr] = trickle_marker, value_from_module
-        else:
-            trickle_attr_defaults[
-                attr
-            ] = trickle_marker, derive_from_filename.get_attr_value(module.__name__)
-
-    unset_table_attrs_by_index: Dict[int, str] = {}
-    illegal_overriders: Dict[int, str] = {}
-
-    out: List[CaseType] = []
-    for i, case in enumerate(table):
-        for k, v in asdict(case).items():
-            trickle_config, trickled_down_val = trickle_attr_defaults.get(
-                k, (None, UNSET)
-            )
-            if k in values_from_filename:
-                setattr(case, k, values_from_filename[k])
-            if isinstance(v, Trickle):  # value is unset on the dataclass
-                if trickled_down_val is UNSET:
-                    unset_table_attrs_by_index[i] = k
-                    continue
-                setattr(case, k, trickled_down_val)
-            elif (
-                getattr(trickle_config, "no_override", False) is True
-                and trickled_down_val is not UNSET
-            ):
-                illegal_overriders[i] = k
-
-        out.append(case)
-
-    if len(unset_table_attrs_by_index):
-        error = "\n".join(
-            f"In table[{i}]:{table[i]}, '{name}' is unset"
-            " at both the module and case level.."
-            f" Either specify a default at the module level, or pass the value."
-            for i, name in unset_table_attrs_by_index.items()
-        )
-        raise CaseConfigurationError(error)
-
-    if len(illegal_overriders):
-        error = "\n".join(
-            f"In table[{i}]:{table[i]}, '{name}' is set,"
-            f" but '{name}' is defined at the module level as well"
-            " and configured as as no_override."
-            " Accept the default or change the config."
-            for i, name in illegal_overriders.items()
-        )
-        raise CaseConfigurationError(error)
-
-    # do this at the _very_ end so the errors above have a chance to raise
-    # since validation errors don't capture the nuance of other table-related
-    # stuff that could have gone wrong already
-    for i, case in enumerate(out):
-        revalidate_dataclass(case, alias=f"table[{i}]:{case}")
-    return out
-
-
-def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
-    if hasattr(module, "table"):
-        return from_trickling_module(cls, module)
-    else:
-        return [from_module(cls, module)]

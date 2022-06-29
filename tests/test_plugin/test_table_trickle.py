@@ -144,10 +144,8 @@ def test_cant_trickle_no_override(pytester: pytest.Pytester) -> None:
     outcome = pytester.runpytest()
     outcome.assert_outcomes(errors=1)
     outcome.stdout.fnmatch_lines(
-        [
-            "*In table[1*"  # closing brackets are a problem for some reason
-            "'ounces_of_beverage' is set*",
-        ]
+        # closing brackets are a problem for some reason
+        "*Trickle-down attribute 'ounces_of_beverage cannot be overridden in table[1*"
     )
 
 
@@ -177,7 +175,7 @@ def test_cant_be_totally_missing(pytester: pytest.Pytester) -> None:
     outcome.assert_outcomes(errors=1)
     outcome.stdout.fnmatch_lines(
         [
-            "*In table[0*"  # closing brackets are a problem for some reason
-            "'beverage' is unset at both*",
+            # closing brackets are a problem for some reason
+            "*'beverage' is unset at the module level and in table[0*"
         ]
     )
