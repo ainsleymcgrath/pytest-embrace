@@ -1,6 +1,6 @@
 import pytest
 
-from .utils import matchable_fnlines_gen_output
+from .utils import generated_module_stdout_factory
 
 CONFTEST = """
 from dataclasses import dataclass
@@ -64,13 +64,13 @@ def multiple_flavors_conftest(pytester: pytest.Pytester) -> None:
         ),
         (
             "caller_1",
-            matchable_fnlines_gen_output(
+            generated_module_stdout_factory(
                 "name: str", fixture="caller_1", case_type="MyCase1"
             ),
         ),
         (
             "caller_2",
-            matchable_fnlines_gen_output(
+            generated_module_stdout_factory(
                 "num: int", "foo: str", fixture="caller_2", case_type="MyCase2"
             ),
         ),

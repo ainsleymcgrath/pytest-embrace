@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from .utils import matchable_fnlines_gen_output
+from .utils import generated_module_stdout_factory
 
 CONFTEST = """
 import sys
@@ -48,7 +48,7 @@ def test_comment_annotated_attr(
     pytester: pytest.Pytester, annotated_case_conftest: None
 ) -> None:
     outcome = pytester.runpytest("--embrace=anno_case")
-    matchlines = matchable_fnlines_gen_output(
+    matchlines = generated_module_stdout_factory(
         "name: str  # This is ... the name.",
         fixture="anno_case",
         case_type="AnnotatedCase",

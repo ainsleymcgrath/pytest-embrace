@@ -1,7 +1,7 @@
 from typing import List
 
 
-def matchable_fnlines_gen_output(
+def generated_module_stdout_factory(
     *type_hints: str,
     fixture: str,
     case_type: str,
