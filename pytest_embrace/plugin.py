@@ -20,11 +20,6 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     (sut,) = embracers
     cls = registry_[sut]
     cases = load(cls, metafunc.module)
-    # if hasattr(metafunc.module, "table"):
-    #     cases = from_trickling_module(cls, metafunc.module)
-    # else:
-    #     cases = [from_module(cls, metafunc.module)]
-
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])
 
 

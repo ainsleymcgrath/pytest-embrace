@@ -21,7 +21,7 @@ class CaseTypeInfo(Generic[T]):
     cls: T
 
 
-class OneTimeOnlyMapping(MutableMapping):
+class OneTimeOnlyMapping(MutableMapping[str, RegistryValue]):
     def __init__(self) -> None:
         self._mapping: Dict[str, RegistryValue] = {}
 

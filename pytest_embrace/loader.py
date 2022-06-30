@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import MISSING, Field, asdict, dataclass, field, fields, is_dataclass
 from types import ModuleType
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, Generic, List, Tuple, Type, Union
 
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
@@ -41,6 +41,7 @@ PYDANTIC_STRICTIFICATION_MAP = {
 }
 
 
+# TODO should take a moduleinfo instead of instantiating
 def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
     module_info = ModuleInfo(cls=cls, module=module)
     if module_info.table is not None:
@@ -53,7 +54,7 @@ def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
     return [revalidate_dataclass(module_info.to_case(), alias=str(module_info))]
 
 
-class ModuleInfo:
+class ModuleInfo(Generic[CaseType]):
     def __init__(self, *, cls: Type[CaseType], module: ModuleType):
         self.case_type = cls
         self.module = module
