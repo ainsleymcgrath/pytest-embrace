@@ -14,7 +14,7 @@ class EmbraceTestGenError(EmbraceError):
 
 
 def _stringify_type(type: Type) -> str:
-    return str(type) if not repr((type)).startswith("<class") else type.__name__
+    return str(type) if not repr(type).startswith("<class") else type.__name__
 
 
 def _field_to_cute_type_hint(field: Field, anno_map: AnnotationMap) -> str:
