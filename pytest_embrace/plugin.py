@@ -64,6 +64,7 @@ def pytest_runtestloop(session: pytest.Session) -> object:
         copypasta = gen_text(generate_for)
         print(f"\nCopying the following output to your clipboard:\n{copypasta}")
         copy(copypasta)
+        return STOP_LOOP
 
     if do_ls is True:
         print()
