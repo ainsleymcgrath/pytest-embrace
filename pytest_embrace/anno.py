@@ -1,12 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Type, get_args
 
-
-@dataclass
-class Comment:
-    text: str
-
-
 # class Prompt:
 #     """When tests are generated via `--embrace`, prompt the user for this value."""
 

@@ -14,12 +14,12 @@ else:
 
 from dataclasses import dataclass
 
-from pytest_embrace import Embrace, anno
+from pytest_embrace import Embrace
 
 
 @dataclass
 class AnnotatedCase:
-    name: Annotated[str, anno.Comment('This is ... the name.')]
+    name: Annotated[str, 'This is ... the name.']
 
 
 embrace_1 = Embrace(AnnotatedCase)

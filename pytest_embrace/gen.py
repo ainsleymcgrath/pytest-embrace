@@ -3,7 +3,7 @@ from inspect import getmodule
 from textwrap import dedent
 from typing import Type
 
-from pytest_embrace.anno import AnnotationMap, Comment, get_pep_593_values
+from pytest_embrace.anno import AnnotationMap, get_pep_593_values
 
 from .embrace import registry
 from .exc import EmbraceError
@@ -23,11 +23,11 @@ def _field_to_cute_type_hint(field: Field, anno_map: AnnotationMap) -> str:
         return f"{field.name}: {type_hint}"
 
     anno_info = anno_map[field.name]
-    comment = next((v for v in anno_info.annotations if isinstance(v, Comment)), None)
+    comment = next((v for v in anno_info.annotations if isinstance(v, str)), None)
     type_hint = _stringify_type(anno_info.type)
     text = f"{field.name}: {type_hint}"
     if comment is not None:
-        text += f"  # {comment.text}"
+        text += f"  # {comment}"
     return text
 
 
