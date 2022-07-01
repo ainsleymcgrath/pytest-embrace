@@ -71,4 +71,6 @@ def pytest_runtestloop(session: pytest.Session) -> object:
         print(f"The following {len(reg)} Embrace() fixtures are abailable:\n")
         print("\n".join(f"{name}  (via {cls})" for name, cls in reg.items()))
 
-    return STOP_LOOP
+        return STOP_LOOP
+
+    return None
