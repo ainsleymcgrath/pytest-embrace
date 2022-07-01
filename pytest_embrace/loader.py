@@ -161,9 +161,13 @@ class PydanticConfig:
 def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
     _raise_non_dataclass(case)
     kwargs = asdict(case)
+    pep539 = get_pep_593_values(type(case))
     validator_kwargs: Dict[str, Tuple[Any, Any]] = {
         field.name: (
-            PYDANTIC_STRICTIFICATION_MAP.get(field.type, field.type),
+            PYDANTIC_STRICTIFICATION_MAP.get(
+                pep539[field.name].type if field.name in pep539 else field.type,
+                field.type,
+            ),
             field.default
             if field.default is not MISSING
             else (
