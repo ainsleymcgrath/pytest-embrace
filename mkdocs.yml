@@ -19,6 +19,8 @@ nav:
     - Enhancing Tests:
       - usage/tables-and-modules/index.md
       - usage/leveraging-filenames/index.md
+    - Code Generation:
+      - usage/code-generation/index.md
   - about.md
 markdown_extensions:
 - pymdownx.highlight:
