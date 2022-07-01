@@ -4,11 +4,11 @@
 
 > _Reject boilerplate. Embrace complexity._
 
-## What is this? 👀
-
 `pytest-embrace` is a Pytest-plugin-cum-metaframework that facilitates structured, iterative, type-driven unit testing.
 
-## Why should you use `pytest-embrace`? 🧐
+This plugin's long-term goal is to be the [FastAPI](https://fastapi.tiangolo.com/) of [Pytest](https://docs.pytest.org/en/7.1.x/) plugins.
+
+## 🤔 Why should you use `pytest-embrace`?
 
 Because you like:
 
@@ -19,7 +19,7 @@ Because you like:
 
 If you know how to use dataclasses and Pytest fixtures, getting started requires very little knowledge beyond that.
 
-## Basic Usage 👋
+## 👋 Basic Usage
 As is tradition:
 
 ```bash
@@ -135,7 +135,7 @@ E   pytest_embrace.exc.CaseConfigurationError: 1 invalid attr values in 'test_wo
 E       Variable/Arg 'arg' should be of type str
 ```
 
-### Anything is possible 🌠
+### 🦄 Anything is possible
 
 The pattern employed by `pytest-embrace` could technically be applied to any unit tests.
 
@@ -146,8 +146,6 @@ In practice, however, it does best when:
   - And you've realized over time that all those tests are _pretty much_ the same... but nuance makes parametrizing hard and you resign yourself to long breadcrumb trails of fixtures that may-or-may-not actually be used by your tests and just like... 😤 ugh.
 - You like type safety, generating code, iterating quickly, testing exhaustively, and being DRY.
 
-### Learn More 🤠
+### 🤠 Learn More
 
-Check out this [pseudocode walkthrough](./pseudocode-example.md) for an idea of how you might use this framework.
-
-Or check out a more interactive [feature-by-feature guide](./usage/index.md).
+Check out a more interactive [feature-by-feature guide](./usage/index.md).
