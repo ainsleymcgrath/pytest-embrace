@@ -43,7 +43,7 @@ PYDANTIC_STRICTIFICATION_MAP = {
 
 # TODO should take a moduleinfo instead of instantiating
 def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
-    module_info = ModuleInfo(cls=cls, module=module)
+    module_info = ModuleInfo(case_type=cls, module=module)
     if module_info.table is not None:
         module_info.trickle_down_table()
         return [
@@ -55,8 +55,8 @@ def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
 
 
 class ModuleInfo(Generic[CaseType]):
-    def __init__(self, *, cls: Type[CaseType], module: ModuleType):
-        self.case_type = cls
+    def __init__(self, *, case_type: Type[CaseType], module: ModuleType):
+        self.case_type = case_type
         self.module = module
         self.name = module.__name__
         self.cls_fields = {field.name: field for field in fields(self.case_type)}
