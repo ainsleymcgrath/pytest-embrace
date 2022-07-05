@@ -21,6 +21,8 @@ nav:
       - usage/leveraging-filenames/index.md
     - Code Generation:
       - usage/code-generation/index.md
+  # - Reference:
+  #   - reference/index.md
   - about.md
 markdown_extensions:
 - pymdownx.highlight:
