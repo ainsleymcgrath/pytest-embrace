@@ -1,4 +1,21 @@
-from typing import List
+from textwrap import dedent
+from typing import Callable, List
+
+import pytest
+
+TestFuncWithPytester = Callable[[pytest.Pytester], None]
+
+
+def make_conftest(text: str, *, autose: bool = False) -> TestFuncWithPytester:
+    @pytest.fixture(autouse=autose)
+    def autouse_conftest(pytester: pytest.Pytester) -> None:
+        pytester.makeconftest(dedent(text))
+
+    return autouse_conftest
+
+
+def make_autouse_conftest(text: str) -> Callable[[pytest.Pytester], None]:
+    return make_conftest(text, autose=True)
 
 
 def generated_module_stdout_factory(
