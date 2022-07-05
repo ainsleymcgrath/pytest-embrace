@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.0 (2022-07-01)
+### Feature
+* Specify generated comments with plain strings ([`502fe80`](https://github.com/ainsleymcgrath/pytest-embrace/commit/502fe80c616faa7a672ed0bdfac4daa52bba2a74))
+* Add '--embrace-ls' flag ([`db00365`](https://github.com/ainsleymcgrath/pytest-embrace/commit/db00365169f4b501c2e4c8b88a25526f27371759))
+
+### Fix
+* **yikes:** Loop never stopped :grimace: ([`7f9f00f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/7f9f00ffee48b654fae7e1a79abf736306f1d1d3))
+* Check for pep39 b/c `Annotated[]` broke create_model() ([`0eaa31c`](https://github.com/ainsleymcgrath/pytest-embrace/commit/0eaa31c2fb0e1a20ea1df306fa57434a4bc875d2))
+* Exit CLI sooner ([`26f8307`](https://github.com/ainsleymcgrath/pytest-embrace/commit/26f830790e752d78fa3551cee5cd4e0eff40b584))
+* Collections.abc isn't generic in 3.8 ([`391691b`](https://github.com/ainsleymcgrath/pytest-embrace/commit/391691b0c1648965c0781cd314a6e515a13ff10b))
+
+### Documentation
+* Add codegen docs ([`66a7661`](https://github.com/ainsleymcgrath/pytest-embrace/commit/66a7661b12a09cc052430a917ecaa6a096bc317e))
+* Get rid of fake example; slight edit index ([`3bf5b97`](https://github.com/ainsleymcgrath/pytest-embrace/commit/3bf5b971bc9bef2c7476a34cd466ca544051e10f))
+
 ## v2.1.1 (2022-06-28)
 ### Fix
 * Don't refer to old version of the class ([`64b539a`](https://github.com/ainsleymcgrath/pytest-embrace/commit/64b539a32e679029ef0ad9839215d294a9ea803e))
