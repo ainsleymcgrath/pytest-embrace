@@ -1,6 +1,6 @@
 import pytest
 
-from .utils import make_autouse_conftest
+from .utils import make_autouse_conftest, make_test_run_outcome_fixture
 
 _ = make_autouse_conftest(
     """
@@ -33,61 +33,63 @@ _ = make_autouse_conftest(
          simple_case = embrace.caller_fixture_factory("simple_case")
          """
 )
-SINGLE_TEST_FILE = """
-name = 'hey'
 
-def test(simple_case):
-    ...
-"""
+single_test_outcome = make_test_run_outcome_fixture(
+    """
+    name = 'hey'
 
-MULTI_TEST_FILE = """
-from conftest import MyCase
-
-table = [MyCase(name='hey'), MyCase(name='yo')]
-
-def test(simple_case):
-    ...
-"""
-
-USE_ARTIFACT_AFTER_FILE = """
-from conftest import MyCase
-
-name = 'hey'
-
-def test(simple_case):
-    assert simple_case.case.name == 'hey'
-    assert simple_case.actual_result['backwards'] == ['y', 'e', 'h']
-"""
-
-USE_ARTIFACT_AFTER_FILE_PLUS_OTHER_FIXTURE = """
-from conftest import MyCase
-
-name = 'hey'
-
-def test(simple_case, fix):
-    assert simple_case.actual_result['backwards'] == list(reversed(fix))
-"""
+    def test(simple_case):
+        ..."""
+)
 
 
-def test_single(pytester: pytest.Pytester) -> None:
-    pytester.makepyfile(SINGLE_TEST_FILE)
-    outcome = pytester.runpytest()
-    outcome.assert_outcomes(passed=1)
+def test_single(single_test_outcome: pytest.RunResult) -> None:
+    single_test_outcome.assert_outcomes(passed=1)
 
 
-def test_multi(pytester: pytest.Pytester) -> None:
-    pytester.makepyfile(MULTI_TEST_FILE)
-    outcome = pytester.runpytest()
-    outcome.assert_outcomes(passed=1, errors=1)
+table_test_outcome = make_test_run_outcome_fixture(
+    """
+    from conftest import MyCase
+
+    table = [MyCase(name='hey'), MyCase(name='yo')]
+
+    def test(simple_case):
+        ..."""
+)
 
 
-def test_use_artifact(pytester: pytest.Pytester) -> None:
-    pytester.makepyfile(USE_ARTIFACT_AFTER_FILE)
-    outcome = pytester.runpytest()
-    outcome.assert_outcomes(passed=1, errors=0)
+def test_multi(table_test_outcome: pytest.RunResult) -> None:
+    table_test_outcome.assert_outcomes(passed=1, errors=1)
 
 
-def test_use_artifact_plus_other(pytester: pytest.Pytester) -> None:
-    pytester.makepyfile(USE_ARTIFACT_AFTER_FILE_PLUS_OTHER_FIXTURE)
-    outcome = pytester.runpytest()
-    outcome.assert_outcomes(passed=1, errors=0)
+artifact_usage_outcome = make_test_run_outcome_fixture(
+    """
+    from conftest import MyCase
+
+    name = 'hey'
+
+    def test(simple_case):
+        assert simple_case.case.name == 'hey'
+        assert simple_case.actual_result['backwards'] == ['y', 'e', 'h']"""
+)
+
+
+def test_use_artifact(artifact_usage_outcome: pytest.RunResult) -> None:
+    artifact_usage_outcome.assert_outcomes(passed=1, errors=0)
+
+
+artifact_plus_fixture_outcome = make_test_run_outcome_fixture(
+    """
+    from conftest import MyCase
+
+    name = 'hey'
+
+    def test(simple_case, fix):
+        assert simple_case.actual_result['backwards'] == list(reversed(fix))"""
+)
+
+
+def test_use_artifact_plus_other(
+    artifact_plus_fixture_outcome: pytest.RunResult,
+) -> None:
+    artifact_plus_fixture_outcome.assert_outcomes(passed=1, errors=0)

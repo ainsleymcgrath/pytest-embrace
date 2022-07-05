@@ -1,5 +1,5 @@
 from textwrap import dedent
-from typing import Callable, List
+from typing import Any, Callable, List
 
 import pytest
 
@@ -16,6 +16,25 @@ def make_conftest(text: str, *, autose: bool = False) -> TestFuncWithPytester:
 
 def make_autouse_conftest(text: str) -> Callable[[pytest.Pytester], None]:
     return make_conftest(text, autose=True)
+
+
+def make_test_run_outcome_fixture(
+    *args: Any, **kwargs: Any
+) -> Callable[[pytest.Pytester], pytest.RunResult]:
+    """For the common case of:
+        creating a python file (or files)
+        immediately running pytest,
+        directly using the Outcome.
+    If other fixtures or complex setup are needed, this is not for you."""
+
+    @pytest.fixture
+    def fixture(pytester: pytest.Pytester) -> pytest.RunResult:
+        pytester.makepyfile(*args, **kwargs)
+
+        outcome = pytester.runpytest()
+        return outcome
+
+    return fixture
 
 
 def generated_module_stdout_factory(
