@@ -1,3 +1,4 @@
+from importlib import reload
 from textwrap import dedent
 
 import pytest
@@ -25,6 +26,11 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     # ModuleInfo(case_name, case_cls, metafunc.module)
     cases = load(cls, metafunc.module)
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])
+
+    reload(metafunc.module)  # this guarantees the safety of module scope.
+    # by reloading at the end of a run, any future references to the just-tested module
+    # will encounter it in its 'fresh' state.
+    # see ../tests/test_plugin/test_safe_mutable_module_scope.py
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
