@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v2.3.0 (2022-07-05)
+### Feature
+* Module state and 'globals' are safe. thanks, Ronny! ([`2e0d3cd`](https://github.com/ainsleymcgrath/pytest-embrace/commit/2e0d3cdbf165e193757131d563336feb386b6fb4))
+
+### Documentation
+* Remove all unused pages ([`e7edbc6`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e7edbc608df410b557649212e8453b0e98ee05bf))
+
 ## v2.2.0 (2022-07-01)
 ### Feature
 * Specify generated comments with plain strings ([`502fe80`](https://github.com/ainsleymcgrath/pytest-embrace/commit/502fe80c616faa7a672ed0bdfac4daa52bba2a74))
