@@ -9,6 +9,7 @@ from .gen import gen_text
 from .loader import load
 
 
+# TODO entry, inj here
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     registry_ = registry()
     embracers = [name for name in metafunc.fixturenames if name in registry_]
@@ -21,6 +22,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
     (sut,) = embracers
     cls = registry_[sut]
+    # ModuleInfo(case_name, case_cls, metafunc.module)
     cases = load(cls, metafunc.module)
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])
 
@@ -61,6 +63,7 @@ def pytest_runtestloop(session: pytest.Session) -> object:
                 f" Your options are {sorted([*reg])}"
             )
 
+        # XXX inj here
         copypasta = gen_text(generate_for)
         print(f"\nCopying the following output to your clipboard:\n{copypasta}")
         copy(copypasta)
