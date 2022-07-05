@@ -1,8 +1,9 @@
 import pytest
 
-from .utils import generated_module_stdout_factory
+from .utils import generated_module_stdout_factory, make_autouse_conftest
 
-CONFTEST = """
+_ = make_autouse_conftest(
+    """
 from dataclasses import dataclass
 import pytest
 
@@ -48,11 +49,7 @@ def my_runner_2(case: MyCase2, fix: str) -> None:
 
 caller_2 = embrace_2.caller_fixture_factory("caller_2")
             """
-
-
-@pytest.fixture(autouse=True)
-def multiple_flavors_conftest(pytester: pytest.Pytester) -> None:
-    pytester.makeconftest(CONFTEST)
+)
 
 
 @pytest.mark.parametrize(

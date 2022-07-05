@@ -1,14 +1,10 @@
-import sys
-
 import pytest
 
-CONFTEST = """
-import sys
+from tests.test_plugin.utils import make_autouse_conftest
 
-if sys.version_info < (3, 9):
-    from typing_extensions import Annotated
-else:
-    from typing import Annotated
+_ = make_autouse_conftest(
+    """
+import sys
 
 from dataclasses import dataclass
 
@@ -30,11 +26,7 @@ def run(case: AnnotatedCase) -> None:
 
 horse_case = embrace_1.caller_fixture_factory("horse_case")
 """
-
-
-@pytest.fixture(autouse=True)
-def annotated_case_conftest(pytester: pytest.Pytester) -> None:
-    pytester.makeconftest(CONFTEST)
+)
 
 
 TEST_FILE = """
@@ -43,11 +35,6 @@ def test(horse_case):
 """
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 9),
-    reason="get_type(Annotated[...]) returns nothing in 3.8"
-    " so this feature can't work at all",
-)
 def test_success(pytester: pytest.Pytester) -> None:
     dir = pytester.mkpydir("test_nested")
     file = dir / "test_palomino.py"
@@ -58,11 +45,6 @@ def test_success(pytester: pytest.Pytester) -> None:
     outcome.assert_outcomes(passed=1)
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 9),
-    reason="get_type(Annotated[...]) returns nothing in 3.8"
-    " so this feature can't work at all",
-)
 def test_failure(pytester: pytest.Pytester) -> None:
     dir = pytester.mkpydir("test_nested")
     file = dir / "test_some_other_horse.py"

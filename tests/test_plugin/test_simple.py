@@ -1,35 +1,38 @@
 import pytest
 
-CONFTEST = """
-from dataclasses import dataclass
-import pytest
+from .utils import make_autouse_conftest
 
-from pytest_embrace import Embrace
-from pytest_embrace.case import CaseArtifact
+_ = make_autouse_conftest(
+    """
+         from dataclasses import dataclass
+         import pytest
 
-
-@pytest.fixture
-def fix() -> str:
-    return "hey"
+         from pytest_embrace import Embrace
+         from pytest_embrace.case import CaseArtifact
 
 
-@dataclass
-class MyCase:
-    name: str
+         @pytest.fixture
+         def fix() -> str:
+             return "hey"
 
 
-embrace = Embrace(MyCase)
+         @dataclass
+         class MyCase:
+             name: str
 
 
-@embrace.register_case_runner
-def my_runner(case: MyCase, fix: str) -> None:
-    assert case.name == fix
-    return {"backwards": [*reversed(case.name)]}
+         embrace = Embrace(MyCase)
 
 
-simple_case = embrace.caller_fixture_factory("simple_case")
-            """
+         @embrace.register_case_runner
+         def my_runner(case: MyCase, fix: str) -> None:
+             assert case.name == fix
+             return {"backwards": [*reversed(case.name)]}
 
+
+         simple_case = embrace.caller_fixture_factory("simple_case")
+         """
+)
 SINGLE_TEST_FILE = """
 name = 'hey'
 
@@ -64,11 +67,6 @@ name = 'hey'
 def test(simple_case, fix):
     assert simple_case.actual_result['backwards'] == list(reversed(fix))
 """
-
-
-@pytest.fixture(autouse=True)
-def simple_case_conftest(pytester: pytest.Pytester) -> None:
-    pytester.makeconftest(CONFTEST)
 
 
 def test_single(pytester: pytest.Pytester) -> None:

@@ -1,35 +1,34 @@
 import pytest
 
-CONFTEST = """
-from dataclasses import dataclass
-import pytest
+from .utils import make_autouse_conftest
 
-from pytest_embrace import  Embrace
-from pytest_embrace.case import CaseArtifact, trickles
+_ = make_autouse_conftest(
+    """
+    from dataclasses import dataclass
+    import pytest
 
-
-@dataclass
-class TrickleCase:
-    snack: str
-    beverage: str = trickles()
-    ounces_of_beverage: int = trickles(no_override=True)
+    from pytest_embrace import  Embrace
+    from pytest_embrace.case import CaseArtifact, trickles
 
 
-embrace = Embrace(TrickleCase)
+    @dataclass
+    class TrickleCase:
+        snack: str
+        beverage: str = trickles()
+        ounces_of_beverage: int = trickles(no_override=True)
 
 
-@embrace.register_case_runner
-def my_runner(case: TrickleCase) -> None:
-    pass
+    embrace = Embrace(TrickleCase)
 
 
-trickle_case = embrace.caller_fixture_factory("trickle_case")
-"""
+    @embrace.register_case_runner
+    def my_runner(case: TrickleCase) -> None:
+        pass
 
 
-@pytest.fixture(autouse=True)
-def simple_case_conftest(pytester: pytest.Pytester) -> None:
-    pytester.makeconftest(CONFTEST)
+    trickle_case = embrace.caller_fixture_factory("trickle_case")
+        """
+)
 
 
 SIMPLE_TEST_MODULE = """

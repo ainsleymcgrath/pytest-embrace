@@ -1,6 +1,9 @@
 import pytest
 
-CONFTEST = """
+from tests.test_plugin.utils import make_autouse_conftest
+
+_ = make_autouse_conftest(
+    """
 
 from dataclasses import dataclass
 
@@ -30,11 +33,7 @@ def run(case: DeriveAndTableCase) -> None:
 
 mix_n_match_case = mix_n_match.caller_fixture_factory("mix_n_match_case")
 """
-
-
-@pytest.fixture(autouse=True)
-def annotated_case_conftest(pytester: pytest.Pytester) -> None:
-    pytester.makeconftest(CONFTEST)
+)
 
 
 TEST_FILE = """

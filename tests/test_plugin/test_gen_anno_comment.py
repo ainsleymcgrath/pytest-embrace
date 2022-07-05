@@ -2,9 +2,10 @@ import sys
 
 import pytest
 
-from .utils import generated_module_stdout_factory
+from .utils import generated_module_stdout_factory, make_autouse_conftest
 
-CONFTEST = """
+_ = make_autouse_conftest(
+    """
 import sys
 
 if sys.version_info < (3, 9):
@@ -32,11 +33,7 @@ def run(case: AnnotatedCase, fix: str) -> None:
 
 anno_case = embrace_1.caller_fixture_factory("anno_case")
 """
-
-
-@pytest.fixture
-def annotated_case_conftest(pytester: pytest.Pytester) -> None:
-    pytester.makeconftest(CONFTEST)
+)
 
 
 @pytest.mark.skipif(
@@ -44,9 +41,7 @@ def annotated_case_conftest(pytester: pytest.Pytester) -> None:
     reason="get_type(Annotated[...]) returns nothing in 3.8"
     " so this feature can't work at all",
 )
-def test_comment_annotated_attr(
-    pytester: pytest.Pytester, annotated_case_conftest: None
-) -> None:
+def test_comment_annotated_attr(pytester: pytest.Pytester) -> None:
     outcome = pytester.runpytest("--embrace=anno_case")
     matchlines = generated_module_stdout_factory(
         "name: str  # This is ... the name.",
