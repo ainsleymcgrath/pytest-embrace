@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from pytest_embrace import derive_from_filename
-from pytest_embrace.loader import load
+from pytest_embrace.loader import ModuleInfo, load
 
 from .utils import module_factory
 
@@ -14,7 +14,7 @@ class AnnotatedWithDeriveNameCase:
 
 def test_get_name_from_file_default() -> None:
     mod = module_factory(name="my.tests.test_mage_hand")
-    (loaded,) = load(AnnotatedWithDeriveNameCase, mod)
+    (loaded,) = load(ModuleInfo(case_type=AnnotatedWithDeriveNameCase, module=mod))
     assert loaded.magic_spell == "mage_hand"
 
 
@@ -33,5 +33,5 @@ class DeriveWithParserCase:
 
 def test_get_name_from_file_with_parser() -> None:
     mod = module_factory(name="test_cool_stuff")
-    (loaded,) = load(DeriveWithParserCase, mod)
+    (loaded,) = load(ModuleInfo(case_type=DeriveWithParserCase, module=mod))
     assert loaded.stuff() == "cool"

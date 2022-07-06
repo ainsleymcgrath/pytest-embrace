@@ -6,7 +6,7 @@ from typing import Dict
 import pytest
 
 from pytest_embrace.exc import CaseConfigurationError
-from pytest_embrace.loader import load
+from pytest_embrace.loader import ModuleInfo, load
 
 from .utils import module_factory
 
@@ -20,7 +20,7 @@ class BuiltinsAttrsCase:
 
 def test_happy() -> None:
     mod = module_factory(string="string", integer=5, dictionary={})
-    (loaded,) = load(BuiltinsAttrsCase, mod)
+    (loaded,) = load(ModuleInfo(case_type=BuiltinsAttrsCase, module=mod))
     expected = BuiltinsAttrsCase(string="string", integer=5, dictionary={})
     assert expected == loaded
 
@@ -28,7 +28,7 @@ def test_happy() -> None:
 def test_multiple_wrong_types() -> None:
     mod = module_factory(string="string", integer={}, dictionary=["nope."])
     with pytest.raises(CaseConfigurationError, match="2 invalid attr values"):
-        load(BuiltinsAttrsCase, mod)
+        load(ModuleInfo(case_type=BuiltinsAttrsCase, module=mod))
 
 
 def test_table_wrong_types() -> None:
@@ -40,4 +40,4 @@ def test_table_wrong_types() -> None:
         ],
     )
     with pytest.raises(CaseConfigurationError):
-        load(BuiltinsAttrsCase, mod)
+        load(ModuleInfo(case_type=BuiltinsAttrsCase, module=mod))

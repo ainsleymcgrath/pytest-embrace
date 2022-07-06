@@ -5,28 +5,16 @@ import pytest
 from pyperclip import copy
 
 from .embrace import registry
-from .exc import EmbraceError
 from .gen import gen_text
-from .loader import load
+from .loader import find_embrace_requester, load
 
 
-# TODO entry, inj here
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    registry_ = registry()
-    embracers = [name for name in metafunc.fixturenames if name in registry_]
-
-    if len(embracers) > 1:
-        raise EmbraceError(f"Can't request multiple Embrace fixtures. Got {embracers}")
-
-    if len(embracers) == 0:
+    sut = find_embrace_requester(metafunc=metafunc, registry=registry())
+    if sut is None:
         return
-
-    (sut,) = embracers
-    cls = registry_[sut]
-    # ModuleInfo(case_name, case_cls, metafunc.module)
-    cases = load(cls, metafunc.module)
+    cases = load(sut)
     metafunc.parametrize("case", cases, ids=[str(c) for c in cases])
-
     reload(metafunc.module)  # this guarantees the safety of module scope.
     # by reloading at the end of a run, any future references to the just-tested module
     # will encounter it in its 'fresh' state.

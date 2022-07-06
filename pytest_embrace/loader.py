@@ -2,15 +2,16 @@ from __future__ import annotations
 
 from dataclasses import MISSING, Field, asdict, dataclass, field, fields, is_dataclass
 from types import ModuleType
-from typing import Any, Dict, Generic, List, Tuple, Type, Union
+from typing import Any, Dict, Generic, List, Mapping, Optional, Tuple, Type, Union
 
+import pytest
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
 from .anno import get_pep_593_values
 from .case import CaseType, Trickle
-from .exc import CaseConfigurationError
+from .exc import CaseConfigurationError, EmbraceError
 
 
 @dataclass
@@ -39,18 +40,6 @@ PYDANTIC_STRICTIFICATION_MAP = {
     "float": StrictFloat,
     "bool": StrictBool,
 }
-
-
-# TODO should take a moduleinfo instead of instantiating
-def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
-    module_info = ModuleInfo(case_type=cls, module=module)
-    if module_info.table is not None:
-        return [
-            revalidate_dataclass(case, alias=f"{module_info}.table[{i}]{case}")
-            for i, case in enumerate(module_info.table)
-        ]
-
-    return [revalidate_dataclass(module_info.to_case(), alias=str(module_info))]
 
 
 class ModuleInfo(Generic[CaseType]):
@@ -134,6 +123,16 @@ class ModuleInfo(Generic[CaseType]):
                         )
 
 
+def load(test: ModuleInfo[CaseType]) -> List[CaseType]:
+    if test.table is not None:
+        return [
+            revalidate_dataclass(case, alias=f"{test}.table[{i}]{case}")
+            for i, case in enumerate(test.table)
+        ]
+
+    return [revalidate_dataclass(test.to_case(), alias=str(test))]
+
+
 def _raise_non_dataclass(o: object) -> None:
     if not is_dataclass(o):
         raise CaseConfigurationError("Must use a dataclass for case object.")
@@ -187,3 +186,19 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
         _report_validation_error(e, target_name=alias)
 
     return case
+
+
+def find_embrace_requester(
+    *, metafunc: pytest.Metafunc, registry: Mapping[str, Any]
+) -> Optional[ModuleInfo]:
+    potentials = [name for name in metafunc.fixturenames if name in registry]
+
+    if len(potentials) > 1:
+        raise EmbraceError(f"Can't request multiple Embrace fixtures. Got {potentials}")
+
+    found = next(iter(potentials), None)
+    return (
+        found
+        if found is None
+        else ModuleInfo(case_type=registry[found], module=metafunc.module)
+    )
