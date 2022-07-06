@@ -45,7 +45,6 @@ PYDANTIC_STRICTIFICATION_MAP = {
 def load(cls: Type[CaseType], module: ModuleType) -> List[CaseType]:
     module_info = ModuleInfo(case_type=cls, module=module)
     if module_info.table is not None:
-        module_info.trickle_down_table()
         return [
             revalidate_dataclass(case, alias=f"{module_info}.table[{i}]{case}")
             for i, case in enumerate(module_info.table)
@@ -72,31 +71,20 @@ class ModuleInfo(Generic[CaseType]):
         }
         self.module_attrs.update(self.filename_values)
 
-        if "table" in dir(module):
-            self.table = getattr(module, "table")
-            is_valid_table = (
-                isinstance(self.table, list)
-                and len(self.table) > 0
-                # would love to use an isinstance() here, but somehow
-                # (in Pytester tests specifically)
-                # it managed to not work? despite extensive time in PDB?
-                and all(str(type(x)) == str(self.case_type) for x in self.table)
-            )
-            if not is_valid_table:
-                raise
-        else:
-            self.table = None
+        self.table = getattr(module, "table", None)
+        self.has_table_of_tests = (
+            isinstance(self.table, list)
+            and len(self.table) > 0
+            # would love to use an isinstance() here, but somehow
+            # (in Pytester tests specifically)
+            # it managed to not work? despite extensive time in PDB?
+            and all(str(type(x)) == str(self.case_type) for x in self.table)
+        )
 
         self.pep_539 = get_pep_593_values(self.case_type)
-        UNSET = object()
-        self.trickle_defaults: Dict[str, Tuple[Any, Trickle]] = {
-            k: (self.module_attrs.get(k, UNSET), trickle)
-            for k, v in self.cls_fields.items()
-            if (trickle := v.metadata.get("trickle")) is not None
-        }
-        self.all_trickles_unset = len(self.trickle_defaults) and all(
-            v is UNSET for v, _ in self.trickle_defaults.values()
-        )
+
+        if self.has_table_of_tests:
+            self._trickle_down_table()
 
     def __str__(self) -> str:
         return f"Module[{self.name}]"
@@ -111,24 +99,34 @@ class ModuleInfo(Generic[CaseType]):
                 f"\nOnly got attributes {kwargs}"
             )
 
-    def trickle_down_table(self) -> None:
+    def _trickle_down_table(self) -> None:
         assert self.table is not None
+        UNSET = object()
+        trickle_defaults: Dict[str, Tuple[Any, Trickle]] = {
+            k: (self.module_attrs.get(k, UNSET), trickle)
+            for k, v in self.cls_fields.items()
+            if (trickle := v.metadata.get("trickle")) is not None
+        }
+        all_trickles_unset = len(trickle_defaults) and all(
+            v is UNSET for v, _ in trickle_defaults.values()
+        )
+
         for i, case in enumerate(self.table):
             for k, v in asdict(case).items():
                 if k in self.filename_values:
                     setattr(case, k, self.filename_values[k])
-                elif self.all_trickles_unset and isinstance(v, Trickle):
+                elif all_trickles_unset and isinstance(v, Trickle):
                     raise CaseConfigurationError(
                         f"'{k}' is unset at the module level and in table[{i}]:{case}."
                         " '{k}' is marked as 'trickles()' so it must be set somewhere."
                     )
-                elif k in self.trickle_defaults and isinstance(v, Trickle):
+                elif k in trickle_defaults and isinstance(v, Trickle):
                     # absorb the default trickle value
-                    (trickle_value, _) = self.trickle_defaults[k]
+                    (trickle_value, _) = trickle_defaults[k]
                     setattr(case, k, trickle_value)
-                elif k in self.trickle_defaults:
+                elif k in trickle_defaults:
                     # there was a trickle, but it was overridden
-                    (_, trickle_config) = self.trickle_defaults[k]
+                    (_, trickle_config) = trickle_defaults[k]
                     if trickle_config.no_override and k in self.module_attrs:
                         raise CaseConfigurationError(
                             f"Trickle-down attribute '{k}"
