@@ -36,17 +36,17 @@ def gen_text(name: str, table: bool = False) -> str:
     if case_type is None:
         raise EmbraceTestGenError(f"No such test type '{name}'.")
 
-    anno_map = get_pep_593_values(case_type)
+    anno_map = get_pep_593_values(case_type.type)
 
     type_hints = "\n".join(
-        _field_to_cute_type_hint(f, anno_map) for f in fields(case_type)
+        _field_to_cute_type_hint(f, anno_map) for f in fields(case_type.type)
     )
 
-    source = getmodule(case_type)
+    source = getmodule(case_type.type)
     case_import = (
         dedent(
             f"""
-            from {mod_name} import {case_type.__name__}
+            from {mod_name} import {case_type.type_name}
             """
         )
         if (mod_name := getattr(source, "__name__", None)) is not None
@@ -61,6 +61,6 @@ from pytest_embrace import CaseArtifact
 {type_hints}
 
 
-def test({name}: CaseArtifact[{case_type.__name__}]) -> None:
+def test({name}: CaseArtifact[{case_type.type_name}]) -> None:
     ...
             """

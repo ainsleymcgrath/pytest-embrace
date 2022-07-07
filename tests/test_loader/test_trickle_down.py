@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import List
 
 from pytest_embrace import trickles
-from pytest_embrace.loader import ModuleInfo, load
-from tests.utils import module_factory
+from pytest_embrace.loader import load
+from tests.conftest import ModuleInfoFactory
 
 
 @dataclass
@@ -12,8 +12,9 @@ class AnnotatedWithTrickleCase:
     foo: List[str] = trickles()
 
 
-def test_value_trickles_down() -> None:
-    mod = module_factory(
+def test_value_trickles_down(module_info_factory: ModuleInfoFactory) -> None:
+    target = module_info_factory.build(
+        AnnotatedWithTrickleCase,
         foo=["hey", "sup"],
         table=[
             AnnotatedWithTrickleCase(bar=55),
@@ -21,7 +22,7 @@ def test_value_trickles_down() -> None:
             AnnotatedWithTrickleCase(bar=66, foo=[]),
         ],
     )
-    loaded = load(ModuleInfo(case_type=AnnotatedWithTrickleCase, module=mod))
+    loaded = load(target)
     assert loaded[0].foo == ["hey", "sup"], (
         "When a table member isn't given an arg,"
         " it inherits it from the parent case."

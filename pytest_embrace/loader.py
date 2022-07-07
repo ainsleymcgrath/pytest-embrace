@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from dataclasses import MISSING, Field, asdict, dataclass, field, fields, is_dataclass
 from types import ModuleType
-from typing import Any, Dict, Generic, List, Mapping, Optional, Tuple, Type, Union
+from typing import Any, Dict, Generic, List, Mapping, Optional, Tuple, Union
 
 import pytest
 from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
+
+from pytest_embrace.embrace import CaseTypeInfo
 
 from .anno import get_pep_593_values
 from .case import CaseType, Trickle
@@ -43,11 +45,11 @@ PYDANTIC_STRICTIFICATION_MAP = {
 
 
 class ModuleInfo(Generic[CaseType]):
-    def __init__(self, *, case_type: Type[CaseType], module: ModuleType):
-        self.case_type = case_type
+    def __init__(self, *, case_type_info: CaseTypeInfo, module: ModuleType) -> None:
+        self.case = case_type_info
         self.module = module
         self.name = module.__name__
-        self.cls_fields = {field.name: field for field in fields(self.case_type)}
+        self.cls_fields = {field.name: field for field in fields(self.case.type)}
         self.filename_values = {
             k: derive.get_attr_value(module.__name__)
             for k, v in self.cls_fields.items()
@@ -67,10 +69,10 @@ class ModuleInfo(Generic[CaseType]):
             # would love to use an isinstance() here, but somehow
             # (in Pytester tests specifically)
             # it managed to not work? despite extensive time in PDB?
-            and all(str(type(x)) == str(self.case_type) for x in self.table)
+            and all(str(type(x)) == str(self.case.type) for x in self.table)
         )
 
-        self.pep_539 = get_pep_593_values(self.case_type)
+        self.pep_539 = get_pep_593_values(self.case.type)
 
         if self.has_table_of_tests:
             self._trickle_down_table()
@@ -81,7 +83,7 @@ class ModuleInfo(Generic[CaseType]):
     def to_case(self) -> CaseType:
         kwargs = {k: v for k, v in self.module_attrs.items() if k != "table"}
         try:
-            return self.case_type(**kwargs)
+            return self.case.type(**kwargs)
         except TypeError:
             raise CaseConfigurationError(
                 f"Incorrect or missing attributes in {self.name}."
@@ -189,7 +191,7 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
 
 
 def find_embrace_requester(
-    *, metafunc: pytest.Metafunc, registry: Mapping[str, Any]
+    *, metafunc: pytest.Metafunc, registry: Mapping[str, CaseTypeInfo]
 ) -> Optional[ModuleInfo]:
     potentials = [name for name in metafunc.fixturenames if name in registry]
 
@@ -200,5 +202,5 @@ def find_embrace_requester(
     return (
         found
         if found is None
-        else ModuleInfo(case_type=registry[found], module=metafunc.module)
+        else ModuleInfo(case_type_info=registry[found], module=metafunc.module)
     )

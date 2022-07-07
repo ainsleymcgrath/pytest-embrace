@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from collections.abc import Iterator, MutableMapping
-from dataclasses import dataclass
+from collections.abc import Iterator
+from dataclasses import dataclass, field
 from functools import partial
 from inspect import signature
-from typing import Callable, Dict, Generic, Type, TypeVar
+from typing import Callable, Dict, Generic
+from typing import MutableMapping as TMutableMapping
+from typing import Type, TypeVar, Union
 
 import pytest
 
@@ -13,22 +15,32 @@ from .exc import CaseConfigurationError
 
 RegistryValue = Type["CaseType"]
 
-T = TypeVar("T")
+T = TypeVar("T", bound=Type)
+TUnset = object
+UNSET: TUnset = object()
 
 
 @dataclass
 class CaseTypeInfo(Generic[T]):
-    cls: T
+    type: T
+    caller_name: Union[str, TUnset] = UNSET
+    type_name: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.type_name = self.type.__name__
 
 
-class OneTimeOnlyMapping(MutableMapping):
+TCaseInfo = TypeVar("TCaseInfo", bound=CaseTypeInfo)
+
+
+class CaseTypeRegistry(TMutableMapping[str, TCaseInfo]):
     def __init__(self) -> None:
-        self._mapping: Dict[str, RegistryValue] = {}
+        self._mapping: Dict[str, TCaseInfo] = {}
 
-    def __getitem__(self, key: str) -> RegistryValue:
+    def __getitem__(self, key: str) -> TCaseInfo:
         return self._mapping[key]
 
-    def __setitem__(self, key: str, val: RegistryValue) -> None:
+    def __setitem__(self, key: str, val: TCaseInfo) -> None:
         if key not in self._mapping:
             self._mapping[key] = val
             return
@@ -51,8 +63,11 @@ class OneTimeOnlyMapping(MutableMapping):
     def __delitem__(self, _: str) -> None:
         raise NotImplementedError
 
+    def __str__(self) -> str:
+        return "\n".join(f"{name}  (via {cls})" for name, cls in self.items())
 
-_registry = OneTimeOnlyMapping()
+
+_registry: CaseTypeRegistry[CaseTypeInfo] = CaseTypeRegistry()
 
 
 class Embrace(Generic[CaseType]):
@@ -62,7 +77,6 @@ class Embrace(Generic[CaseType]):
         self.case_type = case_type
         self.wrapped_func: CaseRunner | None = None
         self.runner: partial | None = None
-        # _registry[name] = self.case_type
 
     def register_case_runner(
         self, func: CaseRunner
@@ -87,7 +101,7 @@ class Embrace(Generic[CaseType]):
     def caller_fixture_factory(
         self, name: str
     ) -> Callable[[pytest.FixtureRequest, CaseType], CaseArtifact]:
-        _registry[name] = self.case_type
+        _registry[name] = CaseTypeInfo(type=self.case_type, caller_name=name)
         self.caller_fixture_name = name
 
         @pytest.fixture
@@ -109,5 +123,5 @@ class Embrace(Generic[CaseType]):
         return caller_fixture
 
 
-def registry() -> OneTimeOnlyMapping:
+def registry() -> CaseTypeRegistry[CaseTypeInfo]:
     return _registry

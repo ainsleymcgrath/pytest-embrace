@@ -6,8 +6,8 @@ from typing import Dict
 import pytest
 
 from pytest_embrace.exc import CaseConfigurationError
-from pytest_embrace.loader import ModuleInfo, load
-from tests.utils import module_factory
+from pytest_embrace.loader import load
+from tests.conftest import ModuleInfoFactory
 
 
 @dataclass
@@ -17,21 +17,26 @@ class BuiltinsAttrsCase:
     dictionary: Dict[str, str]
 
 
-def test_happy() -> None:
-    mod = module_factory(string="string", integer=5, dictionary={})
-    (loaded,) = load(ModuleInfo(case_type=BuiltinsAttrsCase, module=mod))
+def test_happy(module_info_factory: ModuleInfoFactory) -> None:
+    target = module_info_factory.build(
+        BuiltinsAttrsCase, string="string", integer=5, dictionary={}
+    )
+    (loaded,) = load(target)
     expected = BuiltinsAttrsCase(string="string", integer=5, dictionary={})
     assert expected == loaded
 
 
-def test_multiple_wrong_types() -> None:
-    mod = module_factory(string="string", integer={}, dictionary=["nope."])
+def test_multiple_wrong_types(module_info_factory: ModuleInfoFactory) -> None:
+    target = module_info_factory.build(
+        BuiltinsAttrsCase, string="string", integer={}, dictionary=["nope."]
+    )
     with pytest.raises(CaseConfigurationError, match="2 invalid attr values"):
-        load(ModuleInfo(case_type=BuiltinsAttrsCase, module=mod))
+        load(target)
 
 
-def test_table_wrong_types() -> None:
-    mod = module_factory(
+def test_table_wrong_types(module_info_factory: ModuleInfoFactory) -> None:
+    target = module_info_factory.build(
+        BuiltinsAttrsCase,
         foo=["hey", "sup"],
         table=[
             BuiltinsAttrsCase(string="string", integer=5, dictionary={}),
@@ -39,4 +44,4 @@ def test_table_wrong_types() -> None:
         ],
     )
     with pytest.raises(CaseConfigurationError):
-        load(ModuleInfo(case_type=BuiltinsAttrsCase, module=mod))
+        load(target)
