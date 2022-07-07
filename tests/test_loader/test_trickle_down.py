@@ -3,8 +3,7 @@ from typing import List
 
 from pytest_embrace import trickles
 from pytest_embrace.loader import ModuleInfo, load
-
-from .utils import module_factory
+from tests.utils import module_factory
 
 
 @dataclass

@@ -7,8 +7,7 @@ import pytest
 
 from pytest_embrace.exc import CaseConfigurationError
 from pytest_embrace.loader import ModuleInfo, load
-
-from .utils import module_factory
+from tests.utils import module_factory
 
 
 @dataclass

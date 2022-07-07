@@ -3,8 +3,7 @@ from typing import Callable
 
 from pytest_embrace import derive_from_filename
 from pytest_embrace.loader import ModuleInfo, load
-
-from .utils import module_factory
+from tests.utils import module_factory
 
 
 @dataclass
