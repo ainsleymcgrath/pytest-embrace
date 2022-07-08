@@ -3,7 +3,7 @@ from typing import Any, Dict, Type, cast
 
 import pytest
 
-from pytest_embrace.embrace import CaseTypeInfo
+from pytest_embrace.case import CaseTypeInfo
 from pytest_embrace.loader import ModuleInfo
 
 pytest_plugins = "pytester"

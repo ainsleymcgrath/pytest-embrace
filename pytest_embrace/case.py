@@ -2,7 +2,7 @@ import re
 import sys
 from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field
 from types import MappingProxyType
-from typing import Any, Callable, Dict, Generic, Mapping, Optional, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Mapping, Optional, Type, TypeVar, Union
 
 from pytest_embrace.exc import CaseConfigurationError
 
@@ -17,9 +17,22 @@ class CaseArtifact(Generic[CoCaseType]):
 
 
 CaseArtifactType = TypeVar("CaseArtifactType", bound=CaseArtifact, covariant=True)
-
-
 CaseRunner = Callable[..., Any]
+
+
+CaseCls = TypeVar("CaseCls", bound=Type)
+TUnset = object
+UNSET: TUnset = object()
+
+
+@dataclass
+class CaseTypeInfo(Generic[CaseCls]):
+    type: CaseCls
+    caller_name: Union[str, TUnset] = UNSET
+    type_name: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.type_name = self.type.__name__
 
 
 # for some reason, using a dataclass here was problematic.

@@ -9,7 +9,7 @@ from pydantic import create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
-from pytest_embrace.embrace import CaseTypeInfo
+from pytest_embrace.case import CaseTypeInfo
 
 from .anno import get_pep_593_values
 from .case import CaseType, Trickle

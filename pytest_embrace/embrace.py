@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from dataclasses import dataclass, field
 from functools import partial
 from inspect import signature
 from typing import Callable, Dict, Generic
 from typing import MutableMapping as TMutableMapping
-from typing import Type, TypeVar, Union
+from typing import Type, TypeVar
 
 import pytest
 
-from .case import CaseArtifact, CaseRunner, CaseType
+from .case import CaseArtifact, CaseRunner, CaseType, CaseTypeInfo
 from .exc import CaseConfigurationError
 
 RegistryValue = Type["CaseType"]
@@ -18,16 +17,6 @@ RegistryValue = Type["CaseType"]
 T = TypeVar("T", bound=Type)
 TUnset = object
 UNSET: TUnset = object()
-
-
-@dataclass
-class CaseTypeInfo(Generic[T]):
-    type: T
-    caller_name: Union[str, TUnset] = UNSET
-    type_name: str = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.type_name = self.type.__name__
 
 
 TCaseInfo = TypeVar("TCaseInfo", bound=CaseTypeInfo)
