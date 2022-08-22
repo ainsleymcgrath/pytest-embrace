@@ -15,6 +15,7 @@ AnnotationMap = Dict[str, AnnotationInfo]
 
 
 def get_pep_593_values(cls: Type) -> AnnotationMap:
+    """Map string names of attributes to their annotation metadata."""
     out: AnnotationMap = {}
     for k, v in cls.__annotations__.items():
         attr_name = getattr(v, "__name__", getattr(v.__class__, "__name__", ""))
