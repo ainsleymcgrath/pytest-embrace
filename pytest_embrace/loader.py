@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import MISSING, Field, asdict, dataclass, field, fields, is_dataclass
+from dataclasses import MISSING, asdict, fields, is_dataclass
 from types import ModuleType
 from typing import Any, Dict, Generic, List, Mapping, Optional, Tuple, Union
 
@@ -14,17 +14,6 @@ from pytest_embrace.case import CaseTypeInfo
 from .anno import get_pep_593_values
 from .case import CaseType, Trickle
 from .exc import CaseConfigurationError, EmbraceError
-
-
-@dataclass
-class AttrInfo:
-    dc_field: Field
-    module_value: Any
-    name: str = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.name = self.dc_field.name
-
 
 ShouldBecomeStrictBuiltinTypes = Union[str, bytes, int, float, bool]
 StrictPydanticTypes = Union[StrictStr, StrictBytes, StrictInt, StrictFloat, StrictBool]

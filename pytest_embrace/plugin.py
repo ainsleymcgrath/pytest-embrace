@@ -5,7 +5,6 @@ import pytest
 from pyperclip import copy
 
 from .embrace import registry
-from .gen import gen_text
 from .loader import find_embrace_requester, load
 
 
@@ -42,7 +41,7 @@ STOP_LOOP = object()  # for pytest hooks that stop on the first-non-None-result
 
 
 def pytest_runtestloop(session: pytest.Session) -> object:
-    generate_for = session.config.getoption("--embrace")
+    generate_for: str = session.config.getoption("--embrace")
     do_ls = session.config.getoption("--embrace-ls")
 
     if generate_for is None and do_ls is None:
@@ -51,14 +50,15 @@ def pytest_runtestloop(session: pytest.Session) -> object:
     reg = registry()
 
     if generate_for is not None:
-        if generate_for not in reg:
+        case_type = registry().get(generate_for)
+        if case_type is None:
             pytest.exit(
                 f"No such fixture '{generate_for}'."
                 f" Your options are {sorted([*reg])}"
             )
 
         # XXX inj here
-        copypasta = gen_text(generate_for)
+        copypasta = case_type.to_text()
         print(f"\nCopying the following output to your clipboard:\n{copypasta}")
         copy(copypasta)
         return STOP_LOOP

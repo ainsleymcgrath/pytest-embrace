@@ -1,9 +1,12 @@
 import re
 import sys
-from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field
+from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field, fields
+from inspect import getmodule
+from textwrap import dedent
 from types import MappingProxyType
 from typing import Any, Callable, Dict, Generic, Mapping, Optional, Type, TypeVar, Union
 
+from pytest_embrace.anno import AnnotationInfo, get_pep_593_values
 from pytest_embrace.exc import CaseConfigurationError
 
 CaseType = TypeVar("CaseType")
@@ -25,14 +28,80 @@ TUnset = object
 UNSET: TUnset = object()
 
 
+def _stringify_type(type: Type) -> str:
+    return str(type) if not repr(type).startswith("<class") else type.__name__
+
+
+@dataclass
+class AttrInfo:
+    dc_field: Field
+    annotations: Optional[AnnotationInfo]
+    name: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.name = self.dc_field.name
+
+    def as_hint(self) -> str:
+        type_hint = _stringify_type(self.dc_field.type)
+        if self.annotations is None:
+            return f"{self.name}: {type_hint}"
+
+        comment = next(
+            (v for v in self.annotations.annotations if isinstance(v, str)), None
+        )
+        type_hint = _stringify_type(self.annotations.type)
+        text = f"{self.name}: {type_hint}"
+        if comment is not None:
+            text += f"  # {comment}"
+        return text
+
+    def render_import_statement(self) -> str:
+        ...
+
+
 @dataclass
 class CaseTypeInfo(Generic[CaseCls]):
     type: CaseCls
     caller_name: Union[str, TUnset] = UNSET
     type_name: str = field(init=False)
+    type_attrs: dict[str, AttrInfo] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.type_name = self.type.__name__
+        self.type_annotations = get_pep_593_values(self.type)
+        self.type_attrs = {
+            f.name: AttrInfo(dc_field=f, annotations=self.type_annotations.get(f.name))
+            for f in fields(self.type)
+        }
+
+    def to_text(self) -> str:
+        type_hints = "\n".join(attr.as_hint() for attr in self.type_attrs.values())
+
+        source = getmodule(self.type)
+        case_import = (
+            dedent(
+                f"""
+                from {mod_name} import {self.type_name}
+                """
+            )
+            if (mod_name := getattr(source, "__name__", None)) is not None
+            else ""
+        )
+
+        # builtin_imports = ""
+        # first_party_imports = ""
+        # third_party_imports = ""
+
+        # not using dedent bc newlines in the type hints are hard
+        return f"""
+from pytest_embrace import CaseArtifact
+{case_import}
+
+{type_hints}
+
+
+def test({self.caller_name}: CaseArtifact[{self.type_name}]) -> None:
+    ..."""
 
 
 # for some reason, using a dataclass here was problematic.
