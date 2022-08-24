@@ -1,10 +1,25 @@
 import re
 import sys
+from collections import defaultdict
 from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field, fields
 from inspect import getmodule
+from operator import itemgetter
 from textwrap import dedent
 from types import MappingProxyType
-from typing import Any, Callable, Dict, Generic, Mapping, Optional, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    Mapping,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    get_args,
+    get_origin,
+)
 
 from pytest_embrace.anno import AnnotationInfo, get_pep_593_values
 from pytest_embrace.exc import CaseConfigurationError
@@ -32,31 +47,62 @@ def _stringify_type(type: Type) -> str:
     return str(type) if not repr(type).startswith("<class") else type.__name__
 
 
+def _unnest_generics(type: Union[Type, list[Type]]) -> Iterator[Type]:
+    if isinstance(type, list):
+        for member in type:
+            yield from _unnest_generics(member)
+        return
+
+    generic_args = get_args(type)
+    if generic_args == tuple():
+        yield type
+    elif (origin := get_origin(type)) is not None:
+        yield origin
+
+    for arg in generic_args:
+        yield from _unnest_generics(arg)
+
+
 @dataclass
 class AttrInfo:
     dc_field: Field
-    annotations: Optional[AnnotationInfo]
+    annotations: Optional[AnnotationInfo] = None
     name: str = field(init=False)
 
     def __post_init__(self) -> None:
         self.name = self.dc_field.name
 
     def as_hint(self) -> str:
-        type_hint = _stringify_type(self.dc_field.type)
-        if self.annotations is None:
-            return f"{self.name}: {type_hint}"
-
-        comment = next(
-            (v for v in self.annotations.annotations if isinstance(v, str)), None
+        type_hint = _stringify_type(
+            self.dc_field.type if self.annotations is None else self.annotations.type
         )
-        type_hint = _stringify_type(self.annotations.type)
+        comment = next(
+            (
+                v
+                for v in getattr(self.annotations, "annotations", [])
+                if isinstance(v, str)
+            ),
+            None,
+        )
         text = f"{self.name}: {type_hint}"
         if comment is not None:
             text += f"  # {comment}"
         return text
 
     def render_import_statement(self) -> str:
-        ...
+        lookup: dict[str, list[str]] = defaultdict(list)
+        for typ in _unnest_generics(self.dc_field.type):
+            modname = getattr(typ, "__module__", "")
+            if modname == "builtins" or modname == "":
+                continue
+            own_name = getattr(typ, "__name__", getattr(typ.__class__, "__name__"))
+            lookup[modname].append(own_name)
+            continue
+
+        return "\n".join(
+            f"from {modname} import {', '.join(sorted(target))}"
+            for modname, target in sorted(lookup.items(), key=itemgetter(0))
+        )
 
 
 @dataclass
@@ -82,21 +128,21 @@ class CaseTypeInfo(Generic[CaseCls]):
             dedent(
                 f"""
                 from {mod_name} import {self.type_name}
+
                 """
             )
             if (mod_name := getattr(source, "__name__", None)) is not None
             else ""
         )
 
-        # builtin_imports = ""
-        # first_party_imports = ""
-        # third_party_imports = ""
+        imports = "\n".join(
+            attr_info.render_import_statement()
+            for attr_info in self.type_attrs.values()
+        )
 
         # not using dedent bc newlines in the type hints are hard
         return f"""
-from pytest_embrace import CaseArtifact
-{case_import}
-
+from pytest_embrace import CaseArtifact{imports}{case_import}
 {type_hints}
 
 

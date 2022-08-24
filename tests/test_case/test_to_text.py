@@ -50,7 +50,7 @@ def test_to_text_globals(assert_valid_text_is: AssertionHelper) -> None:
     )
 
 
-@pytest.mark.xfail("Not implemented!")
+# @pytest.mark.xfail(reason="Not implemented!")
 def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
     @dataclass
     class Case:
