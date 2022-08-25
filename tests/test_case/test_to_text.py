@@ -14,7 +14,7 @@ AssertionHelper = Callable[[str, str], None]
 @pytest.fixture
 def assert_valid_text_is() -> AssertionHelper:
     def do_assert(actual: str, expected: str) -> None:
-        assert dedent(expected) == actual
+        assert dedent(expected).lstrip("\n") == actual
         try:
             exec(actual, globals(), locals())  # check that it's valid
         except Exception as e:
@@ -37,41 +37,40 @@ def test_to_text_globals(assert_valid_text_is: AssertionHelper) -> None:
         text,
         """
         from pytest_embrace import CaseArtifact
-
         from tests.test_case.test_to_text import GlobalsCase
-
 
         x: float
         y: str
 
 
         def test(the_case: CaseArtifact[GlobalsCase]) -> None:
-            ...""",
+            ...
+        """,
     )
 
 
-# @pytest.mark.xfail(reason="Not implemented!")
-def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
-    @dataclass
-    class Case:
-        foo: Callable[[deque], chain]
+@dataclass
+class SomeCaseWithImports:
+    foo: Callable[[deque], chain]
 
-    target = CaseTypeInfo(Case, caller_name="the_case")
+
+def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
+
+    target = CaseTypeInfo(SomeCaseWithImports, caller_name="the_case")
     assert_valid_text_is(
         target.to_text(),
         """
         from collections import deque
+        from collections.abc import Callable
         from itertools import chain
-        from typing import Callable
 
         from pytest_embrace import CaseArtifact
-
-        from tests.test_case.test_to_text import Case
-
+        from tests.test_case.test_to_text import SomeCaseWithImports
 
         foo: Callable[[deque], chain]
 
 
-        def test(the_case: CaseArtifact[Case]) -> None:
-            ...""",
+        def test(the_case: CaseArtifact[SomeCaseWithImports]) -> None:
+            ...
+        """,
     )

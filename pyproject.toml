@@ -59,20 +59,15 @@ plugins = [
 ]
 
 [[tool.mypy.overrides]]
-module = "pytest"
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "_pytest.fixtures"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "pyperclip"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "jinja2"
-ignore_missing_imports = true
+module = [
+  "pytest",
+  "_pytest.fixtures",
+  "pyperclip",
+  "jinja2",
+  "black.*",
+  "isort",
+]
 
 [tool.isort]
 profile = "black"

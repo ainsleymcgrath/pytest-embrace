@@ -21,8 +21,13 @@ from typing import (
     get_origin,
 )
 
+import isort
+from black import format_str
+from black.mode import Mode
+
 from pytest_embrace.anno import AnnotationInfo, get_pep_593_values
 from pytest_embrace.exc import CaseConfigurationError
+from pytest_embrace.undot import undot_type_str
 
 CaseType = TypeVar("CaseType")
 CoCaseType = TypeVar("CoCaseType", contravariant=True)
@@ -48,7 +53,7 @@ def _stringify_type(type: Type) -> str:
 
 
 def _unnest_generics(type: Union[Type, list[Type]]) -> Iterator[Type]:
-    if isinstance(type, list):
+    if isinstance(type, list):  # such as the first arg to Callable[]
         for member in type:
             yield from _unnest_generics(member)
         return
@@ -73,9 +78,12 @@ class AttrInfo:
         self.name = self.dc_field.name
 
     def as_hint(self) -> str:
-        type_hint = _stringify_type(
-            self.dc_field.type if self.annotations is None else self.annotations.type
-        )
+        typ = self.dc_field.type if self.annotations is None else self.annotations.type
+        type_str = undot_type_str(_stringify_type(typ))
+        # get rid of dots since CaseTypeInfo solves the imports
+        type_str_parts = [t.lstrip("[").rstrip("]") for t in type_str.split(".")]
+        if len(type_str_parts) > 1:
+            type_str = type_str_parts[-1]
         comment = next(
             (
                 v
@@ -84,7 +92,7 @@ class AttrInfo:
             ),
             None,
         )
-        text = f"{self.name}: {type_hint}"
+        text = f"{self.name}: {type_str}"
         if comment is not None:
             text += f"  # {comment}"
         return text
@@ -96,8 +104,9 @@ class AttrInfo:
             if modname == "builtins" or modname == "":
                 continue
             own_name = getattr(typ, "__name__", getattr(typ.__class__, "__name__"))
+            if own_name == "Annotated":
+                continue
             lookup[modname].append(own_name)
-            continue
 
         return "\n".join(
             f"from {modname} import {', '.join(sorted(target))}"
@@ -141,13 +150,21 @@ class CaseTypeInfo(Generic[CaseCls]):
         )
 
         # not using dedent bc newlines in the type hints are hard
-        return f"""
-from pytest_embrace import CaseArtifact{imports}{case_import}
+        return format_str(
+            isort.code(
+                f"""
+from pytest_embrace import CaseArtifact
+{imports}
+{case_import}
 {type_hints}
 
 
 def test({self.caller_name}: CaseArtifact[{self.type_name}]) -> None:
-    ..."""
+    ...""",
+                profile="black",
+            ),
+            mode=Mode(),
+        )
 
 
 # for some reason, using a dataclass here was problematic.
