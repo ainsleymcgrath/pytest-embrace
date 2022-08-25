@@ -50,6 +50,6 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version-file: .python-version
+        python-version: '3.10'
     - run: pip install mkdocs-material
     - run: mkdocs gh-deploy --force
