@@ -1,3 +1,4 @@
+import sys
 from collections import deque
 from dataclasses import dataclass
 from itertools import chain
@@ -72,5 +73,22 @@ def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
 
         def test(the_case: CaseArtifact[SomeCaseWithImports]) -> None:
             ...
-        """,
+        """
+        if sys.version_info >= (3, 9)
+        else (
+            """
+            from collections import deque
+            from itertools import chain
+            from typing import Callable
+
+            from pytest_embrace import CaseArtifact
+            from tests.test_case.test_to_text import SomeCaseWithImports
+
+            foo: Callable[[deque], chain]
+
+
+            def test(the_case: CaseArtifact[SomeCaseWithImports]) -> None:
+                ...
+            """
+        ),
     )

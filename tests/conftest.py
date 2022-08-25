@@ -17,7 +17,7 @@ class ModuleInfoFactory:
             default_kw["__name__"] = "name_not_set"
 
         mod = cast(ModuleType, SimpleNamespace(**default_kw, **ns_kwargs))
-        case_info_kwargs: dict[str, Any] = (
+        case_info_kwargs: Dict[str, Any] = (
             {} if caller_name == "" else {"caller_name": caller_name}
         )
         return ModuleInfo(

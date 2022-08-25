@@ -12,6 +12,7 @@ from typing import (
     Dict,
     Generic,
     Iterator,
+    List,
     Mapping,
     Optional,
     Type,
@@ -52,7 +53,7 @@ def _stringify_type(type: Type) -> str:
     return str(type) if not repr(type).startswith("<class") else type.__name__
 
 
-def _unnest_generics(type: Union[Type, list[Type]]) -> Iterator[Type]:
+def _unnest_generics(type: Union[Type, List[Type]]) -> Iterator[Type]:
     if isinstance(type, list):  # such as the first arg to Callable[]
         for member in type:
             yield from _unnest_generics(member)
@@ -98,12 +99,31 @@ class AttrInfo:
         return text
 
     def render_import_statement(self) -> str:
-        lookup: dict[str, list[str]] = defaultdict(list)
+        lookup: Dict[str, List[str]] = defaultdict(list)
         for typ in _unnest_generics(self.dc_field.type):
             modname = getattr(typ, "__module__", "")
             if modname == "builtins" or modname == "":
                 continue
-            own_name = getattr(typ, "__name__", getattr(typ.__class__, "__name__"))
+            if sys.version_info < (3, 9) and "collections.abc" in modname:
+                # from 3.9 and onwards, things like Mapping and Callable
+                # are aliases of collections.abc types.
+                # before then, the stuff from collections.abc was not subscriptable,
+                # so here we are.
+                modname = "typing"
+            own_name: str = getattr(
+                typ,
+                "__name__",
+                getattr(
+                    typ,
+                    # as in the case of typing.Union in <=3.9,
+                    # whose __class__ is a _SpecialForm
+                    "_name",
+                    getattr(
+                        typ.__class__,
+                        "__name__",
+                    ),
+                ),
+            )
             if own_name == "Annotated":
                 continue
             lookup[modname].append(own_name)
@@ -119,7 +139,7 @@ class CaseTypeInfo(Generic[CaseCls]):
     type: CaseCls
     caller_name: Union[str, TUnset] = UNSET
     type_name: str = field(init=False)
-    type_attrs: dict[str, AttrInfo] = field(default_factory=dict)
+    type_attrs: Dict[str, AttrInfo] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.type_name = self.type.__name__
