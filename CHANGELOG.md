@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v2.4.0 (2022-08-25)
+### Feature
+* Imports now solve themselves properly ([`b3aad48`](https://github.com/ainsleymcgrath/pytest-embrace/commit/b3aad48e7c62b33d02f9e9d441e8696c1932aca5))
+
+### Fix
+* Be 3.8, 3.9 compatible ([`d3032fc`](https://github.com/ainsleymcgrath/pytest-embrace/commit/d3032fcb5ec39fb3bc034368df5206cea3c2fa09))
+* Remove errant newlines from test expectations ([`a9b763d`](https://github.com/ainsleymcgrath/pytest-embrace/commit/a9b763dcc4611553334c1d827556a19e47c411fa))
+
+### Documentation
+* Update homepage with annotations ([`377ee2c`](https://github.com/ainsleymcgrath/pytest-embrace/commit/377ee2c9516f17b054abd1c72bdeba197a8f09ab))
+
 ## v2.3.0 (2022-07-05)
 ### Feature
 * Module state and 'globals' are safe. thanks, Ronny! ([`2e0d3cd`](https://github.com/ainsleymcgrath/pytest-embrace/commit/2e0d3cdbf165e193757131d563336feb386b6fb4))
