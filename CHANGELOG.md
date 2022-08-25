@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.4.1 (2022-08-25)
+### Fix
+* **ci:** Dont have too many pythons! ([`c61801c`](https://github.com/ainsleymcgrath/pytest-embrace/commit/c61801c2de9222260e2d0fa38ac8ec035febea0b))
+
 ## v2.4.0 (2022-08-25)
 ### Feature
 * Imports now solve themselves properly ([`b3aad48`](https://github.com/ainsleymcgrath/pytest-embrace/commit/b3aad48e7c62b33d02f9e9d441e8696c1932aca5))
