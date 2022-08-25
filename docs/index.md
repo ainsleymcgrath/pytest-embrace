@@ -8,7 +8,7 @@
 
 This plugin's long-term goal is to be the [FastAPI](https://fastapi.tiangolo.com/) of [Pytest](https://docs.pytest.org/en/7.1.x/) plugins.
 
-## 🤔 Why should you use `pytest-embrace`?
+## Why should you use `pytest-embrace`?
 
 Because you like:
 
@@ -17,14 +17,16 @@ Because you like:
 - Generating useful copypasta
 - Type safety
 
-If you know how to use dataclasses and Pytest fixtures, getting started requires very little knowledge beyond that.
+If you know how to use dataclasses and Pytest fixtures, you're ready to use `pytest-embrace`.
 
-## 👋 Basic Usage
+## Basic Usage
 As is tradition:
 
 ```bash
 pip install pytest-embrace  # use a virtualenv in your preferred fashion
 ```
+
+### Configuring the framework
 
 Like any pytest plugin, `pytest-embrace` is configured in `conftest.py`.
 
@@ -43,24 +45,29 @@ from pytest_embrace import Embrace
 
 
 @dataclass
-class Case:
+class Case:  # (1)
     arg: str
     func: Callable
     expect: Any
 
 
-embrace = Embrace(Case)
+embrace = Embrace(Case)  # (2)
 
 
-@embrace.register_case_runner
+@embrace.register_case_runner  # (3)
 def run_simple(case: Case):
     result = case.func(case.arg)
     assert result == case.expect
     return result
 
 
-simple_case = embrace.caller_fixture_factory("simple_case")
+simple_case = embrace.caller_fixture_factory("simple_case")  # (4)
 ```
+
+1.    **A dataclass describes the schema of your test modules.**<br><br>In this case, modules will need to define the attributes (variables) `arg`, `func`, and `expect`.
+2.    **Create an `Embrace()` instance.**<br><br>The methods exposed on this class define the *behavior* and *identity* of tests who implement the schema.
+3.    **Register a "case runner" to define test *behavior.***<br><br>The "case runner" is a Pytest fixture like any other, with special access to the values in a test module.
+4.    **Create a "caller fixture" to give this new kind of test an *identity.***<br><br>The "caller fixture" is what you'll request in the signature of Pytest tests. It's also the name seen/used in `--embrace` CLI utils.
 
 The `simple_case` fixture is the identity of this new flavor of test you've created.
 
@@ -76,19 +83,22 @@ And then simply paste the output (it's already in your clipboard) into a new fil
 
 ```python
 # test_wow.py
+from typing import Any, Callable  # (1)
+
 from pytest_embrace import CaseArtifact
 
-import Case from conftest
-
+from conftest import Case
 
 arg: str
-func: typing.Callable
-expect: typing.Any
+func: Callable
+expect: Any
 
 
 def test(simple_case: CaseArtifact[Case]) -> None:
     ...
 ```
+
+1.    😮 Note how Embrace figured out the right imports for types!
 
 Fill in the values (with the comfort of autocomplete / editor help):
 
@@ -135,7 +145,7 @@ E   pytest_embrace.exc.CaseConfigurationError: 1 invalid attr values in 'test_wo
 E       Variable/Arg 'arg' should be of type str
 ```
 
-### 🦄 Anything is possible
+## Anything is possible
 
 The pattern employed by `pytest-embrace` could technically be applied to any unit tests.
 
@@ -146,6 +156,6 @@ In practice, however, it does best when:
   - And you've realized over time that all those tests are _pretty much_ the same... but nuance makes parametrizing hard and you resign yourself to long breadcrumb trails of fixtures that may-or-may-not actually be used by your tests and just like... 😤 ugh.
 - You like type safety, generating code, iterating quickly, testing exhaustively, and being DRY.
 
-### 🤠 Learn More
+## Learn More
 
-Check out a more interactive [feature-by-feature guide](./usage/index.md).
+Check out the [feature-by-feature guide](./usage/index.md).
