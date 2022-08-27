@@ -12,13 +12,10 @@ _ = make_autouse_conftest(
          from pytest_embrace import Embrace
          from pytest_embrace.case import CaseArtifact
 
-         watcher = {"fix_yields_yielded": False, "runner_yielded": False}
-
 
          @pytest.fixture
          def fix_yields() -> str:
-             print("hey")
-             yield "hey"
+             yield "Reginald"
              print("Cleaning up fixture")
 
          @dataclass
@@ -41,8 +38,7 @@ _ = make_autouse_conftest(
 
 single_test_outcome = make_test_run_outcome_fixture(
     """
-    from conftest import watcher
-    name = "hey"
+    name = "Reginald"
 
     def test(cleanup_case):
         assert cleanup_case.actual_result == "yoooo"
