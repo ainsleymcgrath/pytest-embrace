@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.4.2 (2022-08-27)
+### Fix
+* Properly support yielding runners ([`275b2b1`](https://github.com/ainsleymcgrath/pytest-embrace/commit/275b2b13a9c6cc7f92cd41d110eb2b6894ac93d9))
+
 ## v2.4.1 (2022-08-25)
 ### Fix
 * **ci:** Dont have too many pythons! ([`c61801c`](https://github.com/ainsleymcgrath/pytest-embrace/commit/c61801c2de9222260e2d0fa38ac8ec035febea0b))
