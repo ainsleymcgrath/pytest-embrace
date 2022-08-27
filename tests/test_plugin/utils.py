@@ -1,5 +1,5 @@
 from textwrap import dedent
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Tuple
 
 import pytest
 
@@ -19,19 +19,20 @@ def make_autouse_conftest(text: str) -> Callable[[pytest.Pytester], None]:
 
 
 def make_test_run_outcome_fixture(
-    *args: Any, **kwargs: Any
+    *args: Any, pytest_args: Tuple[Any, ...] = (), **kwargs: Any
 ) -> Callable[[pytest.Pytester], pytest.RunResult]:
     """For the common case of:
         creating a python file (or files)
         immediately running pytest,
         directly using the Outcome.
-    If other fixtures or complex setup are needed, this is not for you."""
+    If other fixtures or complex setup are needed, this is not for you.
+    Kwargs become filenames with a .py added."""
 
     @pytest.fixture
     def fixture(pytester: pytest.Pytester) -> pytest.RunResult:
         pytester.makepyfile(*args, **kwargs)
 
-        outcome = pytester.runpytest()
+        outcome = pytester.runpytest(*pytest_args)
         return outcome
 
     return fixture
