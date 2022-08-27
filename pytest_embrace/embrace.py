@@ -89,14 +89,14 @@ class Embrace(Generic[CaseType]):
 
     def caller_fixture_factory(
         self, name: str
-    ) -> Callable[[pytest.FixtureRequest, CaseType], CaseArtifact]:
+    ) -> Callable[[pytest.FixtureRequest, CaseType], Iterator[CaseArtifact]]:
         _registry[name] = CaseTypeInfo(type=self.case_type, caller_name=name)
         self.caller_fixture_name = name
 
         @pytest.fixture
         def caller_fixture(
             request: pytest.FixtureRequest, case: CaseType
-        ) -> CaseArtifact[CaseType]:
+        ) -> Iterator[CaseArtifact[CaseType]]:
             assert self.wrapped_func is not None
             # calling `getfixturevalue` for the wrapped func gets `run_case_fixture`.
             # doing *that* assigns self.runner at the last possible moment
@@ -105,9 +105,21 @@ class Embrace(Generic[CaseType]):
             # bring the artifact into scope with the case attached
             # so debug/exception output can see it in locals()
             artifact = CaseArtifact(case=case)
-            result = self.runner(case)
-            artifact.actual_result = result
-            return artifact
+            run_result = self.runner(case)
+            try:
+                # fixtures with cleanup yield once
+                test_result = next(run_result)
+            except TypeError:
+                test_result = run_result
+
+            artifact.actual_result = test_result
+            yield artifact
+
+            try:
+                # trigger the cleanup of the runner, if needed
+                next(run_result, ...)
+            except TypeError:
+                pass
 
         return caller_fixture
 
