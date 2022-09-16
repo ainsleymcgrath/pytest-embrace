@@ -66,7 +66,7 @@ def pytest_runtestloop(session: pytest.Session) -> object:
     if do_ls is True:
         print()
         print(f"The following {len(reg)} Embrace() fixtures are abailable:\n")
-        print("\n".join(f"{name}  (via {cls})" for name, cls in reg.items()))
+        print("\n".join(f"{name}  (via {cls.type_name})" for name, cls in reg.items()))
 
         return STOP_LOOP
 
