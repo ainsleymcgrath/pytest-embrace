@@ -3,14 +3,14 @@ from __future__ import annotations
 from collections.abc import Iterator
 from functools import partial
 from inspect import signature
-from typing import Callable, Dict, Generic
+from typing import Any, Callable, ClassVar, Dict, Generic
 from typing import MutableMapping as TMutableMapping
-from typing import Type, TypeVar
+from typing import NoReturn, Type, TypeVar
 
 import pytest
 
 from .case import CaseArtifact, CaseRunner, CaseType, CaseTypeInfo
-from .exc import CaseConfigurationError
+from .exc import CaseConfigurationError, TwoStepApiDeprecationError
 
 RegistryValue = Type["CaseType"]
 
@@ -61,51 +61,49 @@ _registry: CaseTypeRegistry[CaseTypeInfo] = CaseTypeRegistry()
 
 class Embrace(Generic[CaseType]):
     # _runner_registry: ClassVar[OneTimeOnlyMapping] = OneTimeOnlyMapping()
+    ASSUAGE: ClassVar[str] = (
+        "\nThe new API unifies the old two-step process into one."
+        " and requires very minimal code changes."
+    )
 
     def __init__(self, case_type: Type[CaseType]):
         self.case_type = case_type
         self.wrapped_func: CaseRunner | None = None
         self.runner: partial | None = None
 
-    def register_case_runner(
+    def register_case_runner(self, *_: Any) -> NoReturn:
+        raise TwoStepApiDeprecationError(deprecated_method="register_case_runner")
+
+    def caller_fixture_factory(self, *_: Any) -> NoReturn:
+        raise TwoStepApiDeprecationError(deprecated_method="caller_fixture_factory")
+
+    def fixture(
         self, func: CaseRunner
-    ) -> Callable[[pytest.FixtureRequest], partial]:
+    ) -> Callable[[CaseType, pytest.FixtureRequest], Iterator[CaseArtifact[CaseType]]]:
+        """Create a fixture to use in Embrace module-based tests.
 
-        self.wrapped_func = func
-
-        @pytest.fixture
-        def run_case_fixture(request: pytest.FixtureRequest) -> partial:
-            sig = signature(func)
-            kwargs = {
-                name: request.getfixturevalue(name)
-                for name, param in sig.parameters.items()
-                if param.annotation != self.case_type
-            }
-            self.runner = partial(func, **kwargs)
-
-            return self.runner
-
-        return run_case_fixture
-
-    def caller_fixture_factory(
-        self, name: str
-    ) -> Callable[[pytest.FixtureRequest, CaseType], Iterator[CaseArtifact]]:
-        _registry[name] = CaseTypeInfo(type=self.case_type, caller_name=name)
-        self.caller_fixture_name = name
+        The decorated function is a 'virtual' fixture, insofar as its ultimately just
+        a plain function. The generated fixture gets parametrized
+        (during pytest_generate_tests) with CaseType objects built from enclosing test
+        modules and then later calls that decorated function with fixture values."""
+        _registry[func.__name__] = CaseTypeInfo(
+            type=self.case_type,
+            caller_name=func.__name__,
+        )
 
         @pytest.fixture
-        def caller_fixture(
-            request: pytest.FixtureRequest, case: CaseType
+        def fix(
+            case: CaseType,
+            request: pytest.FixtureRequest,
         ) -> Iterator[CaseArtifact[CaseType]]:
-            assert self.wrapped_func is not None
-            # calling `getfixturevalue` for the wrapped func gets `run_case_fixture`.
-            # doing *that* assigns self.runner at the last possible moment
-            request.getfixturevalue(self.wrapped_func.__name__)
-            assert self.runner is not None
-            # bring the artifact into scope with the case attached
-            # so debug/exception output can see it in locals()
+            """The _real_ fixture that calls the decorated 'virtual' one.
+
+            Uses the FixtureRequest to find values for fixtures based on the virtual
+            fixture's parameter names."""
+            sig = signature(func)
+            kwargs = {name: request.getfixturevalue(name) for name in sig.parameters}
             artifact = CaseArtifact(case=case)
-            run_result = self.runner(case)
+            run_result = func(**kwargs)
             try:
                 # fixtures with cleanup yield once
                 test_result = next(run_result)
@@ -121,7 +119,7 @@ class Embrace(Generic[CaseType]):
             except TypeError:
                 pass
 
-        return caller_fixture
+        return fix
 
 
 def registry() -> CaseTypeRegistry[CaseTypeInfo]:
