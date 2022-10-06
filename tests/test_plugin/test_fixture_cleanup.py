@@ -25,14 +25,11 @@ _ = make_autouse_conftest(
 
          embrace = Embrace(TheCase)
 
-         @embrace.register_case_runner
-         def my_runner(case: TheCase, fix_yields: str) -> None:
+         @embrace.fixture
+         def cleanup_case(case: TheCase, fix_yields: str) -> None:
              assert case.name == fix_yields
              yield "yoooo"
              print("Cleaning up runner")
-
-
-         cleanup_case = embrace.caller_fixture_factory("cleanup_case")
          """
 )
 

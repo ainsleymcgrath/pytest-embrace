@@ -24,13 +24,10 @@ _ = make_autouse_conftest(
          embrace = Embrace(MyCase)
 
 
-         @embrace.register_case_runner
-         def my_runner(case: MyCase, fix: str) -> None:
+         @embrace.fixture
+         def simple_case(case: MyCase, fix: str) -> None:
              assert case.name == fix
              return {"backwards": [*reversed(case.name)]}
-
-
-         simple_case = embrace.caller_fixture_factory("simple_case")
          """
 )
 

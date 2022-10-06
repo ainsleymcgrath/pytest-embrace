@@ -26,12 +26,9 @@ class AnnotatedCase:
 embrace_1 = Embrace(AnnotatedCase)
 
 
-@embrace_1.register_case_runner
-def run(case: AnnotatedCase, fix: str) -> None:
+@embrace_1.fixture
+def anno_case(case: AnnotatedCase, fix: str) -> None:
     assert case.name == fix
-
-
-anno_case = embrace_1.caller_fixture_factory("anno_case")
 """
 )
 

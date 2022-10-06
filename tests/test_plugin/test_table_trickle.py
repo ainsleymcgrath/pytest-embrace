@@ -21,13 +21,9 @@ _ = make_autouse_conftest(
     embrace = Embrace(TrickleCase)
 
 
-    @embrace.register_case_runner
-    def my_runner(case: TrickleCase) -> None:
-        pass
-
-
-    trickle_case = embrace.caller_fixture_factory("trickle_case")
-        """
+    @embrace.fixture
+    def trickle_case(case: TrickleCase) -> None:
+        pass"""
 )
 
 

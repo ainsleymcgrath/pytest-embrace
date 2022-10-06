@@ -24,12 +24,9 @@ class MyCase1:
 embrace_1 = Embrace(MyCase1)
 
 
-@embrace_1.register_case_runner
-def my_runner_1(case: MyCase1, fix: str) -> None:
+@embrace_1.fixture
+def fix_1(case: MyCase1, fix: str) -> None:
     assert case.name == fix
-
-
-caller_1 = embrace_1.caller_fixture_factory("caller_1")
 
 
 @dataclass
@@ -41,14 +38,10 @@ class MyCase2:
 embrace_2 = Embrace(MyCase2)
 
 
-@embrace_2.register_case_runner
-def my_runner_2(case: MyCase2, fix: str) -> None:
+@embrace_2.fixture
+def fix_2(case: MyCase2, fix: str) -> None:
     assert len(case.num) >= len(fix)
-    assert case.foo != 'papaya'
-
-
-caller_2 = embrace_2.caller_fixture_factory("caller_2")
-            """
+    assert case.foo != 'papaya'"""
 )
 
 
@@ -56,19 +49,21 @@ caller_2 = embrace_2.caller_fixture_factory("caller_2")
     "caller_name, matchlines",
     [
         (
-            "foo",
-            ["*No such fixture 'foo'. Your options are ['caller_1', 'caller_2'*"],
+            "buzzz",
+            # XXX maybe some leaky state? other fixtures are called out in this output
+            # (thus the glob before fix_1)
+            ["*No such fixture 'buzzz'. Your options are *'fix_1', 'fix_2'*"],
         ),
         (
-            "caller_1",
+            "fix_1",
             generated_module_stdout_factory(
-                "name: str", fixture="caller_1", case_type="MyCase1"
+                "name: str", fixture="fix_1", case_type="MyCase1"
             ),
         ),
         (
-            "caller_2",
+            "fix_2",
             generated_module_stdout_factory(
-                "num: int", "foo: str", fixture="caller_2", case_type="MyCase2"
+                "num: int", "foo: str", fixture="fix_2", case_type="MyCase2"
             ),
         ),
     ],

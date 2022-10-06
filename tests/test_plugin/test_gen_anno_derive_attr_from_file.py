@@ -19,12 +19,9 @@ class AnnotatedCase:
 embrace_1 = Embrace(AnnotatedCase)
 
 
-@embrace_1.register_case_runner
-def run(case: AnnotatedCase) -> None:
+@embrace_1.fixture
+def horse_case(case: AnnotatedCase) -> None:
     assert case.horse_type == 'palomino'
-
-
-horse_case = embrace_1.caller_fixture_factory("horse_case")
 """
 )
 

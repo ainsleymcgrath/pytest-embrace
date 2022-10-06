@@ -22,12 +22,9 @@ _ = make_autouse_conftest(
         mut_config = Embrace(MutableCase)
 
 
-        @mut_config.register_case_runner
-        def mut_runner(case: MutableCase):
+        @mut_config.fixture
+        def mut_case(case: MutableCase):
             return None
-
-
-        mut_case = mut_config.caller_fixture_factory("mut_case")
         """
 )
 

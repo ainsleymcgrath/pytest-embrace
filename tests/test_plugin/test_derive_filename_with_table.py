@@ -20,8 +20,8 @@ class DeriveAndTableCase:
 mix_n_match = Embrace(DeriveAndTableCase)
 
 
-@mix_n_match.register_case_runner
-def run(case: DeriveAndTableCase) -> None:
+@mix_n_match.fixture
+def mix_n_match_case(case: DeriveAndTableCase) -> None:
     if case.horse_name == 'Willybilly':
         assert case.horse_age == 22
         return
@@ -29,9 +29,6 @@ def run(case: DeriveAndTableCase) -> None:
     if case.horse_name == 'Jolene':
         assert case.horse_age == 33
         return
-
-
-mix_n_match_case = mix_n_match.caller_fixture_factory("mix_n_match_case")
 """
 )
 
