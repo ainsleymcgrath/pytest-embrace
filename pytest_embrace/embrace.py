@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from functools import partial
 from inspect import signature
-from typing import Any, Callable, ClassVar, Dict, Generic
+from typing import Any, Callable, Dict, Generic
 from typing import MutableMapping as TMutableMapping
 from typing import NoReturn, Type, TypeVar
 
@@ -60,11 +60,9 @@ _registry: CaseTypeRegistry[CaseTypeInfo] = CaseTypeRegistry()
 
 
 class Embrace(Generic[CaseType]):
-    # _runner_registry: ClassVar[OneTimeOnlyMapping] = OneTimeOnlyMapping()
-    ASSUAGE: ClassVar[str] = (
-        "\nThe new API unifies the old two-step process into one."
-        " and requires very minimal code changes."
-    )
+    """The entrypoint for creating test cases from a dataclass.
+    Register a dataclass as a module test schema and create a configurator for defining
+    how tests that implement it will run."""
 
     def __init__(self, case_type: Type[CaseType]):
         self.case_type = case_type

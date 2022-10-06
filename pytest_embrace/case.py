@@ -36,6 +36,10 @@ CoCaseType = TypeVar("CoCaseType", contravariant=True)
 
 @dataclass
 class CaseArtifact(Generic[CoCaseType]):
+    """Wrap the result of test executions.
+    Contains the CaseType object created from the enclosing module.
+    Conrains the result returned (or yielded) from the case fixture."""
+
     case: CoCaseType
     actual_result: Any = None
 
@@ -263,6 +267,7 @@ def derive_from_filename(
     metadata: Optional[Mapping[Any, Any]] = None,
     kw_only: bool = False,
 ) -> Any:
+    """Marks an attribute as derived from the name of an enclosing test file."""
     if metadata is None:
         metadata = MappingProxyType({})
 
