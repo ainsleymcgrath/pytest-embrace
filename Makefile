@@ -1,5 +1,5 @@
 local-docs-server:
-	poetry run mkdocs serve
+	poetry run mkdocs serve -a localhost:9988
 
 test-latest-python:
 	tox -e py310
