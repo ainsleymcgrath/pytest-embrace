@@ -1,8 +1,12 @@
+from __future__ import annotations
+
+import traceback
 from importlib import reload
-from textwrap import dedent
 
 import pytest
 from pyperclip import copy
+
+from pytest_embrace.codegen import CodeGenManager
 
 from .embrace import registry
 from .loader import find_embrace_requester, load
@@ -23,8 +27,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--embrace",
-        dest="caller_fixture_name",
-        help=dedent(
+        help=(
             "Takes the name of an Embrace() caller fixture and generates scaffolding"
             " for a new test module that will use it."
             "\nRun `pytest --embrace-ls` to see all the available caller fixtures."
@@ -32,8 +35,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
     parser.addoption(
         "--embrace-ls",
-        help=dedent("List all the fixtures created for calling Embrace() test suites."),
+        help="List all the fixtures created for calling Embrace() test suites.",
         action="store_true",
+    )
+    parser.addoption(
+        "--embrace-gen",
+        help="Generate code for some fixture:generator",
     )
 
 
@@ -41,25 +48,30 @@ STOP_LOOP = object()  # for pytest hooks that stop on the first-non-None-result
 
 
 def pytest_runtestloop(session: pytest.Session) -> object:
-    generate_for: str = session.config.getoption("--embrace")
-    do_ls = session.config.getoption("--embrace-ls")
+    codegen_directive: str | None = session.config.getoption("--embrace")
+    do_ls: bool | None = session.config.getoption("--embrace-ls")
 
-    if generate_for is None and do_ls is None:
+    if codegen_directive is None and do_ls is None:
         return None  # allow normal pytest to happen
 
     reg = registry()
 
-    if generate_for is not None:
-        case_type = registry().get(generate_for)
-        if case_type is None:
+    if codegen_directive is not None:
+        codegen = CodeGenManager(codegen_directive, registry=reg)
+        if codegen.case_type is None:
             pytest.exit(
-                f"No such fixture '{generate_for}'."
+                f"No such fixture '{codegen.fixture_name}'."
                 f" Your options are {sorted([*reg])}"
             )
+        try:
+            copypasta = codegen.render()
+        except Exception:
+            print(f"Error generating {codegen.generator_name}:")
+            # TODO print more when -vv given
+            traceback.print_exc(limit=0)
+            return STOP_LOOP
 
-        # XXX inj here
-        copypasta = case_type.to_text()
-        print(f"\nCopying the following output to your clipboard:\n{copypasta}")
+        print(f"\nCopying the following output to your clipboard:\n\n{copypasta}")
         copy(copypasta)
         return STOP_LOOP
 

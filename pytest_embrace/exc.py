@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from textwrap import dedent
 
 
@@ -24,3 +26,7 @@ class TwoStepApiDeprecationError(EmbraceError):
         In future releases, this method will completely removed."""
 
         super().__init__(dedent(msg))
+
+
+class CodeGenError(EmbraceError):
+    """Raise when anything related to codegen goes awry."""

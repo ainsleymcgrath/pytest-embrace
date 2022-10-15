@@ -1,34 +1,15 @@
+# skip the future import because it breaks dataclass.fields()
+# and turns each Field.type to a string!
+# isort: dont-add-import: from __future__ import annotations
+
 import re
 import sys
-from collections import defaultdict
 from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field, fields
-from inspect import getmodule
-from operator import itemgetter
-from textwrap import dedent
 from types import MappingProxyType
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    get_args,
-    get_origin,
-)
-
-import isort
-from black import format_str
-from black.mode import Mode
+from typing import Any, Callable, Dict, Generic, Mapping, Optional, Type, TypeVar, Union
 
 from pytest_embrace.anno import AnnotationInfo, get_pep_593_values
 from pytest_embrace.exc import CaseConfigurationError
-from pytest_embrace.undot import undot_type_str
 
 CaseType = TypeVar("CaseType")
 CoCaseType = TypeVar("CoCaseType", contravariant=True)
@@ -48,29 +29,9 @@ CaseArtifactType = TypeVar("CaseArtifactType", bound=CaseArtifact, covariant=Tru
 CaseRunner = Callable[..., Any]
 
 
-CaseCls = TypeVar("CaseCls", bound=Type)
+CaseCls = TypeVar("CaseCls")
 TUnset = object
 UNSET: TUnset = object()
-
-
-def _stringify_type(type: Type) -> str:
-    return str(type) if not repr(type).startswith("<class") else type.__name__
-
-
-def _unnest_generics(type: Union[Type, List[Type]]) -> Iterator[Type]:
-    if isinstance(type, list):  # such as the first arg to Callable[]
-        for member in type:
-            yield from _unnest_generics(member)
-        return
-
-    generic_args = get_args(type)
-    if generic_args == tuple():
-        yield type
-    elif (origin := get_origin(type)) is not None:
-        yield origin
-
-    for arg in generic_args:
-        yield from _unnest_generics(arg)
 
 
 @dataclass
@@ -82,68 +43,14 @@ class AttrInfo:
     def __post_init__(self) -> None:
         self.name = self.dc_field.name
 
-    def as_hint(self) -> str:
-        typ = self.dc_field.type if self.annotations is None else self.annotations.type
-        type_str = undot_type_str(_stringify_type(typ))
-        # get rid of dots since CaseTypeInfo solves the imports
-        type_str_parts = [t.lstrip("[").rstrip("]") for t in type_str.split(".")]
-        if len(type_str_parts) > 1:
-            type_str = type_str_parts[-1]
-        comment = next(
-            (
-                v
-                for v in getattr(self.annotations, "annotations", [])
-                if isinstance(v, str)
-            ),
-            None,
-        )
-        text = f"{self.name}: {type_str}"
-        if comment is not None:
-            text += f"  # {comment}"
-        return text
-
-    def render_import_statement(self) -> str:
-        lookup: Dict[str, List[str]] = defaultdict(list)
-        for typ in _unnest_generics(self.dc_field.type):
-            modname = getattr(typ, "__module__", "")
-            if modname == "builtins" or modname == "":
-                continue
-            if sys.version_info < (3, 9) and "collections.abc" in modname:
-                # from 3.9 and onwards, things like Mapping and Callable
-                # are aliases of collections.abc types.
-                # before then, the stuff from collections.abc was not subscriptable,
-                # so here we are.
-                modname = "typing"
-            own_name: str = getattr(
-                typ,
-                "__name__",
-                getattr(
-                    typ,
-                    # as in the case of typing.Union in <=3.9,
-                    # whose __class__ is a _SpecialForm
-                    "_name",
-                    getattr(
-                        typ.__class__,
-                        "__name__",
-                    ),
-                ),
-            )
-            if own_name == "Annotated":
-                continue
-            lookup[modname].append(own_name)
-
-        return "\n".join(
-            f"from {modname} import {', '.join(sorted(target))}"
-            for modname, target in sorted(lookup.items(), key=itemgetter(0))
-        )
-
 
 @dataclass
 class CaseTypeInfo(Generic[CaseCls]):
-    type: CaseCls
-    caller_name: Union[str, TUnset] = UNSET
+    type: Type[CaseCls]
+    fixture_name: Union[str, TUnset] = UNSET
     type_name: str = field(init=False)
     type_attrs: Dict[str, AttrInfo] = field(default_factory=dict)
+    generators: Dict[str, Callable[..., CaseCls]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.type_name = self.type.__name__
@@ -152,43 +59,6 @@ class CaseTypeInfo(Generic[CaseCls]):
             f.name: AttrInfo(dc_field=f, annotations=self.type_annotations.get(f.name))
             for f in fields(self.type)
         }
-
-    def to_text(self) -> str:
-        type_hints = "\n".join(attr.as_hint() for attr in self.type_attrs.values())
-
-        source = getmodule(self.type)
-        case_import = (
-            dedent(
-                f"""
-                from {mod_name} import {self.type_name}
-
-                """
-            )
-            if (mod_name := getattr(source, "__name__", None)) is not None
-            else ""
-        )
-
-        imports = "\n".join(
-            attr_info.render_import_statement()
-            for attr_info in self.type_attrs.values()
-        )
-
-        # not using dedent bc newlines in the type hints are hard
-        return format_str(
-            isort.code(
-                f"""
-from pytest_embrace import CaseArtifact
-{imports}
-{case_import}
-{type_hints}
-
-
-def test({self.caller_name}: CaseArtifact[{self.type_name}]) -> None:
-    ...""",
-                profile="black",
-            ),
-            mode=Mode(),
-        )
 
 
 # for some reason, using a dataclass here was problematic.
