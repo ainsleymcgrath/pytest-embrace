@@ -1,6 +1,6 @@
 # From Modules to Tables to Both
 
-`pytest-embrace` allows you to define tests as Python *modules* whose schemas are defined as dataclasses.
+`pytest-embrace` allows you to define tests as Python _modules_ whose schemas are defined as dataclasses.
 
 So far, more tests (and test coverage) just means more files. While this has benefits (most notably discoverability) it also can become tiresome, especially when testing the exact same functionality with a variety of different scenarios.
 
@@ -46,7 +46,7 @@ def test(crud_case):
 
 This is cool, but there's still a good bit of repetition, which we've been trying to avoid.
 
-We *could* lift some stuff into `SCREAMING_CONSTANTS` but that's not *really* a solution, it's just a well-liked bandaid. Good for preventing bugs, but not that helpful for our brains.
+We _could_ lift some stuff into `SCREAMING_CONSTANTS` but that's not _really_ a solution, it's just a well-liked bandaid. Good for preventing bugs, but not that helpful for our brains.
 
 Luckily, there is a solution!
 
@@ -76,7 +76,7 @@ When you assign it to a property in your dataclass, it tells the framework to tr
 
 - When a field on your test case class is assigned to `trickles()`...
 - And you define a module with a `table`...
-- Then at runtime, `pytest-embrace` will look for any "trickled" attributes in *module scope* before looking at the objects in `table`.
+- Then at runtime, `pytest-embrace` will look for any "trickled" attributes in _module scope_ before looking at the objects in `table`.
 - If it finds that any table members have not been passed values for "trickled" attributes, those cases simply use the module-scoped value.
 
 So, let's make `crud_func` and `seed_data` trickle:
@@ -173,7 +173,7 @@ It's easy to copypaste a member from an existing table and add it to the bottom.
 
 But this library exists to keep you organized! In the example above, `seed_data` and `crud_func` both trickle down. The former makes sense: It certainly stands to reason that `is_bread` should be tested with different preexisting data. As for `crud_func`... it's pretty nice to have one file concern itself with one API. Letting in random functions would totally kill the vibe and let this file get unweildy.
 
-The *only* argiment that `trickles` takes and `field` does not is: `no_override`.
+The _only_ argiment that `trickles` takes and `field` does not is: `no_override`.
 
 ```python title="conftest.py"
 @dataclass
@@ -185,7 +185,7 @@ class CrudTestCase:
     crud_func: Callable[..., Any] = trickles(no_override=True)
 ```
 
- With `no_override=True`, the second test above becomes illegal. When you run the tests now, you'll get a `CaseConfigurationError`.
+With `no_override=True`, the second test above becomes illegal. When you run the tests now, you'll get a `CaseConfigurationError`.
 
 ## An Aside on Test Output
 
@@ -220,7 +220,7 @@ E   pytest_embrace.exc.CaseConfigurationError: In table[1]:_evil_func('croissant
 'crud_func' is set, but 'crud_func' is defined at the module level as well and configured as as no_override. Accept the default or change the config.
 ```
 
-And running `pytest -v`  after fixing the config error shows each member of the `table` nicely.
+And running `pytest -v` after fixing the config error shows each member of the `table` nicely.
 
 ```
 test_is_bread_table.py::test[is_bread('mirth',) -> False] PASSED                                                                                       [ 50%]

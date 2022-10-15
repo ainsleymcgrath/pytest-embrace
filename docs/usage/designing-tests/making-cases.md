@@ -1,4 +1,4 @@
-## Writing Tests
+# Writing Tests
 
 Pytest embrace is useful when that "state of affairs" goes beyond pure inputs and outputs. Code that relies on external databases is an excellent example.
 
@@ -89,8 +89,8 @@ def is_bread_true(testdata, testconn: Connection):
 
 In order to run the test, we needed a few things:
 
-1. A database with a table in it. This will apply to *all* the tests.
-2. Some known records to seed the DB and query against. This is unique to *this* test.
+1. A database with a table in it. This will apply to _all_ the tests.
+2. Some known records to seed the DB and query against. This is unique to _this_ test.
 3. A function we want to test
 4. Some args to pass our function.
 5. Some expectations for our function, including a assertion messages.
@@ -123,7 +123,7 @@ from pytest_embrace import Embrace
 
 crud_case_config = Embrace(CrudTestCase)
 
-@crud_case_config.register_case_runner
+@crud_case_config.fixture
 def crud_case_runner(): ...
 ```
 
@@ -131,7 +131,7 @@ Passing a dataclass to `Embrace` gives us an object instance we can use to confi
 
 The `.register_case_runner` function ultimately creates a Pytest fixture, so we have access to any fixtures we've already defined.
 
-Additionally, it *must* receive an instance of the class you registered and all of its arguments *must* be typed.
+Additionally, it _must_ receive an instance of the class you registered and all of its arguments _must_ be typed.
 
 Our first pre-req for testing `is_bread` was an existing database. We already have a fixture for that: `testdb`. So we can just reference it!
 
@@ -139,7 +139,7 @@ Our first pre-req for testing `is_bread` was an existing database. We already ha
 from sqlite3 import Connection
 
 
-@crud_case_config.register_case_runner
+@crud_case_config.fixture
 def crud_case_runner(case: CrudTestCase, testdb: Connection):
     ...
 ```
@@ -147,7 +147,7 @@ def crud_case_runner(case: CrudTestCase, testdb: Connection):
 The `CrudTestCase` object has that `seed_data` attribute. Let's recycle some code from `testdata` (which we will no longer use, since it hardcoded data and each test will need to define its own).
 
 ```python title="conftest.py"
-@crud_case_config.register_case_runner
+@crud_case_config.fixture
 def crud_case_runner(case: CrudTestCase, testconn: Connection) -> object:
     testconn.executemany("insert into things values (?,?,?,?,?)", [*case.seed_data])
 ```
@@ -155,7 +155,7 @@ def crud_case_runner(case: CrudTestCase, testconn: Connection) -> object:
 And now we can put in a more generalized call to the function.
 
 ```python title="conftest.py"
-@crud_case_config.register_case_runner
+@crud_case_config.fixture
 def crud_case_runner(case: CrudTestCase, testconn: Connection) -> object:
     testconn.executemany("insert into things values (?,?,?,?,?)", [*case.seed_data])
     result = case.crud_func(*case.args)
@@ -164,44 +164,6 @@ def crud_case_runner(case: CrudTestCase, testconn: Connection) -> object:
 ```
 
 1. Take note of the return: It's the actual result of our function call. That'll come back into play later.
-
-## Calling the Test Runner
-
-Since `crud_case_runner` is literally a pytest fixture, you'd think you could request it in a regular test and call it.
-
-```python
-def test_normal_style(crud_case_runner, testdb):
-    crud_case_runner(CrudTestCase(...), testdb)
-```
-
-But there are issues with that approach:
-
-1. We love type hints, and the test runner's type as written is `Callable[[CrudTestCase, Connection], Any]`. Which is hard to read and annoying to maintain––since `Callable` types must be declared *separately* from the functions they describe.
-2. Asking for `testdb` again and is boilerplatey and prone to maintenance issue once other test show up. What if another fixture shows up that takes a `Connection`? Byebye, consistency.
-
-Luckily, `Embrace` has one more public method: `caller_fixture_factory`.
-
-It produces a fixture that will take care of:
-
-- Calling the runner.
-- Parsing and validating test namespaces.
-- Finding errors in the test definition.
-
-So, below the runner definition, add this:
-
-```python title="conftest.py"
-crud_case = crud_case_config.caller_fixture_factory("crud_case")
-```
-
-Similar to `TypeVar` or old-school `NamedTuple`, the factory receives the name of the variable it will later be referred to as. **The names must match.** This is an awkward Python-ism meeting a limitation of Pytest. Pytest can't just be told to make a fixture. The fixture needs to be visible in module scope.
-
-### The Caller Fixture
-
-You'll never interact with the actual variable `conftest.crud_case`.
-
-But it will be *referred to* often, namely in the signatures of tests that implement `CrudTestCase`, and as an argument to Embrace's `pytest` command line options.
-
-You can think of the caller fixture as the identity of a test that uses Embrace.
 
 ## Implement The test
 
@@ -292,7 +254,6 @@ pbpaste > test_is_bread_true.py
 ```
 
 Since this test will share a lot of DNA with the first one, it can be configured simply with the import system.
-
 
 ```python title="test_is_bread_true.py"
 from pytest_embrace import CaseArtifact

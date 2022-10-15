@@ -1,14 +1,14 @@
 # Naming: From Liability to Asset
 
-> There are only two hard things in Computer Science: cache    invalidation and naming things.
+> There are only two hard things in Computer Science: cache invalidation and naming things.
 >
 > -- Phil Karlton (via [Martin Fowler](https://martinfowler.com/bliki/TwoHardThings.html))
 
 In the last section, using `trickles(no_override=True)` allowed us to restrict the test case we've been working on to testing one function at a time. This can help keep tests organized and focused, as all the tests that have to do with some function are all bundled together, and different functions can get their own files.
 
-But there's a major drawback here: naming. Right now it's fine. `is_bread()` is tested in `test_is_bread.py`. But what if we brilliant renamed the function to `affirm_breadness`? Discoverability would wither and life would grow confusing.
+But there's a major drawback here: naming. Right now it's fine. `is_bread()` is tested in `test_is_bread.py`. But what if we brilliantly renamed the function to `affirm_breadness`? Discoverability would wither and life would grow confusing.
 
-`pytest_embrace` has another feature, similar to `trickles()`, that helps use filenames as data: `derive_from_filename()` is another wrapper around `dataclasses.field`. By default, it extracts the substring in the filename that follows the word `test_`.
+**`pytest_embrace` has another feature, similar to `trickles()`, that helps use filenames as data: `derive_from_filename()`. It is** another wrapper around `dataclasses.field`. By default, it extracts the substring in the filename that follows the word `test_`.
 
 That means for `test_is_bread.py`, we could extract `is_bread`, which is a good start, but we need a specific function, not a string.
 
@@ -16,7 +16,7 @@ Luckily, `derive_from_filename` takes a `parse` argument that lets us take that 
 
 In our case, it can be used to find the right `crud` function based on the name of the test file.
 
-````python title="test_is_bread.py"
+```python title="test_is_bread.py"
 import crud  # the namespace we test against
 
 
@@ -34,7 +34,7 @@ class CrudTestCase:
 
     def __str__(self) -> str:
         return f"{self.crud_func.__name__}{self.args} -> {self.assert_return}"
-````
+```
 
 And we can remove the `crud_func` declaration from the test file.
 

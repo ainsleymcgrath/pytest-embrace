@@ -19,7 +19,7 @@ Pytest Embrace is a formalism born from patterns used at [Amper](https://www.amp
    Namespaces are one honking great idea -- let's do more of those!
    ```
 
-4. Code generation is *really* [underrated](https://github.com/copier-org/copier/).
+4. Code generation is _really_ [underrated](https://github.com/copier-org/copier/).
 
 5. The wave of [type-driven](https://pydantic-docs.helpmanual.io/) [Python](https://github.com/beartype/beartype) [tools](https://typer.tiangolo.com/) [is](https://peps.python.org/pep-0593/) [very](https://github.com/python/mypy) cowabunga––and only just beginning 💡
 
@@ -27,7 +27,7 @@ Pytest Embrace is a formalism born from patterns used at [Amper](https://www.amp
 
 Underneath it all, this plugin/framework is a love letter to Pytest's [parametrization](https://docs.pytest.org/en/6.2.x/parametrize.html) feature.
 
-Parametrization is what makes Pytest really great. It works fantastically well for testing interfaces that can be expressed as *`Given <some_input> expect <some_output> because <some_reason>`.* [Given, expected, should](https://ainsleymcgrath.com/pythonic-pytest-part-2-the-parametrization-mantra/).
+Parametrization is what makes Pytest really great. It works fantastically well for testing interfaces that can be expressed as _`Given <some_input> expect <some_output> because <some_reason>`._ [Given, expected, should](https://ainsleymcgrath.com/pythonic-pytest-part-2-the-parametrization-mantra/).
 
 But eventually, when you're testing at a higher level than simply calling code you've written, that pattern craps out. Tests that rely on live databases are a great example of this. Pytest handles this gracefully, as it's just Python code and you can write whatever you want.
 
