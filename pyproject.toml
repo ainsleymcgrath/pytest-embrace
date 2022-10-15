@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-embrace"
-version = "2.4.3"
+version = "3.0.0"
 readme = "README.md"
 description = "💝  Dataclasses-as-tests. Describe the runtime once and multiply coverage with no boilerplate."
 authors = ["Ainsley McGrath <mcgrath.ainsley@gmail.com>"]
