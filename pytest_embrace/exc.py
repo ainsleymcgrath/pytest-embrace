@@ -19,7 +19,7 @@ class TwoStepApiDeprecationError(EmbraceError):
         and requires very minimal code changes.
 
         See migration guide in the docs:
-            https://ainsleymcgrath.github.io/pytest-embrace
+            https://ainsleymcgrath.github.io/pytest-embrace/two-to-three/
 
         In future releases, this method will completely removed."""
 
