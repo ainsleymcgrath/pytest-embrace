@@ -2,6 +2,7 @@ site_name: Pytest Embrace
 repo_url: https://github.com/ainsleymcgrath/pytest-embrace
 theme:
   name: material
+  custom_dir: docs_overrides
   palette:
     primary: white
     accent: green
@@ -9,9 +10,12 @@ theme:
   favicon: logo-alt-alt.svg
   features:
     - content.code.annotate
+    - announce.dismiss
 nav:
   - index.md
-  - Usage:
+  - Migrating from 2.x to 3.x: two-to-three.md
+  - The Module-Test Formalism: semantics.md
+  - Usage Guide:
     - usage/index.md
     - Designing Tests:
       - usage/designing-tests/index.md
@@ -21,8 +25,9 @@ nav:
       - usage/leveraging-filenames/index.md
     - Code Generation:
       - usage/code-generation/index.md
-  # - Reference:
-  #   - reference/index.md
+  - Reference:
+    - API Reference: reference/api.md
+    - CLI Reference: reference/cli.md
   - about.md
 markdown_extensions:
 - pymdownx.highlight:
