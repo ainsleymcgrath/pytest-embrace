@@ -33,7 +33,7 @@ class GlobalsCase:
 def test_to_text_globals(assert_valid_text_is: AssertionHelper) -> None:
 
     target = CaseTypeInfo(GlobalsCase, caller_name="the_case")
-    text = target.to_text()
+    text = target.render_skeleton()
     assert_valid_text_is(
         text,
         """
@@ -59,7 +59,7 @@ def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
 
     target = CaseTypeInfo(SomeCaseWithImports, caller_name="the_case")
     assert_valid_text_is(
-        target.to_text(),
+        target.render_skeleton(),
         """
         from collections import deque
         from collections.abc import Callable

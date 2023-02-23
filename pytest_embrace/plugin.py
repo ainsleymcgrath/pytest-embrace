@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from importlib import reload
-from textwrap import dedent
 
 import pytest
 from pyperclip import copy
 
-from .embrace import registry
+from .embrace import ParsedGeneratorInput, registry
 from .loader import find_embrace_requester, load
 
 
@@ -23,8 +24,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--embrace",
-        dest="caller_fixture_name",
-        help=dedent(
+        help=(
             "Takes the name of an Embrace() caller fixture and generates scaffolding"
             " for a new test module that will use it."
             "\nRun `pytest --embrace-ls` to see all the available caller fixtures."
@@ -32,8 +32,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
     parser.addoption(
         "--embrace-ls",
-        help=dedent("List all the fixtures created for calling Embrace() test suites."),
+        help="List all the fixtures created for calling Embrace() test suites.",
         action="store_true",
+    )
+    parser.addoption(
+        "--embrace-gen",
+        help="Generate code for some fixture:generator",
     )
 
 
@@ -41,8 +45,9 @@ STOP_LOOP = object()  # for pytest hooks that stop on the first-non-None-result
 
 
 def pytest_runtestloop(session: pytest.Session) -> object:
-    generate_for: str = session.config.getoption("--embrace")
-    do_ls = session.config.getoption("--embrace-ls")
+    generate_for: str | None = session.config.getoption("--embrace")
+    do_ls: bool | None = session.config.getoption("--embrace-ls")
+    custom_generator: str | None = session.config.getoption("--embrace-gen")
 
     if generate_for is None and do_ls is None:
         return None  # allow normal pytest to happen
@@ -50,7 +55,7 @@ def pytest_runtestloop(session: pytest.Session) -> object:
     reg = registry()
 
     if generate_for is not None:
-        case_type = registry().get(generate_for)
+        case_type = reg.get(generate_for)
         if case_type is None:
             pytest.exit(
                 f"No such fixture '{generate_for}'."
@@ -58,7 +63,22 @@ def pytest_runtestloop(session: pytest.Session) -> object:
             )
 
         # XXX inj here
-        copypasta = case_type.to_text()
+        copypasta = case_type.render_skeleton()
+        print(f"\nCopying the following output to your clipboard:\n{copypasta}")
+        copy(copypasta)
+        return STOP_LOOP
+
+    if custom_generator is not None:
+        user_input = ParsedGeneratorInput(custom_generator)
+        case_type = reg.get(user_input.fixture_name)
+        if case_type is None:
+            pytest.exit(
+                f"No such fixture '{user_input.fixture_name}'."
+                f" Your options are {sorted([*reg])}"
+            )
+        generator = case_type.generators[user_input.generator_name]
+        case = generator(**user_input.kwargs)
+        copypasta = case_type.render_with_values_from(case)
         print(f"\nCopying the following output to your clipboard:\n{copypasta}")
         copy(copypasta)
         return STOP_LOOP

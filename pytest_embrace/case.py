@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import re
 import sys
 from collections import defaultdict
-from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field, fields
+from dataclasses import _MISSING_TYPE, MISSING, Field, asdict, dataclass, field, fields
 from inspect import getmodule
 from operator import itemgetter
 from textwrap import dedent
@@ -102,6 +104,9 @@ class AttrInfo:
             text += f"  # {comment}"
         return text
 
+    def as_hinted_assignment(self, value: Any) -> str:
+        return f"{self.as_hint()} = {repr(value)}"
+
     def render_import_statement(self) -> str:
         lookup: Dict[str, List[str]] = defaultdict(list)
         for typ in _unnest_generics(self.dc_field.type):
@@ -144,6 +149,7 @@ class CaseTypeInfo(Generic[CaseCls]):
     caller_name: Union[str, TUnset] = UNSET
     type_name: str = field(init=False)
     type_attrs: Dict[str, AttrInfo] = field(default_factory=dict)
+    generators: dict[str, Callable[..., CaseCls]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.type_name = self.type.__name__
@@ -153,9 +159,29 @@ class CaseTypeInfo(Generic[CaseCls]):
             for f in fields(self.type)
         }
 
-    def to_text(self) -> str:
-        type_hints = "\n".join(attr.as_hint() for attr in self.type_attrs.values())
+    @property
+    def _attrs_as_type_hints(self) -> str:
+        return "\n".join(attr.as_hint() for attr in self.type_attrs.values())
 
+    def _attrs_with_values_from(self, case: CaseType) -> str:
+        out = ""
+        values = asdict(case)
+        for name, attr in self.type_attrs.items():
+            value = values[name]
+            if callable(attr.dc_field.default_factory):
+                default = attr.dc_field.default_factory()
+            else:
+                default = attr.dc_field.default
+
+            if value == default:
+                continue
+
+            out += attr.as_hinted_assignment(value) + "\n"
+        return out
+
+    @property
+    def _import_statements_dirty(self) -> str:
+        # dirty since these may be duped
         source = getmodule(self.type)
         case_import = (
             dedent(
@@ -168,19 +194,21 @@ class CaseTypeInfo(Generic[CaseCls]):
             else ""
         )
 
-        imports = "\n".join(
+        dependency_type_imports = "\n".join(
             attr_info.render_import_statement()
             for attr_info in self.type_attrs.values()
         )
 
-        # not using dedent bc newlines in the type hints are hard
+        return f"{case_import}\n{dependency_type_imports}"
+
+    def _render_test_text(self, *, imports: str, attrs: str) -> str:
         return format_str(
+            # dedent would be troublesome here due to newlines in imports, attrs
             isort.code(
                 f"""
 from pytest_embrace import CaseArtifact
 {imports}
-{case_import}
-{type_hints}
+{attrs}
 
 
 def test({self.caller_name}: CaseArtifact[{self.type_name}]) -> None:
@@ -188,6 +216,19 @@ def test({self.caller_name}: CaseArtifact[{self.type_name}]) -> None:
                 profile="black",
             ),
             mode=Mode(),
+        )
+
+    def render_skeleton(self) -> str:
+        # not using dedent bc newlines in the type hints are hard
+        return self._render_test_text(
+            imports=self._import_statements_dirty,
+            attrs=self._attrs_as_type_hints,
+        )
+
+    def render_with_values_from(self, case: CaseType) -> str:
+        return self._render_test_text(
+            imports=self._import_statements_dirty,
+            attrs=self._attrs_with_values_from(case),
         )
 
 
