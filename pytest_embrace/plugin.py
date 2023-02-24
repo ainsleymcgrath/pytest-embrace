@@ -6,7 +6,9 @@ from importlib import reload
 import pytest
 from pyperclip import copy
 
-from .embrace import ParsedGeneratorInput, registry
+from pytest_embrace.codegen import CodeGenManager
+
+from .embrace import registry
 from .loader import find_embrace_requester, load
 
 
@@ -46,47 +48,29 @@ STOP_LOOP = object()  # for pytest hooks that stop on the first-non-None-result
 
 
 def pytest_runtestloop(session: pytest.Session) -> object:
-    generate_for: str | None = session.config.getoption("--embrace")
+    codegen_directive: str | None = session.config.getoption("--embrace")
     do_ls: bool | None = session.config.getoption("--embrace-ls")
-    custom_generator: str | None = session.config.getoption("--embrace-gen")
 
-    if generate_for is None and do_ls is None:
+    if codegen_directive is None and do_ls is None:
         return None  # allow normal pytest to happen
 
     reg = registry()
 
-    if generate_for is not None:
-        case_type = reg.get(generate_for)
-        if case_type is None:
+    if codegen_directive is not None:
+        codegen = CodeGenManager(codegen_directive, registry=reg)
+        if codegen.case_type is None:
             pytest.exit(
-                f"No such fixture '{generate_for}'."
+                f"No such fixture '{codegen.fixture_name}'."
                 f" Your options are {sorted([*reg])}"
             )
-
-        # XXX inj here
-        copypasta = case_type.render_skeleton()
-        print(f"\nCopying the following output to your clipboard:\n{copypasta}")
-        copy(copypasta)
-        return STOP_LOOP
-
-    if custom_generator is not None:
-        user_input = ParsedGeneratorInput(custom_generator)
-        case_type = reg.get(user_input.fixture_name)
-        if case_type is None:
-            pytest.exit(
-                f"No such fixture '{user_input.fixture_name}'."
-                f" Your options are {sorted([*reg])}"
-            )
-        generator = case_type.generators[user_input.generator_name]
         try:
-            case = generator(**user_input.kwargs)
+            copypasta = codegen.render()
         except Exception:
-            print(f"Error generating {user_input.generator_name}:")
+            print(f"Error generating {codegen.generator_name}:")
             # TODO print more when -vv given
             traceback.print_exc(limit=0)
             return STOP_LOOP
 
-        copypasta = case_type.render_with_values_from(case)
         print(f"\nCopying the following output to your clipboard:\n\n{copypasta}")
         copy(copypasta)
         return STOP_LOOP

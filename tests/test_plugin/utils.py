@@ -62,6 +62,7 @@ def generated_module_stdout_factory(
 
     return [
         "Copying the following output to your clipboard:",
+        "",
         *imports.split("\n"),
         "",
         f"from conftest import {case_type}",

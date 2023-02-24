@@ -141,23 +141,5 @@ class Embrace(Generic[CaseType]):
         return render
 
 
-class ParsedGeneratorInput:
-    def __init__(self, raw: str) -> None:
-        identifier, *key_value_pairs = raw.split(" ")
-        fixture_name, generator_name = identifier.split(":", maxsplit=1)
-        self.fixture_name = fixture_name
-        self.generator_name = generator_name
-        self.kwargs: Any = {}  # any to quell concerns about **kwargs
-        for pair in key_value_pairs:
-            key, value = pair.split("=", maxsplit=1)
-            self.kwargs[key] = value
-
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}[{self.fixture_name} : {self.generator_name} "
-            f"{self.kwargs}"
-        )
-
-
 def registry() -> CaseTypeRegistry[CaseTypeInfo]:
     return _registry
