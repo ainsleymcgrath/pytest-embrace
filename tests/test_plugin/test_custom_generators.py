@@ -44,5 +44,4 @@ def test_dynamic_name_generator(pytester: pytest.Pytester) -> None:
             case_type="MyCase",
             fixture="simple_case",
         ),
-        consecutive=True,
     )

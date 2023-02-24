@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import traceback
 from importlib import reload
 
 import pytest
@@ -77,9 +78,16 @@ def pytest_runtestloop(session: pytest.Session) -> object:
                 f" Your options are {sorted([*reg])}"
             )
         generator = case_type.generators[user_input.generator_name]
-        case = generator(**user_input.kwargs)
+        try:
+            case = generator(**user_input.kwargs)
+        except Exception:
+            print(f"Error generating {user_input.generator_name}:")
+            # TODO print more when -vv given
+            traceback.print_exc(limit=0)
+            return STOP_LOOP
+
         copypasta = case_type.render_with_values_from(case)
-        print(f"\nCopying the following output to your clipboard:\n{copypasta}")
+        print(f"\nCopying the following output to your clipboard:\n\n{copypasta}")
         copy(copypasta)
         return STOP_LOOP
 

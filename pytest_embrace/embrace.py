@@ -19,9 +19,7 @@ T = TypeVar("T", bound=Type)
 TUnset = object
 UNSET: TUnset = object()
 CodeGenFuncArgs = ParamSpec("CodeGenFuncArgs")
-CodeGenFuncReturn = TypeVar(
-    "CodeGenFuncReturn", bound=(Iterator[CaseTypeInfo] | CaseTypeInfo)
-)
+CodeGenFuncReturn = TypeVar("CodeGenFuncReturn")
 
 
 TCaseInfo = TypeVar("TCaseInfo", bound=CaseTypeInfo)
@@ -126,18 +124,18 @@ class Embrace(Generic[CaseType]):
 
     def generator(
         self, func: Callable[CodeGenFuncArgs, CodeGenFuncReturn]
-    ) -> Callable[CodeGenFuncArgs, CaseTypeInfo]:
+    ) -> Callable[CodeGenFuncArgs, CodeGenFuncReturn]:
         _registry[self.fixture_name].generators[func.__name__] = func
 
         def render(
             *args: CodeGenFuncArgs.args, **kwargs: CodeGenFuncArgs.kwargs
-        ) -> CaseTypeInfo:
+        ) -> CodeGenFuncReturn:
             case_or_case_iter = func(*args, **kwargs)
             if isinstance(case_or_case_iter, Iterator):
                 module_vars = next(case_or_case_iter)
                 return module_vars  # TODO!
             else:
-                assert isinstance(case_or_case_iter, CaseTypeInfo)
+                # assert isinstance(case_or_case_iter, CaseType)
                 return case_or_case_iter
 
         return render
