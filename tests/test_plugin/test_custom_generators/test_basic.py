@@ -1,6 +1,6 @@
 import pytest
 
-from .utils import generated_module_stdout_factory, make_autouse_conftest
+from ..utils import generated_module_stdout_factory, make_autouse_conftest
 
 _ = make_autouse_conftest(
     """
