@@ -20,7 +20,7 @@ embrace = Embrace(CoercionCase)
 
 
 @embrace.fixture
-def case(case: CoercionCase) -> None:
+def coercion_case(case: CoercionCase) -> None:
     pass
 
 
