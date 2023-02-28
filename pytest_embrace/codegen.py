@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from pytest_embrace.case import CaseTypeInfo
 from pytest_embrace.embrace import CaseTypeRegistry
+from pytest_embrace.exc import CodeGenError
 
 
 class CodeGenManager:
@@ -23,7 +25,18 @@ class CodeGenManager:
         self.generator_kwargs: Any = {}  # Any to quell concerns about **kwargs
         for pair in key_value_pairs:
             key, value = pair.split("=", maxsplit=1)
-            self.generator_kwargs[key] = value
+            try:
+                self.generator_kwargs[key] = json.loads(value)
+            except json.JSONDecodeError as e:
+                # a string is expected to fail since it doesn't come in quoted
+                if not isinstance(value, str):
+                    raise CodeGenError(
+                        f"Generator '{self.generator_name}' supplied with"
+                        f"non-serializeable value '{value}' for argument {key}"
+                    ) from e
+
+                # strings don't load
+                self.generator_kwargs[key] = value
 
         self.case_type = registry.get(self.fixture_name)
 

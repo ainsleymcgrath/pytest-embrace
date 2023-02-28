@@ -31,13 +31,13 @@ def gen(number: int):
 )
 
 
-@pytest.mark.xfail(reason="Type coercion not implemented :(")
+# @pytest.mark.xfail(reason="Type coercion not implemented :(")
 def test_dynamic_name_generator(pytester: pytest.Pytester) -> None:
-    outcome = pytester.runpytest("--embrace=case:gen number=4")
+    outcome = pytester.runpytest("--embrace=coercion_case:gen number=4")
     outcome.stdout.fnmatch_lines(
         generated_module_stdout_factory(
             "number: int = 4",
             case_type="CoercionCase",
-            fixture="case",
+            fixture="coercion_case",
         ),
     )
