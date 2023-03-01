@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from textwrap import dedent
 from typing import Any
 
 from pytest_embrace.case import CaseTypeInfo
@@ -54,3 +55,18 @@ class CodeGenManager:
 
         case = generator(**self.generator_kwargs)
         return self.case_type.render_with_values_from(case)
+
+
+def txt(text: str) -> Any:
+    """Interpolate any text as Python into a @generator return."""
+    return RenderValue(text)
+
+
+class RenderValue:
+    """Stand-in as something distinctly identifiable when using txt()."""
+
+    def __init__(self, content: str) -> None:
+        self.content = content
+
+    def __str__(self) -> str:
+        return dedent(self.content)

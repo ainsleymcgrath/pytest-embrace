@@ -29,6 +29,8 @@ from black import format_str
 from black.mode import Mode
 
 from pytest_embrace.anno import AnnotationInfo, get_pep_593_values
+
+# from pytest_embrace.codegen import RenderValue
 from pytest_embrace.exc import CaseConfigurationError
 from pytest_embrace.undot import undot_type_str
 
@@ -174,6 +176,12 @@ class CaseTypeInfo(Generic[CaseCls]):
                 default = attr.dc_field.default
 
             if value == default:
+                continue
+
+            # TODO: this is temporary and jank until i refactor
+            # to make RenderValue not be a circular import
+            if "RenderValue" in str(type(value)):
+                out += str(value) + "\n"
                 continue
 
             out += attr.as_hinted_assignment(value) + "\n"
