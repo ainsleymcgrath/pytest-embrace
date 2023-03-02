@@ -89,7 +89,7 @@ class Embrace(Generic[CaseType]):
         self.fixture_name = func.__name__
         _registry[self.fixture_name] = CaseTypeInfo(
             type=self.case_type,
-            caller_name=func.__name__,
+            fixture_name=func.__name__,
         )
 
         @pytest.fixture

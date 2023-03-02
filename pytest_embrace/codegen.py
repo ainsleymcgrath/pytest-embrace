@@ -82,7 +82,7 @@ class CaseRender(Generic[CaseCls]):
     def module_text(self, *, body: str = "") -> str:
         return format_str(
             f"{self.imports()}\n{body}\n"
-            f"def test({self.src.caller_name}: CaseArtifact[{self.src.type_name}])"
+            f"def test({self.src.fixture_name}: CaseArtifact[{self.src.type_name}])"
             " -> None: ...",
             mode=Mode(),
         )

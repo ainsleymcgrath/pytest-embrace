@@ -33,7 +33,7 @@ class GlobalsCase:
 
 def test_to_text_globals(assert_valid_text_is: AssertionHelper) -> None:
 
-    target = CaseRender(CaseTypeInfo(GlobalsCase, caller_name="the_case"))
+    target = CaseRender(CaseTypeInfo(GlobalsCase, fixture_name="the_case"))
     text = target.skeleton()
     assert_valid_text_is(
         text,
@@ -58,7 +58,7 @@ class SomeCaseWithImports:
 
 def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
 
-    target = CaseRender(CaseTypeInfo(SomeCaseWithImports, caller_name="the_case"))
+    target = CaseRender(CaseTypeInfo(SomeCaseWithImports, fixture_name="the_case"))
     assert_valid_text_is(
         target.skeleton(),
         """

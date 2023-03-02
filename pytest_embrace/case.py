@@ -45,7 +45,7 @@ class AttrInfo:
 @dataclass
 class CaseTypeInfo(Generic[CaseCls]):
     type: CaseCls
-    caller_name: Union[str, TUnset] = UNSET
+    fixture_name: Union[str, TUnset] = UNSET
     type_name: str = field(init=False)
     type_attrs: Dict[str, AttrInfo] = field(default_factory=dict)
     generators: dict[str, Callable[..., CaseCls]] = field(default_factory=dict)
