@@ -14,7 +14,7 @@ from black import format_str
 from black.mode import Mode
 from pyperclip import sys
 
-from pytest_embrace.case import AttrInfo, CaseCls, CaseType, CaseTypeInfo
+from pytest_embrace.case import AttrInfo, CaseType, CaseTypeInfo
 from pytest_embrace.embrace import CaseTypeRegistry
 from pytest_embrace.exc import CodeGenError
 from pytest_embrace.undot import undot_type_str
@@ -67,13 +67,30 @@ class CodeGenManager:
         except KeyError as e:
             raise TypeError(f"No custom generator named {self.generator_name}") from e
 
-        case = generator(**self.generator_kwargs)
+        src = generator(**self.generator_kwargs)
         # return render_with_values(case_type, values)
-        return renderer.with_values(case)
+        if (
+            isinstance(src, self.case_type.type)
+            or isinstance(src, list)
+            or (
+                # two-item iterable where el0 is Case and rest is list[Case]
+                len(src) == 2
+                and isinstance(src[0], self.case_type.type)
+                and isinstance(src[1], list)
+            )
+        ):
+            return renderer.with_values(src)
+
+        elif isinstance(src, RenderModuleBody):
+            return renderer.expert(src)
+        else:
+            raise CodeGenError(
+                f"Invalid return type from generator {self.generator_name}: {type(src)}"
+            )
 
 
-class CaseRender(Generic[CaseCls]):
-    def __init__(self, src: CaseTypeInfo[CaseCls]):
+class CaseRender(Generic[CaseType]):
+    def __init__(self, src: CaseTypeInfo[CaseType]):
         self.src = src
         self.attr_render = {
             name: AttrRender(info) for name, info in self.src.type_attrs.items()
@@ -106,7 +123,7 @@ class CaseRender(Generic[CaseCls]):
         module_attr_hints = "\n".join(attr.hint() for attr in self.attr_render.values())
         return self.module_text(body=module_attr_hints)
 
-    def with_values(self, case: CaseType) -> str:
+    def _with_values(self, case: CaseType, hinted: bool = True) -> str:
         assignments: list[str] = []
         values = asdict(case)
         for name, attr in self.src.type_attrs.items():
@@ -123,9 +140,34 @@ class CaseRender(Generic[CaseCls]):
                 assignments.append(str(value))
                 continue
 
-            assignments.append(self.attr_render[name].assignment(value))
+            assignments.append(self.attr_render[name].assignment(value, hinted=hinted))
 
-        return self.module_text(body="\n".join(assignments))
+        return "\n".join(assignments)
+
+    def _with_values_from_list(self, values: list[CaseType]) -> str:
+        typical = values[0]
+        text = ", ".join(
+            typical.__class__.__name__
+            + "("
+            + self._with_values(v, hinted=False).replace("\n", ",")
+            + ")"
+            for v in values
+        )
+        # trailing comma always
+        return f"table = [{text},]"
+
+    def with_values(self, values: CaseType | list[CaseType]) -> str:
+        if isinstance(values, list):
+            out = self._with_values_from_list(values)
+        else:
+            out = self._with_values(values)
+        return self.module_text(body=out)
+
+    def expert(self, body: RenderModuleBody) -> str:
+        ...
+
+    def table(self, test: list[CaseTypeInfo]) -> str:
+        ...
 
 
 class AttrRender:
@@ -236,6 +278,10 @@ class RenderValue:
 
     def __str__(self) -> str:
         return dedent(self.content)
+
+
+class RenderModuleBody:
+    ...
 
 
 class InnerTestModuleBody:
