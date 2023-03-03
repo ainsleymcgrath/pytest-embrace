@@ -37,7 +37,7 @@ def gen(how_many: int):
 )
 
 
-def test_dynamic_name_generator(pytester: pytest.Pytester) -> None:
+def test(pytester: pytest.Pytester) -> None:
     outcome = pytester.runpytest("--embrace=great:gen how_many=4")
     outcome.stdout.fnmatch_lines(
         generated_module_stdout_factory(
