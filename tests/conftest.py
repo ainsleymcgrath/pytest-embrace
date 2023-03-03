@@ -1,3 +1,5 @@
+from collections.abc import Callable
+from textwrap import dedent
 from types import ModuleType, SimpleNamespace
 from typing import Any, Dict, Type, cast
 
@@ -28,3 +30,18 @@ class ModuleInfoFactory:
 @pytest.fixture
 def module_info_factory() -> ModuleInfoFactory:
     return ModuleInfoFactory()
+
+
+AssertionHelper = Callable[[str, str], None]
+
+
+@pytest.fixture
+def assert_valid_text_is() -> AssertionHelper:
+    def do_assert(actual: str, expected: str) -> None:
+        assert dedent(expected).lstrip("\n") == actual
+        try:
+            exec(actual, globals(), locals())  # check that it's valid
+        except Exception:
+            pytest.fail(f"Invalid python generated: {actual}")
+
+    return do_assert

@@ -2,27 +2,11 @@ import sys
 from collections import deque
 from dataclasses import dataclass
 from itertools import chain
-from textwrap import dedent
 from typing import Callable
-
-import pytest
 
 from pytest_embrace.case import CaseTypeInfo
 from pytest_embrace.codegen import CaseRender
-
-AssertionHelper = Callable[[str, str], None]
-
-
-@pytest.fixture
-def assert_valid_text_is() -> AssertionHelper:
-    def do_assert(actual: str, expected: str) -> None:
-        assert dedent(expected).lstrip("\n") == actual
-        try:
-            exec(actual, globals(), locals())  # check that it's valid
-        except Exception as e:
-            raise pytest.fail(f"Invalid python generated: {actual}") from e
-
-    return do_assert
+from tests.conftest import AssertionHelper
 
 
 @dataclass
