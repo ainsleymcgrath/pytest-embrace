@@ -27,7 +27,7 @@ CaseArtifactType = TypeVar("CaseArtifactType", bound=CaseArtifact, covariant=Tru
 CaseRunner = Callable[..., Any]
 
 
-CaseCls = TypeVar("CaseCls", bound=Type)
+CaseCls = TypeVar("CaseCls")
 TUnset = object
 UNSET: TUnset = object()
 
@@ -44,7 +44,7 @@ class AttrInfo:
 
 @dataclass
 class CaseTypeInfo(Generic[CaseCls]):
-    type: CaseCls
+    type: Type[CaseCls]
     fixture_name: Union[str, TUnset] = UNSET
     type_name: str = field(init=False)
     type_attrs: Dict[str, AttrInfo] = field(default_factory=dict)
