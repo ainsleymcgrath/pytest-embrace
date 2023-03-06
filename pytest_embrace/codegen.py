@@ -97,12 +97,13 @@ class CaseRender(Generic[CaseType]):
         }
 
     def module_text(self, *, body: str = "") -> str:
-        return format_str(
+        text = (
             f"{self.imports()}\n{body}\n"
             f"def test({self.src.fixture_name}: CaseArtifact[{self.src.type_name}])"
-            " -> None: ...",
-            mode=Mode(),
+            " -> None: ..."
         )
+        # breakpoint()
+        return format_str(text, mode=Mode())
 
     def imports(self) -> str:
         source = getmodule(self.src.type)
@@ -194,10 +195,7 @@ class AttrRender:
                     # as in the case of typing.Union in <=3.9,
                     # whose __class__ is a _SpecialForm
                     "_name",
-                    getattr(
-                        typ.__class__,
-                        "__name__",
-                    ),
+                    getattr(typ.__class__, "__name__", ""),
                 ),
             )
             if own_name == "Annotated":

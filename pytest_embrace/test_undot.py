@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from pytest_embrace.undot import undot_type_str

@@ -1,7 +1,8 @@
-from collections.abc import Callable
+from __future__ import annotations
+
 from textwrap import dedent
 from types import ModuleType, SimpleNamespace
-from typing import Any, Dict, Type, cast
+from typing import Any, Callable, Dict, Type, cast
 
 import pytest
 

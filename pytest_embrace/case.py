@@ -1,4 +1,6 @@
-from __future__ import annotations
+# skip the future import because it breaks dataclass.fields()
+# and turns each Field.type to a string!
+# isort: dont-add-import: from __future__ import annotations
 
 import re
 import sys
@@ -48,7 +50,7 @@ class CaseTypeInfo(Generic[CaseCls]):
     fixture_name: Union[str, TUnset] = UNSET
     type_name: str = field(init=False)
     type_attrs: Dict[str, AttrInfo] = field(default_factory=dict)
-    generators: dict[str, Callable[..., CaseCls]] = field(default_factory=dict)
+    generators: Dict[str, Callable[..., CaseCls]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.type_name = self.type.__name__

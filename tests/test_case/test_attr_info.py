@@ -1,3 +1,8 @@
+# skip the future import because it breaks dataclass.fields()
+# and turns each Field.type to a string!
+# isort: dont-add-import: from __future__ import annotations
+
+
 import sys
 from collections import ChainMap
 from dataclasses import dataclass, fields
