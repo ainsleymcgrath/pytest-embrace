@@ -268,7 +268,7 @@ def _unnest_generics(type: Type | list[Type]) -> Iterator[Type]:
         yield from _unnest_generics(arg)
 
 
-def Render(text: str) -> Any:
+def RenderText(text: str) -> Any:
     """Interpolate any text as Python into a @generator return."""
     return RenderValue(text)
 

@@ -16,7 +16,7 @@ _ = make_autouse_conftest(
 from dataclasses import dataclass
 import pytest
 
-from pytest_embrace import Embrace, Render
+from pytest_embrace import Embrace, RenderText
 from pytest_embrace.case import CaseArtifact
 
 
@@ -38,7 +38,7 @@ def gen(how_many: int):
     items = range(how_many)
     inner_tuple = ", ".join(map(str, items))
     return GreatCase(
-        stuff=Render(f"stuff = ({inner_tuple})")
+        stuff=RenderText(f"stuff = ({inner_tuple})")
     )
 """
 )
