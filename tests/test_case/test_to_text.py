@@ -10,7 +10,7 @@ from typing import Callable
 
 from pytest_embrace.case import CaseTypeInfo
 from pytest_embrace.codegen import CaseRender
-from tests.conftest import AssertionHelper
+from tests.conftest import ValidPythonAssertion
 
 
 @dataclass
@@ -19,7 +19,7 @@ class GlobalsCase:
     y: str
 
 
-def test_to_text_globals(assert_valid_text_is: AssertionHelper) -> None:
+def test_to_text_globals(assert_valid_text_is: ValidPythonAssertion) -> None:
 
     target = CaseRender(CaseTypeInfo(GlobalsCase, fixture_name="the_case"))
     text = target.skeleton()
@@ -44,7 +44,7 @@ class SomeCaseWithImports:
     foo: Callable[[deque], chain]
 
 
-def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
+def test_to_text_builtins(assert_valid_text_is: ValidPythonAssertion) -> None:
 
     target = CaseRender(CaseTypeInfo(SomeCaseWithImports, fixture_name="the_case"))
     assert_valid_text_is(

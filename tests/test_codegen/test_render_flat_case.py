@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import pytest
 
 from pytest_embrace.codegen import CaseRender
-from tests.conftest import AssertionHelper
+from tests.conftest import ValidPythonAssertion
 from tests.test_codegen.conftest import RendererMaker
 
 
@@ -25,7 +25,7 @@ def renderer(make_renderer: RendererMaker) -> CaseRender[Case]:
 
 
 def test_skeleton(
-    assert_valid_text_is: AssertionHelper, renderer: CaseRenderUnderTest
+    assert_valid_text_is: ValidPythonAssertion, renderer: CaseRenderUnderTest
 ) -> None:
     assert_valid_text_is(
         renderer.skeleton(),
@@ -45,7 +45,7 @@ def test_skeleton(
 
 
 def test_with_values(
-    assert_valid_text_is: AssertionHelper, renderer: CaseRenderUnderTest
+    assert_valid_text_is: ValidPythonAssertion, renderer: CaseRenderUnderTest
 ) -> None:
     values = Case(number=5, word="hello", items=[])
     assert_valid_text_is(

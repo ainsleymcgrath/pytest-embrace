@@ -33,11 +33,11 @@ def module_info_factory() -> ModuleInfoFactory:
     return ModuleInfoFactory()
 
 
-AssertionHelper = Callable[[str, str], None]
+ValidPythonAssertion = Callable[[str, str], None]
 
 
 @pytest.fixture
-def assert_valid_text_is() -> AssertionHelper:
+def assert_valid_text_is() -> ValidPythonAssertion:
     def do_assert(actual: str, expected: str) -> None:
         assert dedent(expected).lstrip("\n") == actual
         try:

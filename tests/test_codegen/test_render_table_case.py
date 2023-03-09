@@ -6,7 +6,7 @@ import pytest
 
 from pytest_embrace.case import trickles
 from pytest_embrace.codegen import CaseRender
-from tests.conftest import AssertionHelper
+from tests.conftest import ValidPythonAssertion
 from tests.test_codegen.conftest import RendererMaker
 
 
@@ -25,7 +25,7 @@ def renderer(make_renderer: RendererMaker) -> CaseRender[TableCase]:
 
 
 def test_table_only(
-    assert_valid_text_is: AssertionHelper, renderer: CaseRenderUnderTest
+    assert_valid_text_is: ValidPythonAssertion, renderer: CaseRenderUnderTest
 ) -> None:
     assert_valid_text_is(
         renderer.with_values(

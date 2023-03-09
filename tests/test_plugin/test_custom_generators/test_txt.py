@@ -4,6 +4,8 @@
 # isort: dont-add-import: from __future__ import annotations
 
 
+from __future__ import annotations
+
 import pytest
 from pyperclip import sys
 
