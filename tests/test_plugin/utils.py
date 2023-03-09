@@ -45,7 +45,7 @@ def generated_module_stdout_factory(
     fixture: str,
     case_type: str,
     imports: str = "from pytest_embrace import CaseArtifact",
-    typical_table_kwargs: List[str] = None,
+    typical_table_kwargs: List[str] | None = None,
 ) -> List[str]:
 
     typical_table_kwargs = (

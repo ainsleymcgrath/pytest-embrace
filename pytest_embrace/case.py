@@ -6,12 +6,26 @@ import re
 import sys
 from dataclasses import _MISSING_TYPE, MISSING, Field, dataclass, field, fields
 from types import MappingProxyType
-from typing import Any, Callable, Dict, Generic, Mapping, Optional, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Mapping,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
+
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
 
 from pytest_embrace.anno import AnnotationInfo, get_pep_593_values
 from pytest_embrace.exc import CaseConfigurationError
 
-CaseType = TypeVar("CaseType")
+CaseType = TypeVar("CaseType", bound="DataclassInstance")
 CoCaseType = TypeVar("CoCaseType", contravariant=True)
 
 
@@ -29,7 +43,7 @@ CaseArtifactType = TypeVar("CaseArtifactType", bound=CaseArtifact, covariant=Tru
 CaseRunner = Callable[..., Any]
 
 
-CaseCls = TypeVar("CaseCls")
+CaseCls = TypeVar("CaseCls", bound="DataclassInstance")
 TUnset = object
 UNSET: TUnset = object()
 

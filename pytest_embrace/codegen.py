@@ -7,7 +7,7 @@ from dataclasses import asdict
 from inspect import getmodule
 from operator import itemgetter
 from textwrap import dedent
-from typing import Any, Generic, List, Tuple, Type, Union, cast, get_args, get_origin
+from typing import Any, Generic, List, Type, Union, get_args, get_origin
 
 import isort
 from black import format_str
@@ -175,13 +175,13 @@ class CaseRender(Generic[CaseType]):
         elif isinstance(values, tuple):
             # python 3.8 can't deal with list[] or | union in cast() calls
             # (even with future import)
-            out = self._with_mixed_values(cast(Tuple[CaseType, List[CaseType]], values))
+            out = self._with_mixed_values(values)
         else:
             out = self._with_values_from_case(values)
         return self.module_text(body=out)
 
     def _expert(self, body: RenderModuleBodyValue) -> str:
-        ...
+        return ""
 
 
 class AttrRender:
