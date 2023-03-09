@@ -255,7 +255,7 @@ def _unnest_generics(type: Type | list[Type]) -> Iterator[Type]:
         yield from _unnest_generics(arg)
 
 
-def txt(text: str) -> Any:
+def Render(text: str) -> Any:
     """Interpolate any text as Python into a @generator return."""
     return RenderValue(text)
 
@@ -269,7 +269,7 @@ def txt(text: str) -> Any:
 
 
 class RenderValue:
-    """Stand-in as something distinctly identifiable when using txt()."""
+    """Stand-in as something distinctly identifiable when using Render()."""
 
     def __init__(self, content: str) -> None:
         self.content = content
@@ -290,7 +290,7 @@ class InnerTestModuleBody:
         self.contents: list[str] = [*contents]
 
     def __str__(self) -> str:
-        return "\n".join(map(txt, self.contents))
+        return "\n".join(map(Render, self.contents))
 
 
 # '''

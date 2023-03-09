@@ -1,4 +1,4 @@
-"""Test usage of the `txt()` helper."""
+"""Test usage of the `Render()` helper."""
 # skip the future import because it breaks dataclass.fields()
 # and turns each Field.type to a string!
 # isort: dont-add-import: from __future__ import annotations
@@ -16,7 +16,7 @@ _ = make_autouse_conftest(
 from dataclasses import dataclass
 import pytest
 
-from pytest_embrace import Embrace, txt
+from pytest_embrace import Embrace, Render
 from pytest_embrace.case import CaseArtifact
 
 
@@ -38,7 +38,7 @@ def gen(how_many: int):
     items = range(how_many)
     inner_tuple = ", ".join(map(str, items))
     return GreatCase(
-        stuff=txt(f"stuff = ({inner_tuple})")
+        stuff=Render(f"stuff = ({inner_tuple})")
     )
 """
 )
