@@ -7,14 +7,14 @@ from dataclasses import asdict
 from inspect import getmodule
 from operator import itemgetter
 from textwrap import dedent
-from typing import Any, Generic, Type, get_args, get_origin
+from typing import Any, Generic, List, Tuple, Type, Union, cast, get_args, get_origin
 
 import isort
 from black import format_str
 from black.mode import Mode
 from pyperclip import sys
 
-from pytest_embrace.case import AttrInfo, CaseType, CaseTypeInfo
+from pytest_embrace.case import AttrInfo, CaseType, CaseTypeInfo, Trickle
 from pytest_embrace.embrace import CaseTypeRegistry
 from pytest_embrace.exc import CodeGenError
 from pytest_embrace.undot import undot_type_str
@@ -81,8 +81,8 @@ class CodeGenManager:
         ):
             return renderer.with_values(src)
 
-        elif isinstance(src, RenderModuleBody):
-            return renderer.expert(src)
+        # elif isinstance(src, RenderModuleBodyValue):
+        #     return renderer._expert(src)
         else:
             raise CodeGenError(
                 f"Invalid return type from generator {self.generator_name}: {type(src)}"
@@ -124,7 +124,7 @@ class CaseRender(Generic[CaseType]):
         module_attr_hints = "\n".join(attr.hint() for attr in self.attr_render.values())
         return self.module_text(body=module_attr_hints)
 
-    def _with_values(self, case: CaseType, hinted: bool = True) -> str:
+    def _with_values_from_case(self, case: CaseType, hinted: bool = True) -> str:
         assignments: list[str] = []
         values = asdict(case)
         for name, attr in self.src.type_attrs.items():
@@ -134,7 +134,8 @@ class CaseRender(Generic[CaseType]):
             else:
                 default = attr.dc_field.default
 
-            if value == default:
+            # would've expected value == default to be true w/ trickles() but appaz not!
+            if value == default or isinstance(value, Trickle):
                 continue
 
             if isinstance(value, RenderValue):
@@ -150,24 +151,39 @@ class CaseRender(Generic[CaseType]):
         text = ", ".join(
             typical.__class__.__name__
             + "("
-            + self._with_values(v, hinted=False).replace("\n", ",")
+            + self._with_values_from_case(v, hinted=False).replace("\n", ",")
             + ")"
             for v in values
         )
         # trailing comma always
         return f"table = [{text},]"
 
-    def with_values(self, values: CaseType | list[CaseType]) -> str:
+    def _with_mixed_values(self, values: tuple[CaseType, list[CaseType]]) -> str:
+        module_attrs, table = values
+        header = self._with_values_from_case(module_attrs, hinted=False)
+        table_content = self._with_values_from_list(table)
+        return f"{header}\n\n{table_content}"
+
+    def with_values(
+        self,
+        values: CaseType
+        | tuple[CaseType, list[CaseType]]
+        | list[CaseType]
+        | RenderModuleBodyValue,
+    ) -> str:
         if isinstance(values, list):
             out = self._with_values_from_list(values)
+        elif isinstance(values, RenderModuleBodyValue):
+            out = self._expert(values)
+        elif isinstance(values, tuple):
+            # python 3.8 can't deal with list[] or | union in cast() calls
+            # (even with future import)
+            out = self._with_mixed_values(cast(Tuple[CaseType, List[CaseType]], values))
         else:
-            out = self._with_values(values)
+            out = self._with_values_from_case(values)
         return self.module_text(body=out)
 
-    def expert(self, body: RenderModuleBody) -> str:
-        ...
-
-    def table(self, test: list[CaseTypeInfo]) -> str:
+    def _expert(self, body: RenderModuleBodyValue) -> str:
         ...
 
 
@@ -260,12 +276,13 @@ def Render(text: str) -> Any:
     return RenderValue(text)
 
 
-# def RenderText(content: str) -> Any:
-#     return RenderValue(content)
+# python 3.8 can't deal with list[] or | union in aliases
+# (even with future import)
+ModuleBodyContents = Union[List[CaseType], str]
 
 
-# def RenderModuleBody(*contents: str | "CaseType" | list["CaseType"]) -> Any:
-#     return InnerTestModuleBody(*contents)
+def RenderModuleBody(*contents: ModuleBodyContents) -> Any:
+    return RenderModuleBodyValue(*contents)
 
 
 class RenderValue:
@@ -278,19 +295,12 @@ class RenderValue:
         return dedent(self.content)
 
 
-class RenderModuleBody:
-    ...
-
-
-class InnerTestModuleBody:
+class RenderModuleBodyValue:
     """Everything after the solved imports and before the `test()` function def.
     Given contents are rendered all together, separated by newlines."""
 
-    def __init__(self, *contents: str) -> None:
-        self.contents: list[str] = [*contents]
-
-    def __str__(self) -> str:
-        return "\n".join(map(Render, self.contents))
+    def __init__(self, *contents: ModuleBodyContents) -> None:
+        self.contents: list[ModuleBodyContents] = [*contents]
 
 
 # '''
