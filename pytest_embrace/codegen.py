@@ -41,7 +41,8 @@ class CodeGenManager:
             try:
                 self.generator_kwargs[key] = json.loads(value)
             except json.JSONDecodeError as e:
-                # a string is expected to fail since it doesn't come in quoted
+                # a string is expected to fail when it doesn't come in quoted.
+                # only fail on other invalid json
                 if not isinstance(value, str):
                     raise CodeGenError(
                         f"Generator '{self.generator_name}' supplied with"
@@ -68,21 +69,18 @@ class CodeGenManager:
             raise TypeError(f"No custom generator named {self.generator_name}") from e
 
         src = generator(**self.generator_kwargs)
-        # return render_with_values(case_type, values)
+
         if (
             isinstance(src, self.case_type.type)
             or isinstance(src, list)
             or (
-                # two-item iterable where el0 is Case and rest is list[Case]
+                # two-item iterable where [0] is Case and rest is list[Case]
                 len(src) == 2
                 and isinstance(src[0], self.case_type.type)
                 and isinstance(src[1], list)
             )
         ):
             return renderer.with_values(src)
-
-        # elif isinstance(src, RenderModuleBodyValue):
-        #     return renderer._expert(src)
         else:
             raise CodeGenError(
                 f"Invalid return type from generator {self.generator_name}: {type(src)}"
@@ -102,7 +100,6 @@ class CaseRender(Generic[CaseType]):
             f"def test({self.src.fixture_name}: CaseArtifact[{self.src.type_name}])"
             " -> None: ..."
         )
-        # breakpoint()
         return format_str(text, mode=Mode())
 
     def imports(self) -> str:
@@ -301,17 +298,3 @@ class RenderModuleBodyValue:
 
     def __init__(self, *contents: ModuleBodyContents) -> None:
         self.contents: list[ModuleBodyContents] = [*contents]
-
-
-# '''
-# RenderModuleBody(
-#     RenderText("_x = 12  # foobar"),  # not an attr of test
-#     Case(arg=Render("{'foo': 'bar'}")),  # top-level attr
-#     [Case(expect=1), Case(expect=2)],  # rendered as `table`
-#     RenderText(  # multiline content
-#         """
-#         def func():
-#             return _x
-#         """
-#     ),
-# )'''
