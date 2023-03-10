@@ -105,7 +105,7 @@ class CaseRender(Generic[CaseType]):
     def imports(self) -> str:
         source = getmodule(self.src.type)
         case_import = (
-            f"from {mod_name} import {self.src.type_name}"
+            RenderImport(mod_name, self.src.type_name)
             if (mod_name := getattr(source, "__name__", None)) is not None
             else ""
         )
@@ -271,6 +271,11 @@ def _unnest_generics(type: Type | list[Type]) -> Iterator[Type]:
 def RenderText(text: str) -> Any:
     """Interpolate any text as Python into a @generator return."""
     return RenderValue(text)
+
+
+def RenderImport(from_: str, import_: str, as_: str = "") -> str:
+    alias = as_ if as_ == "" else f" as {as_}"
+    return f"from {from_} import {import_}{alias}"
 
 
 # python 3.8 can't deal with list[] or | union in aliases
