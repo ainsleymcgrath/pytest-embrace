@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 
@@ -13,7 +13,7 @@ from tests.test_codegen.conftest import RendererMaker
 class Case:
     number: int
     word: str
-    items: list[str]
+    items: list[str] = field(default_factory=list)
 
 
 CaseRenderUnderTest = CaseRender[Case]
@@ -47,7 +47,7 @@ def test_skeleton(
 def test_with_values(
     assert_valid_text_is: ValidPythonAssertion, renderer: CaseRenderUnderTest
 ) -> None:
-    values = Case(number=5, word="hello", items=[])
+    values = Case(number=5, word="hello", items=["yo"])
     assert_valid_text_is(
         renderer.with_values(values),
         """
@@ -56,7 +56,7 @@ def test_with_values(
 
         number: int = 5
         word: str = "hello"
-        items: list[str] = []
+        items: list[str] = ["yo"]
 
 
         def test(case: CaseArtifact[Case]) -> None:
