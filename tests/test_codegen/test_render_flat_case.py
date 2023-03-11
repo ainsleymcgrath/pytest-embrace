@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import pytest
-
 from pytest_embrace.codegen import CaseRender
 from tests.conftest import ValidPythonAssertion
-from tests.test_codegen.conftest import RendererMaker
+from tests.test_codegen.conftest import make_renderer_fixture
 
 
 @dataclass
@@ -18,10 +16,7 @@ class Case:
 
 CaseRenderUnderTest = CaseRender[Case]
 
-
-@pytest.fixture
-def renderer(make_renderer: RendererMaker) -> CaseRender[Case]:
-    return make_renderer(Case, fixture_name="case")
+renderer = make_renderer_fixture(Case, fixture_name="case")
 
 
 def test_skeleton(

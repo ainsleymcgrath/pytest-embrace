@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import pytest
-
 from pytest_embrace import RenderModuleBody, trickles
 from pytest_embrace.codegen import CaseRender
 from tests.conftest import ValidPythonAssertion
-from tests.test_codegen.conftest import RendererMaker
+from tests.test_codegen.conftest import make_renderer_fixture
 
 
 @dataclass
@@ -19,9 +17,12 @@ class ExpertCase:
 CaseRenderUnderTest = CaseRender[ExpertCase]
 
 
-@pytest.fixture
-def renderer(make_renderer: RendererMaker) -> CaseRender[ExpertCase]:
-    return make_renderer(ExpertCase, fixture_name="expert")
+# @pytest.fixture
+# def renderer(make_renderer: RendererMaker) -> CaseRender[ExpertCase]:
+#     return make_renderer(ExpertCase, fixture_name="expert")
+
+
+renderer = make_renderer_fixture(ExpertCase, fixture_name="expert")
 
 
 def xtest_expert(
