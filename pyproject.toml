@@ -14,6 +14,10 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed"
 ]
+packages = [
+  { include = "pytest_embrace" },
+  { include = "tests", format = "sdist" }
+]
 
 [tool.poetry.urls]
 "GitHub" = "https://github.com/ainsleymcgrath/pytest-embrace"
