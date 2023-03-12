@@ -47,4 +47,3 @@ dmypy.json
 .coverage
 site/
 .DS_Store
-.todos.json

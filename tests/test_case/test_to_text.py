@@ -1,16 +1,27 @@
-# skip the future import because it breaks dataclass.fields()
-# and turns each Field.type to a string!
-# isort: dont-add-import: from __future__ import annotations
-
 import sys
 from collections import deque
 from dataclasses import dataclass
 from itertools import chain
+from textwrap import dedent
 from typing import Callable
 
+import pytest
+
 from pytest_embrace.case import CaseTypeInfo
-from pytest_embrace.codegen import CaseRender
-from tests.conftest import ValidPythonAssertion
+
+AssertionHelper = Callable[[str, str], None]
+
+
+@pytest.fixture
+def assert_valid_text_is() -> AssertionHelper:
+    def do_assert(actual: str, expected: str) -> None:
+        assert dedent(expected).lstrip("\n") == actual
+        try:
+            exec(actual, globals(), locals())  # check that it's valid
+        except Exception as e:
+            raise pytest.fail(f"Invalid python generated: {actual}") from e
+
+    return do_assert
 
 
 @dataclass
@@ -19,10 +30,10 @@ class GlobalsCase:
     y: str
 
 
-def test_to_text_globals(assert_valid_text_is: ValidPythonAssertion) -> None:
+def test_to_text_globals(assert_valid_text_is: AssertionHelper) -> None:
 
-    target = CaseRender(CaseTypeInfo(GlobalsCase, fixture_name="the_case"))
-    text = target.skeleton()
+    target = CaseTypeInfo(GlobalsCase, caller_name="the_case")
+    text = target.to_text()
     assert_valid_text_is(
         text,
         """
@@ -44,11 +55,11 @@ class SomeCaseWithImports:
     foo: Callable[[deque], chain]
 
 
-def test_to_text_builtins(assert_valid_text_is: ValidPythonAssertion) -> None:
+def test_to_text_builtins(assert_valid_text_is: AssertionHelper) -> None:
 
-    target = CaseRender(CaseTypeInfo(SomeCaseWithImports, fixture_name="the_case"))
+    target = CaseTypeInfo(SomeCaseWithImports, caller_name="the_case")
     assert_valid_text_is(
-        target.skeleton(),
+        target.to_text(),
         """
         from collections import deque
         from collections.abc import Callable

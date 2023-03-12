@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from textwrap import dedent
 from typing import Any, Callable, List, Tuple
 
@@ -45,7 +43,7 @@ def generated_module_stdout_factory(
     fixture: str,
     case_type: str,
     imports: str = "from pytest_embrace import CaseArtifact",
-    typical_table_kwargs: List[str] | None = None,
+    typical_table_kwargs: List[str] = None,
 ) -> List[str]:
 
     typical_table_kwargs = (
@@ -64,7 +62,6 @@ def generated_module_stdout_factory(
 
     return [
         "Copying the following output to your clipboard:",
-        "",
         *imports.split("\n"),
         "",
         f"from conftest import {case_type}",

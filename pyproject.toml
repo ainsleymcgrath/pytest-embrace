@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-embrace"
-version = "3.0.0"
+version = "2.4.3"
 readme = "README.md"
 description = "💝  Dataclasses-as-tests. Describe the runtime once and multiply coverage with no boilerplate."
 authors = ["Ainsley McGrath <mcgrath.ainsley@gmail.com>"]
@@ -14,10 +14,6 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed"
 ]
-packages = [
-  { include = "pytest_embrace" },
-  { include = "tests", format = "sdist" }
-]
 
 [tool.poetry.urls]
 "GitHub" = "https://github.com/ainsleymcgrath/pytest-embrace"
@@ -27,13 +23,13 @@ python = "^3.8"
 pytest = "^7.0"
 pydantic = "^1.9.1"
 pyperclip = "^1.8.2"
-typing-extensions = "^4.4.0"
+typing-extensions = {version = "^4.2.0", python = "3.8"}
 # these are used when rendering test files
 black = "^22.3.0"
 isort = "^5.10.1"
 
 [tool.poetry.dev-dependencies]
-mypy = "~1.0.0"
+mypy = "^0.961"
 flake8 = "^4.0.1"
 tox = "^3.25.0"
 python-semantic-release = "^7.29.2"
@@ -75,7 +71,6 @@ module = [
 
 [tool.isort]
 profile = "black"
-add_imports  = "from __future__ import annotations"
 
 [tool.semantic_release]
 version_variable = [

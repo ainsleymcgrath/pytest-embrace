@@ -13,25 +13,3 @@ List all fixtures registered with `Embrace` along with their case objects.
 ### `--embrace <fixture_name>`
 
 Generate a skeleton test module and send it to your clipboard.
-
-### `--embrace <fixture_name>:<generator_name> [<arg>=<value> ...]`
-
-Runs the `Embrace.generator` decorated function named `<generator_name>` with the given`arg=value` pairs as keyword arguments.
-
-Given this:
-
-```python
-e = Embrace(SomeCase)
-
-@e.fixture
-def fix(): ...
-
-@e.generator
-def gen(arg): ...
-```
-
-You can call this:
-
-```shell
-pytest --embrace 'fix:gen arg=something'
-```

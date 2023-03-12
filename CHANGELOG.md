@@ -2,20 +2,6 @@
 
 <!--next-version-placeholder-->
 
-## v3.0.0 (2022-10-15)
-### Feature
-* Improve fixture-creation API ([`d3548fd`](https://github.com/ainsleymcgrath/pytest-embrace/commit/d3548fd1374009e02af7d54127e55bbe1e5b43f0))
-
-### Fix
-* Correct link in exc ([`104c654`](https://github.com/ainsleymcgrath/pytest-embrace/commit/104c654d9d7067fea7e85278fef6b91215432f11))
-
-### Breaking
-* old APIs, register_case_runner and caller_fixture_factory deprecated in favor of fixture(). old apis will raise an error  ([`d3548fd`](https://github.com/ainsleymcgrath/pytest-embrace/commit/d3548fd1374009e02af7d54127e55bbe1e5b43f0))
-
-### Documentation
-* New pages ([`6a4320d`](https://github.com/ainsleymcgrath/pytest-embrace/commit/6a4320d0c8f8e7a24366239960f9b1b96f8e0e57))
-* Address new api ([`684788f`](https://github.com/ainsleymcgrath/pytest-embrace/commit/684788f252f5f34fba697a8b1de69c8c744296e0))
-
 ## v2.4.3 (2022-09-16)
 ### Fix
 * Show shorter name in ls ([`bcaf404`](https://github.com/ainsleymcgrath/pytest-embrace/commit/bcaf4049d6ecedb62c3232ae6f1705cdc5ae9bea))

@@ -14,7 +14,6 @@ That said, `Cmd + V` is _very_ few keystrokes to get a new test case going. And 
 
 1. `--embrace-ls` will list out any _caller fixtures_ that have been created in your codebase.
 2. `--embrace <fixture name>` will print the scaffolding of a new test module to the console, and copy it to your clipboard. Check out an example in the [Making Cases](../designing-tests/making-cases#code-generation) documentation.
-    - There's also a second form that takes `<fixture name>[:<generator name> [<key>=<value> ...]]`, but we'll cover that later.
 
 ## Comments via `Annotated`
 

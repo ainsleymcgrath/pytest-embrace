@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import pytest
 
 from tests.test_plugin.utils import make_autouse_conftest

@@ -1,15 +1,9 @@
-# skip the future import because it breaks dataclass.fields()
-# and turns each Field.type to a string!
-# isort: dont-add-import: from __future__ import annotations
-
-
 import sys
 from collections import ChainMap
 from dataclasses import dataclass, fields
 from typing import Callable, Mapping, Union
 
 from pytest_embrace.case import AttrInfo
-from pytest_embrace.codegen import AttrRender
 
 
 @dataclass
@@ -25,8 +19,7 @@ def test_render_import_statement_global() -> None:
     """Expect no import."""
     attr = _fields_lookup["one"]
     info = AttrInfo(attr)
-    renderer = AttrRender(info)
-    assert renderer.imports() == ""
+    assert info.render_import_statement() == ""
 
 
 def test_render_import_statement_builtins_and_third_party() -> None:
@@ -37,8 +30,7 @@ def test_render_import_statement_builtins_and_third_party() -> None:
         in newer Pythongs."""
     attr = _fields_lookup["two"]
     info = AttrInfo(attr)
-    renderer = AttrRender(info)
-    imports = renderer.imports()
+    imports = info.render_import_statement()
     assert (
         imports
         == "\n".join(

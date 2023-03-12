@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import pytest
 
 from .utils import make_autouse_conftest, make_test_run_outcome_fixture
