@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import defaultdict
 from collections.abc import Iterator
 from dataclasses import asdict
@@ -88,6 +89,8 @@ class CodeGenManager:
 
 
 class CaseRender(Generic[CaseType]):
+    funcdef_pattern = re.compile(r"\n{0,}def\s+(?P<funcname>\w+)\(.+\):")
+
     def __init__(self, src: CaseTypeInfo[CaseType]):
         self.src = src
         self.attr_render = {
@@ -136,6 +139,17 @@ class CaseRender(Generic[CaseType]):
                 continue
 
             if isinstance(value, RenderValue):
+                if match := self.funcdef_pattern.match(str(value)):
+                    funcname = match["funcname"]
+                    if funcname != name:
+                        raise CodeGenError(
+                            f"Can't render function called '{funcname}'"
+                            f" for arg '{name}'. Rename the function to '{name}'"
+                            " and try again."
+                        )
+                    assignments.append(str(value))
+                    continue
+
                 assignments.append(
                     self.attr_render[name].assignment(value, hinted=False)
                 )
