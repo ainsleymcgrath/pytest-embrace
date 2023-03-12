@@ -38,7 +38,7 @@ def test_dynamic_name_generator(pytester: pytest.Pytester) -> None:
     outcome = pytester.runpytest("--embrace=coercion_case:gen number=4")
     outcome.stdout.fnmatch_lines(
         generated_module_stdout_factory(
-            "number: int = 4",
+            "number = 4",
             case_type="CoercionCase",
             fixture="coercion_case",
         ),

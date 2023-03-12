@@ -143,7 +143,6 @@ class CaseRender(Generic[CaseType]):
 
     def skeleton(self) -> str:
         module_attr_hints = "\n".join(attr.hint() for attr in self.attr_render.values())
-        breakpoint()
         return self.module_text(body=module_attr_hints)
 
     def _with_values_from_case(self, case: CaseType, hinted: bool = True) -> str:
@@ -253,7 +252,6 @@ class AttrRender:
             else self.src.annotations.type
         )
         type_str = undot_type_str(_stringify_type(typ))
-        breakpoint()
         # get rid of dots and assume imports are solved
         type_str_parts = [t.lstrip("[").rstrip("]") for t in type_str.split(".")]
         if len(type_str_parts) > 1:

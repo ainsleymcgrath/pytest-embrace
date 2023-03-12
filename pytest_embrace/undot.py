@@ -31,10 +31,11 @@ def undot_type_str(type_str: str) -> str:
             # for Callable[] the first generic arg is a [], so we need to check for that
             special_case = OPEN_GENERIC if inner_word.startswith(OPEN_GENERIC) else ""
 
-            # poor solution to a bug: for unary callables, you get an extra bracket here
-            if "," not in inner_word:
-                char = ""
-            return f"{char}{special_case}{_dedot(inner_word)}{undot_type_str(rest)}"
+            return (
+                f"{char}{special_case}{_dedot(inner_word)}{undot_type_str(rest)}"
+            ).replace(
+                "[[[", "[["  # eye-bleedingly ugly solution to bug with unary
+            )  # callables somehow gaining an extra bracket :(
         elif char == CLOSE_GENERIC:
             rest = type_str.split(char, maxsplit=1)[-1]
             word = _dedot(char + "".join(takewhile(lambda x: x not in DELIMETERS, it)))

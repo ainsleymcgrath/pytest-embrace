@@ -37,7 +37,7 @@ def test_dynamic_name_generator(pytester: pytest.Pytester) -> None:
     outcome = pytester.runpytest("--embrace=my_case:dynamic_name name=pieRre")
     outcome.stdout.fnmatch_lines(
         generated_module_stdout_factory(
-            'name: str = "Dynamic Pierre!"',
+            'name = "Dynamic Pierre!"',
             case_type="MyCase",
             fixture="my_case",
         ),

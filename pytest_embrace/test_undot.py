@@ -11,7 +11,7 @@ from pytest_embrace.undot import undot_type_str
         ("foo", "foo"),
         ("foo.bar", "bar"),
         # skipping this one since it's not really a valid type
-        # ("[foo.bar]", "[bar]"),
+        ("[foo.bar]", "[bar]"),
         ("foo.bar.baz.buzz.whizz", "whizz"),
         ("foo[baz.bar, bizz.bozz]", "foo[bar, bozz]"),
         ("typing.Callable[[str], typing.Any]", "Callable[[str], Any]"),
