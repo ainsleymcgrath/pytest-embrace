@@ -3,6 +3,8 @@ Create 2 modules that implement it.
 Module A imports `some_mutable_thing` from Module B and messes with it.
 Verify that mutations during run of A do not spill over into B."""
 
+from __future__ import annotations
+
 import pytest
 
 from tests.test_plugin.utils import make_autouse_conftest, make_test_run_outcome_fixture

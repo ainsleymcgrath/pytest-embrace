@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from .utils import generated_module_stdout_factory, make_autouse_conftest
@@ -46,7 +48,7 @@ def fix_2(case: MyCase2, fix: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "caller_name, matchlines",
+    "fixture_name, matchlines",
     [
         (
             "buzzz",
@@ -69,8 +71,8 @@ def fix_2(case: MyCase2, fix: str) -> None:
     ],
 )
 def test_gen_opt_can_find(
-    caller_name: str, matchlines: str, pytester: pytest.Pytester
+    fixture_name: str, matchlines: str, pytester: pytest.Pytester
 ) -> None:
     """Looking for the type hints that show up in generated modules."""
-    outcome = pytester.runpytest(f"--embrace={caller_name}")
+    outcome = pytester.runpytest(f"--embrace={fixture_name}")
     outcome.stdout.fnmatch_lines(matchlines, consecutive=True)

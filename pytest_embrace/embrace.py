@@ -3,11 +3,12 @@ from __future__ import annotations
 from collections.abc import Iterator
 from functools import partial
 from inspect import signature
-from typing import Any, Callable, Dict, Generic
+from typing import Any, Callable, Generic
 from typing import MutableMapping as TMutableMapping
 from typing import NoReturn, Type, TypeVar
 
 import pytest
+from typing_extensions import ParamSpec
 
 from .case import CaseArtifact, CaseRunner, CaseType, CaseTypeInfo
 from .exc import CaseConfigurationError, TwoStepApiDeprecationError
@@ -17,24 +18,23 @@ RegistryValue = Type["CaseType"]
 T = TypeVar("T", bound=Type)
 TUnset = object
 UNSET: TUnset = object()
+CodeGenFuncArgs = ParamSpec("CodeGenFuncArgs")
+CodeGenFuncReturn = TypeVar("CodeGenFuncReturn")
 
 
 TCaseInfo = TypeVar("TCaseInfo", bound=CaseTypeInfo)
 
 
 class CaseTypeRegistry(TMutableMapping[str, TCaseInfo]):
-    def __init__(self) -> None:
-        self._mapping: Dict[str, TCaseInfo] = {}
-
     def __getitem__(self, key: str) -> TCaseInfo:
-        return self._mapping[key]
+        return self.__dict__[key]
 
     def __setitem__(self, key: str, val: TCaseInfo) -> None:
-        if key not in self._mapping:
-            self._mapping[key] = val
+        if key not in self.__dict__:
+            self.__dict__[key] = val
             return
 
-        existing = self._mapping[key]
+        existing = self.__dict__[key]
 
         if type(existing) == type(val):
             return
@@ -44,10 +44,10 @@ class CaseTypeRegistry(TMutableMapping[str, TCaseInfo]):
         )
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self._mapping)
+        return iter(self.__dict__)
 
     def __len__(self) -> int:
-        return len(self._mapping)
+        return len(self.__dict__)
 
     def __delitem__(self, _: str) -> None:
         raise NotImplementedError
@@ -68,6 +68,8 @@ class Embrace(Generic[CaseType]):
         self.case_type = case_type
         self.wrapped_func: CaseRunner | None = None
         self.runner: partial | None = None
+        self.generators: dict[str, Callable[..., Any]]
+        self.fixture_name: str = ""
 
     def register_case_runner(self, *_: Any) -> NoReturn:
         raise TwoStepApiDeprecationError(deprecated_method="register_case_runner")
@@ -84,9 +86,10 @@ class Embrace(Generic[CaseType]):
         a plain function. The generated fixture gets parametrized
         (during pytest_generate_tests) with CaseType objects built from enclosing test
         modules and then later calls that decorated function with fixture values."""
-        _registry[func.__name__] = CaseTypeInfo(
+        self.fixture_name = func.__name__
+        _registry[self.fixture_name] = CaseTypeInfo(
             type=self.case_type,
-            caller_name=func.__name__,
+            fixture_name=func.__name__,
         )
 
         @pytest.fixture
@@ -118,6 +121,24 @@ class Embrace(Generic[CaseType]):
                 pass
 
         return fix
+
+    def generator(
+        self, func: Callable[CodeGenFuncArgs, CodeGenFuncReturn]
+    ) -> Callable[CodeGenFuncArgs, CodeGenFuncReturn]:
+        _registry[self.fixture_name].generators[func.__name__] = func
+
+        def render(
+            *args: CodeGenFuncArgs.args, **kwargs: CodeGenFuncArgs.kwargs
+        ) -> CodeGenFuncReturn:
+            case_or_case_iter = func(*args, **kwargs)
+            if isinstance(case_or_case_iter, Iterator):
+                module_vars = next(case_or_case_iter)
+                return module_vars  # TODO!
+            else:
+                # assert isinstance(case_or_case_iter, CaseType)
+                return case_or_case_iter
+
+        return render
 
 
 def registry() -> CaseTypeRegistry[CaseTypeInfo]:

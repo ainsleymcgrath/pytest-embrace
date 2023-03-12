@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from itertools import takewhile
 
 DOT = "."
@@ -28,6 +30,10 @@ def undot_type_str(type_str: str) -> str:
             rest = type_str.split(inner_word, maxsplit=1)[-1]
             # for Callable[] the first generic arg is a [], so we need to check for that
             special_case = OPEN_GENERIC if inner_word.startswith(OPEN_GENERIC) else ""
+
+            # poor solution to a bug: for unary callables, you get an extra bracket here
+            if "," not in inner_word:
+                char = ""
             return f"{char}{special_case}{_dedot(inner_word)}{undot_type_str(rest)}"
         elif char == CLOSE_GENERIC:
             rest = type_str.split(char, maxsplit=1)[-1]
