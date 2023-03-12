@@ -89,7 +89,7 @@ class CodeGenManager:
 
 
 class CaseRender(Generic[CaseType]):
-    funcdef_pattern = re.compile(r"\n{0,}def\s+(?P<funcname>\w+)\(.+\):")
+    funcdef_pattern = re.compile(r"\n{0,}def\s+(?P<funcname>\w+)\(.+\).*:")
 
     def __init__(self, src: CaseTypeInfo[CaseType]):
         self.src = src
@@ -104,6 +104,7 @@ class CaseRender(Generic[CaseType]):
         | list[CaseType]
         | RenderModuleBodyValue,
         hinted: bool = True,
+        no_body: bool = False,
     ) -> str:
         if isinstance(values, list):
             out = self._with_values_from_list(values)
@@ -115,6 +116,8 @@ class CaseRender(Generic[CaseType]):
             out = self._with_mixed_values(cast(Tuple[CaseType, List[CaseType]], values))
         else:
             out = self._with_values_from_case(values, hinted=hinted)
+        if no_body:
+            return out
         return self.module_text(body=out)
 
     def module_text(self, *, body: str = "") -> str:
@@ -123,7 +126,7 @@ class CaseRender(Generic[CaseType]):
             f"def test({self.src.fixture_name}: CaseArtifact[{self.src.type_name}])"
             " -> None: ..."
         )
-        return format_str(text, mode=Mode())
+        return format_str(isort.code(text, profile="black"), mode=Mode())
 
     def imports(self) -> str:
         source = getmodule(self.src.type)
@@ -136,9 +139,7 @@ class CaseRender(Generic[CaseType]):
             render.imports() for render in self.attr_render.values()
         )
         always_import = "from pytest_embrace import CaseArtifact\n"
-        return isort.code(
-            f"{always_import}\n{case_import}\n{dependency_imports}", profile="black"
-        )
+        return f"{always_import}\n{case_import}\n{dependency_imports}"
 
     def skeleton(self) -> str:
         module_attr_hints = "\n".join(attr.hint() for attr in self.attr_render.values())
@@ -198,7 +199,14 @@ class CaseRender(Generic[CaseType]):
         return f"{header}\n\n{table_content}"
 
     def _expert(self, body: RenderModuleBodyValue) -> str:
-        return ""
+        out: list[str] = []
+        for item in body.contents:
+            if isinstance(item, RenderValue):
+                out.append(str(item))
+                continue
+            out.append(self.with_values(item, no_body=True))
+
+        return "\n".join(out)
 
 
 class AttrRender:
@@ -293,18 +301,9 @@ def RenderText(text: str) -> Any:
     return RenderValue(text)
 
 
-def RenderImport(from_: str, import_: str, as_: str = "") -> str:
+def RenderImport(from_: str, import_: str, as_: str = "") -> Any:
     alias = as_ if as_ == "" else f" as {as_}"
-    return f"from {from_} import {import_}{alias}"
-
-
-# python 3.8 can't deal with list[] or | union in aliases
-# (even with future import)
-ModuleBodyContents = Union[List[CaseType], str]
-
-
-def RenderModuleBody(*contents: ModuleBodyContents) -> Any:
-    return RenderModuleBodyValue(*contents)
+    return RenderValue(f"from {from_} import {import_}{alias}")
 
 
 class RenderValue:
@@ -318,6 +317,15 @@ class RenderValue:
 
     def __repr__(self) -> str:
         return str(self)
+
+
+# python 3.8 can't deal with list[] or | union in aliases
+# (even with future import)
+ModuleBodyContents = Union[List[CaseType], CaseType, RenderValue]
+
+
+def RenderModuleBody(*contents: ModuleBodyContents) -> Any:
+    return RenderModuleBodyValue(*contents)
 
 
 class RenderModuleBodyValue:

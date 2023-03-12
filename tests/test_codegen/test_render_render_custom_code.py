@@ -5,7 +5,13 @@ from dataclasses import dataclass
 
 import pytest
 
-from pytest_embrace.codegen import CaseRender, RenderText
+from pytest_embrace.case import trickles
+from pytest_embrace.codegen import (
+    CaseRender,
+    RenderImport,
+    RenderModuleBody,
+    RenderText,
+)
 from pytest_embrace.exc import CodeGenError
 from tests.conftest import ValidPythonAssertion
 from tests.test_codegen.conftest import make_renderer_fixture
@@ -13,9 +19,9 @@ from tests.test_codegen.conftest import make_renderer_fixture
 
 @dataclass
 class UnserializeableCase:
-    collection: set[str]
+    collection: set[str] | None = None
     subcase: "UnserializeableCase" | None = None
-    funcdef: Callable[..., object] | None = None
+    funcdef: Callable[..., object] | None = trickles(default=None)
 
 
 CaseRenderUnderTest = CaseRender[UnserializeableCase]
@@ -96,3 +102,53 @@ def test_render_function_name_mismatch(renderer: CaseRenderUnderTest) -> None:
         " Rename the function to 'funcdef' and try again.",
     ):
         renderer.with_values(values, hinted=False),
+
+
+def test_render_module_body(
+    assert_valid_text_is: ValidPythonAssertion, renderer: CaseRenderUnderTest
+) -> None:
+    values = RenderModuleBody(
+        RenderImport(from_="collections.abc", import_="Sequence"),
+        RenderText("# color commentary!"),
+        (
+            UnserializeableCase(
+                funcdef=RenderText(
+                    """def funcdef(stuff: Sequence[int | float]) -> list[str]:
+                           return [*map(str, stuff)]
+                    """
+                )
+            ),
+            [
+                UnserializeableCase(collection=RenderText("{'foo', 'bar'}")),
+                UnserializeableCase(collection=RenderText("{}")),
+                UnserializeableCase(
+                    subcase=RenderText('UnserializeableCase({"haha"})'),
+                ),
+            ],
+        ),
+    )
+    assert_valid_text_is(
+        renderer.with_values(values, hinted=False),
+        """
+    from collections.abc import Sequence
+
+    from pytest_embrace import CaseArtifact
+    from tests.test_codegen.test_render_render_custom_code import UnserializeableCase
+
+
+    # color commentary!
+    def funcdef(stuff: Sequence[int | float]) -> list[str]:
+        return [*map(str, stuff)]
+
+
+    table = [
+        UnserializeableCase(collection={"foo", "bar"}),
+        UnserializeableCase(collection={}),
+        UnserializeableCase(subcase=UnserializeableCase({"haha"})),
+    ]
+
+
+    def test(case: CaseArtifact[UnserializeableCase]) -> None:
+        ...
+        """,
+    )
