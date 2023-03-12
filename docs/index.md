@@ -8,7 +8,7 @@
 
 - Convenient **abstractions for parametrized tests**
 - Great DX with **type hints everywhere**
-- **Code generation** with low effort
+- **[Code generation](#codegen)** with low effort
 
 This plugin's long-term goal is to be the [FastAPI](https://fastapi.tiangolo.com/) of [Pytest](https://docs.pytest.org/en/7.1.x/) plugins.
 
@@ -42,7 +42,7 @@ from pytest_embrace import Embrace
 @dataclass
 class Case:  # (1)
     arg: str
-    func: Callable
+    func: Callable[[str], Any]
     expect: Any
 
 
@@ -83,7 +83,7 @@ from pytest_embrace import CaseArtifact
 from conftest import Case
 
 arg: str
-func: Callable
+func: Callable[[str], Any]
 expect: Any
 
 
@@ -125,9 +125,55 @@ test_wow.py .                                                            [100%]
 ============================== 1 passed in 0.01s ============================
 ```
 
+### 🚀 Powerful Code Generation {#codegen}
+
+Skeleton tests are fine, but `Embrace()` offers another decorator: `@generator`.
+
+**`pytest-embrace` code generators allow you to dynamically create tests via command-line input.**
+
+```python
+@embrace.generator
+def my_gen(arg, expect, func):  # (1)
+    return Case(
+        arg=arg,
+        func=RenderText(func),  # (2)
+        expect=expect,
+    )
+```
+
+1.  Arguments to the function will be provided via CLI and parsed as JSON.
+1.  `RenderText(value)` lets you interpolate any valid python expression into your tests.
+
+With a slightly different form of argument to `--embrace`, you can provide `arg`, `expect`, and `func` and eliminate boilerplate completely.
+
+```shell
+pytest --embrace 'simple_case:my_gen arg=foo expect=3 func=len'
+```
+
+The above will generate this:
+
+```python
+from collections.abc import Callable
+from typing import Any
+
+from pytest_embrace import CaseArtifact
+
+from conftest import Case
+
+arg = "foo"
+func = len
+expect = 3
+
+
+def test(simple_case: CaseArtifact[Case]) -> None:
+    ...
+```
+
+This only scratches the surface of `@generator` and code-rendering utilities.
+
 ## Validation for Free
 
-And if you write a test that doesn't conform to the shape of your dataclass...
+If you write a test that doesn't conform to the shape of your dataclass...
 
 ```python
 arg = b"Accidental bytes"
