@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, Type, TypeVar
+from typing import Any, Protocol, Type, TypeVar
 
 import pytest
-
-if TYPE_CHECKING:
-    from _typeshed import DataclassInstance
 
 from pytest_embrace.case import CaseTypeInfo
 from pytest_embrace.codegen import CaseRender
 
-T = TypeVar("T", bound="DataclassInstance")
+T = TypeVar("T")
 
 
 class RendererMaker(Protocol):

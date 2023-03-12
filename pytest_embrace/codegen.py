@@ -7,7 +7,7 @@ from dataclasses import asdict
 from inspect import getmodule
 from operator import itemgetter
 from textwrap import dedent
-from typing import Any, Generic, List, Type, Union, get_args, get_origin
+from typing import Any, Generic, List, Tuple, Type, Union, cast, get_args, get_origin
 
 import isort
 from black import format_str
@@ -136,7 +136,9 @@ class CaseRender(Generic[CaseType]):
                 continue
 
             if isinstance(value, RenderValue):
-                assignments.append(str(value))
+                assignments.append(
+                    self.attr_render[name].assignment(value, hinted=False)
+                )
                 continue
 
             assignments.append(self.attr_render[name].assignment(value, hinted=hinted))
@@ -167,6 +169,7 @@ class CaseRender(Generic[CaseType]):
         | tuple[CaseType, list[CaseType]]
         | list[CaseType]
         | RenderModuleBodyValue,
+        hinted: bool = True,
     ) -> str:
         if isinstance(values, list):
             out = self._with_values_from_list(values)
@@ -175,9 +178,9 @@ class CaseRender(Generic[CaseType]):
         elif isinstance(values, tuple):
             # python 3.8 can't deal with list[] or | union in cast() calls
             # (even with future import)
-            out = self._with_mixed_values(values)
+            out = self._with_mixed_values(cast(Tuple[CaseType, List[CaseType]], values))
         else:
-            out = self._with_values_from_case(values)
+            out = self._with_values_from_case(values, hinted=hinted)
         return self.module_text(body=out)
 
     def _expert(self, body: RenderModuleBodyValue) -> str:
@@ -244,8 +247,11 @@ class AttrRender:
             text += f"  # {comment}"
         return text
 
-    def assignment(self, value: str, hinted: bool = True) -> str:
-        return f"{self.hint() if hinted else self.src.name} = {repr(value)}"
+    def assignment(self, value: str | RenderValue, hinted: bool = True) -> str:
+        return (
+            f"{self.hint() if hinted else self.src.name}"
+            f" = {value if isinstance(value, RenderValue) else repr(value)}"
+        )
 
 
 def _stringify_type(type: Type) -> str:
@@ -295,6 +301,9 @@ class RenderValue:
 
     def __str__(self) -> str:
         return dedent(self.content)
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 class RenderModuleBodyValue:

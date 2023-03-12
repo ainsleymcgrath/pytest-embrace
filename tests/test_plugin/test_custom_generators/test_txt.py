@@ -38,7 +38,7 @@ def gen(how_many: int):
     items = range(how_many)
     inner_tuple = ", ".join(map(str, items))
     return GreatCase(
-        stuff=RenderText(f"stuff = ({inner_tuple})")
+        stuff=RenderText(f"({inner_tuple})")
     )
 """
 )
