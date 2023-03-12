@@ -97,6 +97,26 @@ class CaseRender(Generic[CaseType]):
             name: AttrRender(info) for name, info in self.src.type_attrs.items()
         }
 
+    def with_values(
+        self,
+        values: CaseType
+        | tuple[CaseType, list[CaseType]]
+        | list[CaseType]
+        | RenderModuleBodyValue,
+        hinted: bool = True,
+    ) -> str:
+        if isinstance(values, list):
+            out = self._with_values_from_list(values)
+        elif isinstance(values, RenderModuleBodyValue):
+            out = self._expert(values)
+        elif isinstance(values, tuple):
+            # python 3.8 can't deal with list[] or | union in cast() calls
+            # (even with future import)
+            out = self._with_mixed_values(cast(Tuple[CaseType, List[CaseType]], values))
+        else:
+            out = self._with_values_from_case(values, hinted=hinted)
+        return self.module_text(body=out)
+
     def module_text(self, *, body: str = "") -> str:
         text = (
             f"{self.imports()}\n{body}\n"
@@ -176,26 +196,6 @@ class CaseRender(Generic[CaseType]):
         header = self._with_values_from_case(module_attrs, hinted=False)
         table_content = self._with_values_from_list(table)
         return f"{header}\n\n{table_content}"
-
-    def with_values(
-        self,
-        values: CaseType
-        | tuple[CaseType, list[CaseType]]
-        | list[CaseType]
-        | RenderModuleBodyValue,
-        hinted: bool = True,
-    ) -> str:
-        if isinstance(values, list):
-            out = self._with_values_from_list(values)
-        elif isinstance(values, RenderModuleBodyValue):
-            out = self._expert(values)
-        elif isinstance(values, tuple):
-            # python 3.8 can't deal with list[] or | union in cast() calls
-            # (even with future import)
-            out = self._with_mixed_values(cast(Tuple[CaseType, List[CaseType]], values))
-        else:
-            out = self._with_values_from_case(values, hinted=hinted)
-        return self.module_text(body=out)
 
     def _expert(self, body: RenderModuleBodyValue) -> str:
         return ""
