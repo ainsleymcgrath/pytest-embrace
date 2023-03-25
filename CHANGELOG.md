@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.0 (2023-03-25)
+### Feature
+* Remove two-step-api exceptions ([`f2c91c7`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f2c91c78d900566b71d32ebe2ecd38a8e3a078ae))
+
+### Fix
+* Handle recursive case issue ([`e72a5db`](https://github.com/ainsleymcgrath/pytest-embrace/commit/e72a5db271aa1d43dbe1533cef3f69d9ea10177b))
+* Allow skipping validation in internals ([`21748d9`](https://github.com/ainsleymcgrath/pytest-embrace/commit/21748d9c27bd675bab9e08d568480eab9b02f0a3))
+
+### Breaking
+* Not only will the two-step API not work anymore, but - **Python 3.7 is no longer supported** - code generation is a feature!   - Render() and friends are a thing - cases try to deserialize input as json ([`f2c91c7`](https://github.com/ainsleymcgrath/pytest-embrace/commit/f2c91c78d900566b71d32ebe2ecd38a8e3a078ae))
+
 ## v3.0.1 (2023-03-12)
 ### Fix
 * Dumb errors ([`7e39cc5`](https://github.com/ainsleymcgrath/pytest-embrace/commit/7e39cc508253b8129425cab931b479c378d5f994))
