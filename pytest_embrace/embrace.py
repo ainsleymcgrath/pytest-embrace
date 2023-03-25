@@ -5,13 +5,13 @@ from functools import partial
 from inspect import signature
 from typing import Any, Callable, Generic
 from typing import MutableMapping as TMutableMapping
-from typing import NoReturn, Type, TypeVar
+from typing import Type, TypeVar
 
 import pytest
 from typing_extensions import ParamSpec
 
 from .case import CaseArtifact, CaseRunner, CaseType, CaseTypeInfo
-from .exc import CaseConfigurationError, TwoStepApiDeprecationError
+from .exc import CaseConfigurationError
 
 RegistryValue = Type["CaseType"]
 
@@ -71,12 +71,6 @@ class Embrace(Generic[CaseType]):
         self.generators: dict[str, Callable[..., Any]]
         self.fixture_name: str = ""
         self.skip_validation = skip_validation
-
-    def register_case_runner(self, *_: Any) -> NoReturn:
-        raise TwoStepApiDeprecationError(deprecated_method="register_case_runner")
-
-    def caller_fixture_factory(self, *_: Any) -> NoReturn:
-        raise TwoStepApiDeprecationError(deprecated_method="caller_fixture_factory")
 
     def fixture(
         self, func: CaseRunner
