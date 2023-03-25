@@ -15,9 +15,11 @@ class RecursiveCase:
 
 
 def test_error(module_info_factory: ModuleInfoFactory) -> None:
-    target = module_info_factory.build(RecursiveCase, again=RecursiveCase())
+    target = module_info_factory.build(
+        RecursiveCase, again=RecursiveCase(), __name__="ouchie"
+    )
 
-    with pytest.raises(CaseConfigurationError, match="forward_ref"):
+    with pytest.raises(CaseConfigurationError, match="ouchie.*' is recursive"):
         load(target)
 
 

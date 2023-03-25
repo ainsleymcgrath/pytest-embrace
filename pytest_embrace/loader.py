@@ -161,10 +161,10 @@ def _report_likely_recursive_model_bug_error(
 
     if not silence:
         raise CaseConfigurationError(
-            "Pydantic is upset because your case dataclass for case '{target_name}' "
+            f"Pydantic is upset because your case dataclass for case '{target_name}' "
             "is recursive.\n (Aka it has an attribute of the same type as itself.) "
             "Set `skip_validation=True` in your Embrace() instance to stop this error. "
-            " This behavior will be fixed in a future release and I'll let you know."
+            "This behavior will be fixed in a future release and I'll let you know."
         ) from exc
 
 
