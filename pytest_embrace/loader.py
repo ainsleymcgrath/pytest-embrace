@@ -5,7 +5,7 @@ from types import ModuleType
 from typing import Any, Dict, Generic, List, Mapping, Optional, Tuple, Union
 
 import pytest
-from pydantic import create_model
+from pydantic import ConfigError, create_model
 from pydantic.error_wrappers import ValidationError
 from pydantic.types import StrictBool, StrictBytes, StrictFloat, StrictInt, StrictStr
 
@@ -69,6 +69,10 @@ class ModuleInfo(Generic[CaseType]):
     def __str__(self) -> str:
         return f"Module[{self.name}]"
 
+    @property
+    def skip_validation(self) -> bool:
+        return self.case.skip_validation
+
     def to_case(self) -> CaseType:
         kwargs = {k: v for k, v in self.module_attrs.items() if k != "table"}
         try:
@@ -117,11 +121,15 @@ class ModuleInfo(Generic[CaseType]):
 def load(test: ModuleInfo[CaseType]) -> List[CaseType]:
     if test.table is not None:
         return [
-            revalidate_dataclass(case, alias=f"{test}.table[{i}]{case}")
+            revalidate_dataclass(
+                case, alias=f"{test}.table[{i}]{case}", skip=test.skip_validation
+            )
             for i, case in enumerate(test.table)
         ]
 
-    return [revalidate_dataclass(test.to_case(), alias=str(test))]
+    return [
+        revalidate_dataclass(test.to_case(), alias=str(test), skip=test.skip_validation)
+    ]
 
 
 def _raise_non_dataclass(o: object) -> None:
@@ -142,11 +150,29 @@ def _report_validation_error(exc: ValidationError, *, target_name: str) -> None:
     ) from exc
 
 
+def _report_likely_recursive_model_bug_error(
+    exc: ConfigError, *, target_name: str, silence: bool = False
+) -> None:
+    if "update_forward_refs" not in str(exc):
+        raise CaseConfigurationError(
+            f"Unexpected error loading test from '{target_name}': {exc}\n"
+            "If you have a moment, please report this as a bug on github."
+        ) from exc
+
+    if not silence:
+        raise CaseConfigurationError(
+            f"Pydantic is upset because your case dataclass for case '{target_name}' "
+            "is recursive.\n (Aka it has an attribute of the same type as itself.) "
+            "Set `skip_validation=True` in your Embrace() instance to stop this error. "
+            "This behavior will be fixed in a future release and I'll let you know."
+        ) from exc
+
+
 class PydanticConfig:
     arbitrary_types_allowed = True
 
 
-def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
+def revalidate_dataclass(case: CaseType, *, alias: str, skip: bool) -> CaseType:
     _raise_non_dataclass(case)
     kwargs = asdict(case)
     pep539 = get_pep_593_values(type(case))
@@ -173,8 +199,12 @@ def revalidate_dataclass(case: CaseType, *, alias: str) -> CaseType:
 
     try:
         Validator(**kwargs)
-    except ValidationError as e:
-        _report_validation_error(e, target_name=alias)
+    except ValidationError as validation_error:
+        _report_validation_error(validation_error, target_name=alias)
+    except ConfigError as config_error:
+        _report_likely_recursive_model_bug_error(
+            config_error, target_name=alias, silence=skip
+        )
 
     return case
 

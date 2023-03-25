@@ -51,6 +51,7 @@ class CaseTypeInfo(Generic[CaseCls]):
     type_name: str = field(init=False)
     type_attrs: Dict[str, AttrInfo] = field(default_factory=dict)
     generators: Dict[str, Callable[..., CaseCls]] = field(default_factory=dict)
+    skip_validation: bool = False
 
     def __post_init__(self) -> None:
         self.type_name = self.type.__name__

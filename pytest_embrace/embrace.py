@@ -5,13 +5,13 @@ from functools import partial
 from inspect import signature
 from typing import Any, Callable, Generic
 from typing import MutableMapping as TMutableMapping
-from typing import NoReturn, Type, TypeVar
+from typing import Type, TypeVar
 
 import pytest
 from typing_extensions import ParamSpec
 
 from .case import CaseArtifact, CaseRunner, CaseType, CaseTypeInfo
-from .exc import CaseConfigurationError, TwoStepApiDeprecationError
+from .exc import CaseConfigurationError
 
 RegistryValue = Type["CaseType"]
 
@@ -64,18 +64,13 @@ class Embrace(Generic[CaseType]):
     Register a dataclass as a module test schema and create a configurator for defining
     how tests that implement it will run."""
 
-    def __init__(self, case_type: Type[CaseType]):
+    def __init__(self, case_type: Type[CaseType], skip_validation: bool = False):
         self.case_type = case_type
         self.wrapped_func: CaseRunner | None = None
         self.runner: partial | None = None
         self.generators: dict[str, Callable[..., Any]]
         self.fixture_name: str = ""
-
-    def register_case_runner(self, *_: Any) -> NoReturn:
-        raise TwoStepApiDeprecationError(deprecated_method="register_case_runner")
-
-    def caller_fixture_factory(self, *_: Any) -> NoReturn:
-        raise TwoStepApiDeprecationError(deprecated_method="caller_fixture_factory")
+        self.skip_validation = skip_validation
 
     def fixture(
         self, func: CaseRunner
@@ -90,6 +85,7 @@ class Embrace(Generic[CaseType]):
         _registry[self.fixture_name] = CaseTypeInfo(
             type=self.case_type,
             fixture_name=func.__name__,
+            skip_validation=self.skip_validation,
         )
 
         @pytest.fixture
